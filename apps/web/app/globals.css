@@ -1,0 +1,8 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; }
+a { color: inherit; }
+.card { border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; background: #fff; }
+.btn { display: inline-block; border-radius: 10px; padding: 12px 18px; background: #111; color: #fff; text-decoration: none; font-weight: 600; }
+.btn-secondary { background: #fff; color: #111; border: 1px solid #111; }
+.muted { color: #666; }
+.steps li { margin-bottom: 6px; }
