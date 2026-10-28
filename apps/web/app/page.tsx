@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main>
       <h1>TaskLens</h1>
-      <p className="muted">Look at the problem. Speak. Book a pro. (Day 1 skeleton — full UI lands Day 2.)</p>
+      <p className="muted">Look at the problem. Speak. Book a pro. (Day 2: phone scan → AI quote is live.)</p>
       <p>
         <a className="btn" href="/scan">Start a scan</a>
       </p>

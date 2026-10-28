@@ -7,3 +7,9 @@
 - 2026-10-28 Day1: Wearables Device Kit has no public endpoint in dev.meta.ai docs.
   Developing against Mock Device Kit (apps/glasses-android MockDeviceKit.kt) first, per brief.
 - (append new entries as they happen)
+- 2026-10-28 Day3: Stripe runs in mock-hold mode (`pi_mock_*`, `requires_capture`) when no
+  STRIPE_SECRET_KEY; real manual-capture path is implemented and engages with a key. No Meta
+  API blocked progress; nothing cut.
+- 2026-10-28 Day2: scan/transcribe API serve deterministic mock spec + mock transcript when
+  DEMO_MODE=true or MODEL_API_KEY is unset (works with zero keys; real Muse path needs key).
+  Not a cut — real path is implemented and used automatically when a key is present.

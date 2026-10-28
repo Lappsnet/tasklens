@@ -4,6 +4,9 @@ package com.tasklens.glasses
  * Day 1 Mock Device Kit — stands in for the Meta Wearables Device Access Toolkit.
  * Real glasses integration lands Day 3; until then capture/upload/speak are mocked
  * with the same interface so web API work is unblocked.
+ *
+ * Day 3: capture returns a bundled 1x1 JPEG stand-in; upload posts to
+ * POST {baseUrl}/api/glasses/upload via GlassesUploader (same pipeline as phone).
  */
 interface GlassesDevice {
     suspend fun capturePhoto(): ByteArray

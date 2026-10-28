@@ -5,6 +5,9 @@ build/
 .env
 .env.local
 *.log
+*.tsbuildinfo
 .DS_Store
 android/.gradle/
 android/build/
+apps/glasses-android/.gradle/
+apps/glasses-android/build/

@@ -1,0 +1,9 @@
+{
+  "name": "TaskLens — Look, speak, book a pro",
+  "short_name": "TaskLens",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#111111",
+  "icons": []
+}
