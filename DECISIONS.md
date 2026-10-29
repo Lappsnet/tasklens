@@ -2,6 +2,18 @@
 
 Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Day 4: pro job mode + realtime job log
+
+- Job state machine (Day 4): booked → en_route → in_progress → pending_verify.
+  `transitionJob()` + `POST /api/jobs/transition` enforce it (409 `invalid_transition` otherwise).
+  completed/disputed land Day 5 (verification + payment release).
+- Realtime: Supabase Realtime channels when configured; 2 s polling fallback otherwise
+  (`useJobFeed` hook shared by pro + customer views). Live vs polling shown as a badge.
+- Checklist ticks are first-class events (`POST /api/jobs/step`, kind `step`) so the customer
+  sees each completed repair-plan step live. Checklist itself loads from the scan's `ai_spec.steps`.
+- Voice notes transcribe server-side (`POST /api/jobs/note`, demo mock without key); before
+  photos logged as events (`POST /api/jobs/photos`). Real Storage uploads land with auth (Day 6).
+
 ## 2026-10-28 — Day 3: match/book/escrow + glasses photo capture
 
 - Escrow = Stripe PaymentIntent `capture_method=manual` (TEST mode). `holdPayment()` in

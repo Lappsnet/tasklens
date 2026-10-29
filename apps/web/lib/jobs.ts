@@ -19,8 +19,17 @@ export interface PaymentRow {
   status: string;
 }
 
+export interface JobEvent {
+  id: string;
+  job_id: string;
+  kind: string;
+  payload: unknown;
+  createdAt: number;
+}
+
 const jobs = new Map<string, JobRow>();
 const payments = new Map<string, PaymentRow>(); // keyed by job_id
+const events = new Map<string, JobEvent[]>(); // keyed by job_id
 
 export function saveMemoryJob(j: Omit<JobRow, "id" | "createdAt">): JobRow {
   const row: JobRow = { ...j, id: randomUUID(), createdAt: Date.now() };
@@ -99,6 +108,9 @@ export async function persistBooking(args: {
     amount_usd: args.price_usd,
     status: "requires_capture",
   });
+  const list = events.get(row.id) ?? [];
+  list.push({ id: randomUUID(), job_id: row.id, kind: "booked", payload: { pro_id: args.pro_id, slot: args.slot }, createdAt: Date.now() });
+  events.set(row.id, list);
   return { jobId: row.id, mock: true };
 }
 
@@ -137,4 +149,112 @@ export async function updatePaymentStatus(stripePiId: string, status: string): P
   for (const p of payments.values()) {
     if (p.stripe_pi_id === stripePiId) p.status = status;
   }
+}
+
+// --- Day 4: job mode + realtime log ---
+
+/** Valid Day 4 transitions. completed/disputed land Day 5 (verification). */
+export const TRANSITIONS: Record<string, string[]> = {
+  booked: ["en_route"],
+  en_route: ["in_progress"],
+  in_progress: ["pending_verify"],
+};
+
+export async function appendEvent(jobId: string, kind: string, payload: unknown): Promise<JobEvent> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        const { data, error } = await db
+          .from("job_events")
+          .insert({ job_id: jobId, kind, payload })
+          .select("id,job_id,kind,payload,created_at")
+          .single();
+        if (!error && data) {
+          const r = data as unknown as { id: string; job_id: string; kind: string; payload: unknown; created_at: string };
+          return { id: r.id, job_id: r.job_id, kind: r.kind, payload: r.payload, createdAt: Date.parse(r.created_at) };
+        }
+        console.error("[jobs] event insert failed:", error?.message);
+      }
+    } catch (e) {
+      console.error("[jobs] event error:", e instanceof Error ? e.message : e);
+    }
+  }
+  const ev: JobEvent = { id: randomUUID(), job_id: jobId, kind, payload, createdAt: Date.now() };
+  const list = events.get(jobId) ?? [];
+  list.push(ev);
+  events.set(jobId, list);
+  return ev;
+}
+
+export async function getEvents(jobId: string): Promise<JobEvent[]> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        const { data, error } = await db
+          .from("job_events")
+          .select("id,job_id,kind,payload,created_at")
+          .eq("job_id", jobId)
+          .order("created_at", { ascending: true });
+        if (!error && data) {
+          return (data as unknown as { id: string; job_id: string; kind: string; payload: unknown; created_at: string }[]).map(
+            (r) => ({ id: r.id, job_id: r.job_id, kind: r.kind, payload: r.payload, createdAt: Date.parse(r.created_at) }),
+          );
+        }
+      }
+    } catch (e) {
+      console.error("[jobs] events read error:", e instanceof Error ? e.message : e);
+    }
+  }
+  return events.get(jobId) ?? [];
+}
+
+export async function listJobs(status?: string): Promise<JobRow[]> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        let q = db.from("jobs").select("*").order("created_at", { ascending: false }).limit(50);
+        if (status) q = q.eq("status", status);
+        const { data, error } = await q;
+        if (!error && data) return data as unknown as JobRow[];
+      }
+    } catch (e) {
+      console.error("[jobs] list error:", e instanceof Error ? e.message : e);
+    }
+  }
+  const all = [...jobs.values()].sort((a, b) => b.createdAt - a.createdAt);
+  return status ? all.filter((j) => j.status === status) : all;
+}
+
+/** Advance a job through the Day 4 state machine. Returns null when illegal. */
+export async function transitionJob(jobId: string, to: string): Promise<JobRow | null> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        const { data: cur } = await db.from("jobs").select("status").eq("id", jobId).single();
+        const from = (cur as { status: string } | null)?.status;
+        if (!from || !(TRANSITIONS[from] ?? []).includes(to)) return null;
+        const { data, error } = await db.from("jobs").update({ status: to }).eq("id", jobId).select("*").single();
+        if (!error && data) {
+          await appendEvent(jobId, to, { from });
+          return data as unknown as JobRow;
+        }
+        return null;
+      }
+    } catch (e) {
+      console.error("[jobs] transition error:", e instanceof Error ? e.message : e);
+      return null;
+    }
+  }
+  const mem = getMemoryJob(jobId);
+  if (!mem || !(TRANSITIONS[mem.status] ?? []).includes(to)) return null;
+  const from = mem.status;
+  mem.status = to;
+  const list = events.get(jobId) ?? [];
+  list.push({ id: randomUUID(), job_id: jobId, kind: to, payload: { from }, createdAt: Date.now() });
+  events.set(jobId, list);
+  return mem;
 }
