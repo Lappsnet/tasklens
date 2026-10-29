@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   title: "TaskLens — Look, speak, book a pro",
   description: "Scope a home repair by looking at it. AI quote, matched pro, escrowed payment.",
   manifest: "/manifest.webmanifest",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://tasklens.app"),
+  alternates: { languages: { es: "/", en: "/?lang=en" } },
+  openGraph: {
+    title: "TaskLens — Tu reparación, cotizada en segundos",
+    description: "Mira · Habla · Reserva · Verifica. Pago protegido hasta verificación.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export const viewport = {
