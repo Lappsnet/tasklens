@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { museClient, modelId, fallbackModelId } from "./client.js";
+import { museClient, modelId, fallbackModelId, isProduction } from "./client.js";
 import { AiSpec, aiSpecJsonSchema, VerifyResult, verifyResultJsonSchema } from "./schemas.js";
 
 /**
