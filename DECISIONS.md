@@ -2,6 +2,17 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — P0-3 design system + frontend rebuild
+
+- Tailwind + tokens (Ink/Paper/safety-orange/trust-green/slate, Bricolage+Inter, radius
+  12/10) + hand-rolled `components/ui.tsx` (shadcn-style API, zero new deps — avoids a
+  radix dependency fan-out this close to freeze). Mapbox GL with graceful no-token fallback.
+- Masked a real P0-2 gap during ES reseed: `/api/pay/hold` hardcoded Miami coords while the
+  pool moved to San Salvador → empty search → `pro_not_offered`. Hold now takes lat/lng
+  (SV defaults) like match/book.
+- Ratings: 1–5 + comment after completion; pro average recomputed server-side (trust input).
+- ES seed migration (25 SV pros; 5 Miami kept); mock pool + all geo defaults now San Salvador.
+
 ## 2026-10-29 — S2 Smart Calendar
 
 - AI slot suggestions (urgency + availability + haversine travel; Mapbox Matrix is the

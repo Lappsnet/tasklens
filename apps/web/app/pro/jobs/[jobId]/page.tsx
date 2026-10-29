@@ -3,6 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
 
 const NEXT_STEP: Record<string, { to: string; label: keyof ReturnType<typeof t> } | null> = {
@@ -27,7 +28,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
   const { job, events, live, error: feedError, reload } = useJobFeed(jobId);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("tasklens:lang");
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
   }, []);
 
@@ -129,6 +130,15 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
       .filter((e) => e.kind === "step" && typeof e.payload === "object" && e.payload !== null && (e.payload as { done: boolean }).done)
       .map((e) => (e.payload as { step: string }).step),
   );
+  const currentStep = steps.find((s) => !doneSteps.has(s)) ?? steps[0];
+
+  function speakStep() {
+    if (!("speechSynthesis" in window) || !currentStep) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(`${job?.status.replace("_", " ")}. ${currentStep}`);
+    u.lang = lang === "es" ? "es-ES" : "en-US";
+    window.speechSynthesis.speak(u);
+  }
 
   // Load the repair-plan checklist from the scan spec (hands-free job mode).
   useEffect(() => {
@@ -172,11 +182,19 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
           <section className="card highlight">
             <div className="muted small">job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}</div>
             <div className="price">{job.status.replace("_", " ")}</div>
-            {step && (
-              <button type="button" className="btn big" disabled={busy} onClick={() => advance(step.to)}>
-                {busy ? "…" : String(strings[step.label])}
-              </button>
-            )}
+            {currentStep && <p className="muted">▶ {currentStep}</p>}
+            <div className="row">
+              {step && (
+                <button type="button" className="btn big" style={{ flex: 1 }} disabled={busy} onClick={() => advance(step.to)}>
+                  {busy ? "…" : String(strings[step.label])}
+                </button>
+              )}
+              {currentStep && (
+                <button type="button" className="btn btn-secondary" onClick={speakStep} aria-label={strings.speakStep}>
+                  🔊
+                </button>
+              )}
+            </div>
           </section>
 
           <section className="card">

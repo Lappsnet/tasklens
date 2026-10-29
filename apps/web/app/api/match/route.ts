@@ -12,8 +12,8 @@ export const maxDuration = 60;
 
 const Body = z.object({
   scanId: z.string().min(1).max(100),
-  lat: z.number().min(-90).max(90).default(25.7617),
-  lng: z.number().min(-180).max(180).default(-80.1918),
+  lat: z.number().min(-90).max(90).default(13.6929),
+  lng: z.number().min(-180).max(180).default(-89.2182),
   max_km: z.number().min(1).max(200).default(25),
 });
 
@@ -75,7 +75,12 @@ export async function POST(req: Request) {
     const withSlots = await Promise.all(
       top3.map(async (t) => ({ ...t, slots: (await getAvailability(t.pro_id)).slice(0, 6) })),
     );
-    return NextResponse.json({ scanId, top3: withSlots, mock });
+    const all = await searchPros({ category: spec.category, lat, lng, max_km });
+    const coords = withSlots.map((t) => {
+      const p = all.find((x) => x.id === t.pro_id);
+      return { pro_id: t.pro_id, lat: p?.lat, lng: p?.lng, name: p?.name, rating: p?.rating };
+    });
+    return NextResponse.json({ scanId, top3: withSlots, coords, mock });
   } catch (e) {
     console.error("[api/match] failed:", e instanceof Error ? e.message : e);
     return NextResponse.json({ error: "match_failed" }, { status: 500 });

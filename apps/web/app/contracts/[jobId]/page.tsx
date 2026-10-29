@@ -3,6 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
 
 interface Contract {
   id: string;
@@ -45,7 +46,7 @@ export default function ContractPage({ params }: { params: Promise<{ jobId: stri
   const strings = t(lang);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("tasklens:lang");
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,5 +1,9 @@
-import "./globals.css";
 import type { Metadata } from "next";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
+import "./globals.css";
+
+const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
+const body = Inter({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
   title: "TaskLens — Look, speak, book a pro",
@@ -8,16 +12,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#111111",
+  themeColor: "#0F1B2D",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
-        <div className="mx-auto max-w-md px-4 pb-16 pt-6 sm:max-w-2xl">{children}</div>
+    <html lang="es">
+      <body className={`${display.variable} ${body.variable} min-h-screen bg-paper font-body text-ink antialiased`}>
+        <div className="mx-auto w-full max-w-md px-4 pb-16 pt-6 sm:max-w-2xl">{children}</div>
       </body>
     </html>
   );

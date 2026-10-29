@@ -1,17 +1,18 @@
 import type { ProCandidate } from "@tasklens/ai";
 import { hasSupabase, serviceClient } from "./supabase-server";
 
-/** Demo pool mirroring the seed (used when Supabase is not configured). */
+/** Demo pool mirroring the ES seed (used when Supabase is not configured). */
 const MOCK_PROS: ProCandidate[] = [
-  { id: "mock-carlos", name: "Carlos Mendez", category: "plumbing", rating: 4.9, rate_usd_hr: 95, city: "Miami, FL", lat: 25.7617, lng: -80.1918 },
-  { id: "mock-rosa", name: "Rosa Jimenez", category: "plumbing", rating: 4.8, rate_usd_hr: 85, city: "Miami, FL", lat: 25.7743, lng: -80.1937 },
-  { id: "mock-dave", name: "Dave Kowalski", category: "plumbing", rating: 4.7, rate_usd_hr: 90, city: "Miami, FL", lat: 25.7825, lng: -80.209 },
-  { id: "mock-mike", name: "Mike Ross", category: "electrical", rating: 4.9, rate_usd_hr: 110, city: "Miami, FL", lat: 25.7617, lng: -80.1918 },
-  { id: "mock-elena", name: "Elena Vasquez", category: "electrical", rating: 4.8, rate_usd_hr: 105, city: "Miami, FL", lat: 25.765, lng: -80.2 },
-  { id: "mock-maria", name: "Maria Gonzalez", category: "appliance", rating: 4.9, rate_usd_hr: 85, city: "Miami, FL", lat: 25.77, lng: -80.19 },
-  { id: "mock-carmen", name: "Carmen Diaz", category: "drywall_paint", rating: 4.9, rate_usd_hr: 70, city: "Miami, FL", lat: 25.766, lng: -80.196 },
-  { id: "mock-alex", name: "Alex Johnson", category: "assembly", rating: 4.9, rate_usd_hr: 55, city: "Miami, FL", lat: 25.7617, lng: -80.1918 },
-  { id: "mock-lucia", name: "Clean Team Lucia", category: "cleaning", rating: 4.9, rate_usd_hr: 45, city: "Miami, FL", lat: 25.7617, lng: -80.1918 },
+  { id: "mock-carlos", name: "Carlos Méndez", category: "plumbing", rating: 4.9, rate_usd_hr: 45, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-rosa", name: "Rosa Jiménez", category: "plumbing", rating: 4.8, rate_usd_hr: 40, city: "San Salvador, SV", lat: 13.7, lng: -89.2 },
+  { id: "mock-dave", name: "David Rivas", category: "plumbing", rating: 4.7, rate_usd_hr: 42, city: "Santa Tecla, SV", lat: 13.71, lng: -89.23 },
+  { id: "mock-mike", name: "Miguel Rosales", category: "electrical", rating: 4.9, rate_usd_hr: 50, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-elena", name: "Elena Vásquez", category: "electrical", rating: 4.8, rate_usd_hr: 48, city: "San Salvador, SV", lat: 13.705, lng: -89.205 },
+  { id: "mock-maria", name: "María González", category: "appliance", rating: 4.9, rate_usd_hr: 40, city: "San Salvador, SV", lat: 13.7, lng: -89.21 },
+  { id: "mock-carmen", name: "Carmen Díaz", category: "drywall_paint", rating: 4.9, rate_usd_hr: 32, city: "San Salvador, SV", lat: 13.706, lng: -89.206 },
+  { id: "mock-alex", name: "Alex Johnson", category: "assembly", rating: 4.9, rate_usd_hr: 25, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-lucia", name: "Lucía Herrera", category: "cleaning", rating: 4.9, rate_usd_hr: 20, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-sofia", name: "Sofía Ramírez", category: "electrical", rating: 4.6, rate_usd_hr: 40, city: "Santa Ana, SV", lat: 13.9949, lng: -89.5596 },
 ];
 
 function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number): number {

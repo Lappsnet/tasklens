@@ -4,6 +4,8 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import type { AiSpec } from "@tasklens/ai";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
+import { Badge, Button, Card, EmptyState, ErrorState, PriceRange, Skeleton } from "@/components/ui";
 
 interface QuotePayload {
   scanId: string;
@@ -13,18 +15,14 @@ interface QuotePayload {
   mock?: boolean;
 }
 
-const URGENCY: Record<string, string> = {
-  low: "#1a7f37",
-  medium: "#9a6700",
-  high: "#cf222e",
-  emergency: "#82071e",
-};
-
 export default function QuotePage({ params }: { params: Promise<{ scanId: string }> }) {
   const { scanId } = use(params);
   const [lang, setLang] = useState<Lang>("en");
   const [data, setData] = useState<QuotePayload | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [sam, setSam] = useState<number[][][] | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState("");
   const strings = t(lang);
 
@@ -43,6 +41,8 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
   }
 
   useEffect(() => {
+    const saved = initialLang();
+    if (saved) setLang(saved);
     load();
     try {
       setPhoto(window.sessionStorage.getItem(`tasklens:photo:${scanId}`));
@@ -52,15 +52,49 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanId]);
 
-  if (error || (!data && error !== "")) {
+  // SAM highlight (best-effort) + after-preview toggle, both need the local photo.
+  async function togglePreview() {
+    if (showPreview) {
+      setShowPreview(false);
+      return;
+    }
+    setShowPreview(true);
+    if (preview || !photo) return;
+    try {
+      const fd = new FormData();
+      fd.append("scanId", scanId);
+      const blob = await (await fetch(photo)).blob();
+      fd.append("photo", new File([blob], "scan.jpg", { type: "image/jpeg" }));
+      const res = await fetch("/api/jobs/preview", { method: "POST", body: fd });
+      const json = (await res.json()) as { preview?: string };
+      if (res.ok && json.preview) setPreview(json.preview);
+    } catch {
+      /* preview stays unavailable */
+    }
+  }
+
+  useEffect(() => {
+    if (!photo || !data) return;
+    (async () => {
+      try {
+        const fd = new FormData();
+        fd.append("scanId", scanId);
+        const res = await fetch("/api/scan/highlight", { method: "POST", body: fd });
+        const json = (await res.json()) as { mask?: number[][][] };
+        if (res.ok && json.mask) setSam(json.mask);
+      } catch {
+        /* damage_box fallback below */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo, data?.scanId]);
+
+  if (error) {
     return (
       <main>
-        <h1>{strings.quoteTitle}</h1>
-        <p className="err" role="alert">{error || strings.errorGeneric}</p>
-        <div className="row">
-          <button type="button" className="btn btn-secondary" onClick={load}>{strings.retry}</button>
-          <Link className="btn" href="/scan">{strings.retake}</Link>
-        </div>
+        <h1 className="font-display text-2xl font-bold">{strings.quoteTitle}</h1>
+        <ErrorState message={error} onRetry={load} />
+        <Link className="btn btn-secondary mt-3 inline-block" href="/scan">{strings.retake}</Link>
       </main>
     );
   }
@@ -68,10 +102,10 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
   if (!data) {
     return (
       <main aria-busy="true">
-        <h1>{strings.quoteTitle}</h1>
-        <div className="card skel" />
-        <div className="card skel" />
-        <p className="muted">… {t(lang).working3}</p>
+        <h1 className="font-display text-2xl font-bold">{strings.quoteTitle}</h1>
+        <Skeleton className="h-48" />
+        <Skeleton className="h-32" />
+        <p className="text-slate2 text-sm">… {strings.working3}</p>
       </main>
     );
   }
@@ -82,66 +116,71 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
 
   return (
     <main>
-      <div className="row">
-        <h1>{strings.quoteTitle}</h1>
-        <span className="pill" style={{ background: URGENCY[spec.urgency] ?? "#666" }}>{spec.urgency}</span>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="font-display text-2xl font-bold">{strings.quoteTitle}</h1>
+        <Badge status={spec.urgency} />
       </div>
-      <p className="muted small">
+      <p className="text-slate2 text-sm">
         {spec.category} · {strings.estHours(spec.est_hours)} · {(spec.confidence * 100).toFixed(0)}% {strings.confidence}
       </p>
 
       {photo ? (
-        <div className="photoview">
+        <div className="photoview mask-in">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo} alt="problem photo with AI damage highlight" />
-          {box && (
+          <img src={showPreview && preview ? preview : photo} alt="problem photo with AI damage highlight" />
+          {!showPreview && box && (
             <div
               className="damagebox"
               style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.w * 100}%`, height: `${box.h * 100}%` }}
               aria-label="AI damage highlight"
             />
           )}
+          {!showPreview && sam && <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ boxShadow: "inset 0 0 0 3px #F26A1B", borderRadius: 12 }} />}
         </div>
       ) : (
-        <div className="card"><p className="muted small">{strings.photoUnavailable}</p></div>
+        <Card><p className="text-slate2 text-sm">{strings.photoUnavailable}</p></Card>
       )}
 
-      <section className="card highlight">
-        <div className="muted small">{spec.title}</div>
-        <div className="price">${lo} – ${hi}</div>
-        <p>{spec.diagnosis}</p>
-      </section>
+      <Card className="!border-ink">
+        <div className="text-slate2 text-sm">{spec.title}</div>
+        <PriceRange lo={lo} hi={hi} />
+        <p className="mt-2">{spec.diagnosis}</p>
+        <Button variant="secondary" className="mt-2" onClick={togglePreview}>
+          {strings.afterPreview}
+        </Button>
+        {showPreview && !preview && <p className="text-slate2 text-xs mt-1">{strings.previewNeedsKey}</p>}
+      </Card>
 
-      {spec.confidence < 0.5 && (
-        <p className="warn" role="alert">{strings.lowQ}</p>
-      )}
+      {spec.confidence < 0.5 && <p className="warn" role="alert">{strings.lowQ}</p>}
 
       {spec.safety_flags.length > 0 && (
-        <section className="card danger">
-          <h2>⚠ {strings.safety}</h2>
-          <ul>{spec.safety_flags.map((s) => <li key={s}>{s}</li>)}</ul>
-        </section>
+        <Card className="!border-accent !bg-orange-50">
+          <h2 className="font-bold">⚠ {strings.safety}</h2>
+          <ul className="list-disc ml-5">{spec.safety_flags.map((s) => <li key={s}>{s}</li>)}</ul>
+        </Card>
       )}
 
-      <section className="card">
-        <h2>{strings.steps}</h2>
+      <Card>
+        <h2 className="font-bold mb-2">{strings.steps}</h2>
         <ol className="steps">{spec.steps.map((s) => <li key={s}>{s}</li>)}</ol>
-      </section>
+      </Card>
 
-      <section className="card">
-        <h2>{strings.materials}</h2>
+      <Card>
+        <h2 className="font-bold mb-2">{strings.materials}</h2>
         <div className="chips">{spec.materials.map((m) => <span key={m} className="chip">{m}</span>)}</div>
-      </section>
+      </Card>
 
       {spec.questions_for_customer.length > 0 && (
-        <section className="card">
-          <h2>{strings.questions}</h2>
-          <ul>{spec.questions_for_customer.map((q) => <li key={q}>{q}</li>)}</ul>
-        </section>
+        <Card>
+          <h2 className="font-bold mb-2">{strings.questions}</h2>
+          <ul className="list-disc ml-5">{spec.questions_for_customer.map((q) => <li key={q}>{q}</li>)}</ul>
+        </Card>
       )}
 
-      <div className="row">
-        <Link className="btn big" href={`/book/${scanId}`}>{strings.book}</Link>
+      {spec.questions_for_customer.length === 0 && <EmptyState title={strings.questions} hint={strings.noQuestions} />}
+
+      <div className="flex gap-2 flex-wrap mt-2">
+        <Link className="btn flex-1 text-center !bg-accent" href={`/book/${scanId}`}>{strings.book}</Link>
         <Link className="btn btn-secondary" href="/scan">{strings.retake}</Link>
       </div>
     </main>

@@ -11,8 +11,8 @@ export const maxDuration = 60;
 
 const Body = z.object({
   scanId: z.string().min(1).max(100),
-  lat: z.number().default(25.7617),
-  lng: z.number().default(-80.1918),
+  lat: z.number().default(13.6929),
+  lng: z.number().default(-89.2182),
   homeLat: z.number().optional(),
   homeLng: z.number().optional(),
 });

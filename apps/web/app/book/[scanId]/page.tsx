@@ -2,7 +2,15 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
+import { BottomSheet } from "@/components/ui";
+
+const ProMap = dynamic(() => import("@/components/map"), {
+  ssr: false,
+  loading: () => <div className="card skel" />,
+});
 
 interface Pro {
   pro_id: string;
@@ -33,10 +41,11 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [pendingOrder, setPendingOrder] = useState<{ jobId: string; orderId: string; amountUsd: number; sandbox?: boolean } | null>(null);
   const [suggested, setSuggested] = useState<Set<string>>(new Set());
+  const [coords, setCoords] = useState<{ pro_id: string; lat?: number; lng?: number; name?: string; rating?: number }[]>([]);
   const strings = t(lang);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("tasklens:lang");
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
     (async () => {
       try {
@@ -45,9 +54,10 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scanId }),
         });
-        const json = (await res.json()) as { top3?: Pro[]; lang?: Lang; error?: string };
+        const json = (await res.json()) as { top3?: Pro[]; coords?: { pro_id: string; lat?: number; lng?: number; name?: string; rating?: number }[]; lang?: Lang; error?: string };
         if (!res.ok || !json.top3) throw new Error(json.error ?? "match_failed");
         setPros(json.top3);
+        setCoords(json.coords ?? []);
         setSelected(json.top3[0]?.pro_id ?? null);
         setSlot(json.top3[0]?.slots[0] ?? "");
         // S2: AI slot suggestions get a star.
@@ -158,8 +168,8 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
 
   return (
     <main>
-      <h1>{strings.matchTitle}</h1>
-      <p className="muted">{strings.matchSub}</p>
+      <h1 className="font-display text-2xl font-bold">{strings.matchTitle}</h1>
+      <p className="text-slate2">{strings.matchSub}</p>
 
       {error && (
         <p className="err" role="alert">
@@ -173,6 +183,13 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           <div className="card skel" />
           <div className="card skel" />
         </>
+      )}
+
+      {pros && pros.length > 0 && (
+        <ProMap points={pros.map((p) => {
+          const c = coords.find((x) => x.pro_id === p.pro_id);
+          return { id: p.pro_id, lat: c?.lat, lng: c?.lng, label: c?.name ?? p.pro_id };
+        })} />
       )}
 
       {pros?.length === 0 && <p className="warn">{strings.noPros}</p>}
@@ -215,7 +232,11 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           <button type="button" className="btn big" disabled={busy || !selected || !slot} onClick={confirm}>
             {busy ? "…" : strings.confirm}
           </button>
-          {pendingOrder && <PayPalCheckout order={pendingOrder} busy={busy} onApprove={approvePayPal} />}
+          {pendingOrder && (
+            <BottomSheet>
+              <PayPalCheckout order={pendingOrder} busy={busy} onApprove={approvePayPal} />
+            </BottomSheet>
+          )}
         </>
       )}
     </main>

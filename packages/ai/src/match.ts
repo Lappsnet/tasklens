@@ -69,8 +69,8 @@ export interface MatcherTools {
 
 export const MatchAgentInput = z.object({
   spec: AiSpec,
-  lat: z.number().default(25.7617),
-  lng: z.number().default(-80.1918),
+  lat: z.number().default(13.6929),
+  lng: z.number().default(-89.2182),
   max_km: z.number().default(25),
   scan_id: z.string(),
   /** Explicit customer confirmation. Booking NEVER happens without it. */

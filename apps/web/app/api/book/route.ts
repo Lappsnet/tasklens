@@ -17,8 +17,8 @@ const Body = z.object({
   scanId: z.string().min(1).max(100),
   proId: z.string().min(1).max(100),
   slot: z.string().min(1).max(100),
-  lat: z.number().min(-90).max(90).default(25.7617),
-  lng: z.number().min(-180).max(180).default(-80.1918),
+  lat: z.number().min(-90).max(90).default(13.6929),
+  lng: z.number().min(-180).max(180).default(-89.2182),
   // Explicit customer confirmation — booking is rejected without literal true.
   confirm: z.literal(true, { errorMap: () => ({ message: "confirmation_required" }) }),
 });

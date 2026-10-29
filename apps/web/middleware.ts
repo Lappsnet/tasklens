@@ -47,13 +47,18 @@ function csp(): string {
   ].join("; ");
 }
 
-export function middleware() {
+export function middleware(req: import("next/server").NextRequest) {
   const res = NextResponse.next();
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Content-Security-Policy", csp());
   res.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
+  // P0-3: Spanish is the default language when Accept-Language starts with es.
+  if (!req.cookies.get("tasklens:lang")) {
+    const al = req.headers.get("accept-language") ?? "";
+    res.cookies.set("tasklens:lang", al.toLowerCase().startsWith("es") ? "es" : "en", { path: "/", maxAge: 31536000 });
+  }
   return res;
 }
 

@@ -11,7 +11,7 @@ import { IMAGE_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const Fields = z.object({ jobId: z.string().min(1).max(100) });
+const Body = z.object({ jobId: z.string().min(1).max(100).optional(), scanId: z.string().min(1).max(100).optional() });
 
 /** Day 5: Muse Image "after" preview generated from a job photo. Mock → null. */
 export async function POST(req: Request) {
@@ -26,17 +26,27 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
-  const parsed = Fields.safeParse({ jobId: String(form.get("jobId") ?? "") });
-  if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  const parsed = Body.safeParse({
+    jobId: form.get("jobId") ? String(form.get("jobId")) : undefined,
+    scanId: form.get("scanId") ? String(form.get("scanId")) : undefined,
+  });
+  if (!parsed.success || (!parsed.data.jobId && !parsed.data.scanId)) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
   const raw = form.get("photo");
   const photo = raw instanceof File ? raw : null;
   if (!photo || photo.size === 0) return NextResponse.json({ error: "need_photo" }, { status: 400 });
   if (!IMAGE_MIME.has(photo.type) || photo.size > MAX_FILE) {
     return NextResponse.json({ error: "bad_photo" }, { status: 413 });
   }
-  const booking = await getBooking(parsed.data.jobId);
-  if (!booking) return NextResponse.json({ error: "not_found" }, { status: 404 });
-  const spec = await getScanSpec(booking.scan_id);
+  let spec = null;
+  if (parsed.data.jobId) {
+    const booking = await getBooking(parsed.data.jobId);
+    if (!booking) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    spec = await getScanSpec(booking.scan_id);
+  } else {
+    spec = await getScanSpec(parsed.data.scanId as string);
+  }
   if (!spec) return NextResponse.json({ error: "scan_not_found" }, { status: 404 });
 
   try {

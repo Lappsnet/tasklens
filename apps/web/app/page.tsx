@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
   useEffect(() => {
-    const saved = window.localStorage.getItem("tasklens:lang");
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
   }, []);
   const strings = t(lang);

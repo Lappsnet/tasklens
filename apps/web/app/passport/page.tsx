@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
+import { initialLang } from "@/lib/lang";
 
 interface Entry {
   id: string;
@@ -35,7 +36,7 @@ export default function PassportPage() {
   const strings = t(lang);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("tasklens:lang");
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
     load();
   }, []);

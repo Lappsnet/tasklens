@@ -18,6 +18,10 @@ const dict = {
     working1: "Uploading…",
     working2: "Looking at the photo…",
     working3: "Estimating price and plan…",
+    findingPros: "Finding pros…",
+    noCamera: "No camera available — upload a photo instead.",
+    shutter: "Take photo",
+    holdTalk: "Hold to talk",
     errorPhotos: "Add at least one photo (JPG/PNG/WebP, ≤10 MB each).",
     errorGeneric: "Something went wrong. Please try again.",
     retry: "Try again",
@@ -113,6 +117,20 @@ const dict = {
     reminders: "Maintenance reminders",
     sharePassport: "Share passport",
     exportPdf: "Export PDF",
+    // P0-3 rating
+    rateTitle: "Rate this job",
+    rateHint: "What went well? (optional)",
+    rateSubmit: "Submit rating",
+    ratedThanks: "Thanks for rating!",
+    // P0-3 pro dashboard
+    available: "Available for jobs",
+    earnings: "Earnings",
+    pendingPayout: "pending",
+    speakStep: "Read current step aloud",
+    // P0-3 quote extras
+    afterPreview: "See after-preview",
+    previewNeedsKey: "Preview needs an API key — coming with the real model.",
+    noQuestions: "No open questions — this quote is ready to book.",
     // S2 Smart Calendar
     calTitle: "Calendar & day plan",
     calSub: "Block time, hear your briefing, sync by ICS.",
@@ -139,6 +157,10 @@ const dict = {
     working1: "Subiendo…",
     working2: "Analizando la foto…",
     working3: "Calculando precio y plan…",
+    findingPros: "Buscando profesionales…",
+    noCamera: "Sin cámara — sube una foto.",
+    shutter: "Tomar foto",
+    holdTalk: "Mantén para hablar",
     errorPhotos: "Agrega al menos una foto (JPG/PNG/WebP, ≤10 MB c/u).",
     errorGeneric: "Algo salió mal. Inténtalo de nuevo.",
     retry: "Reintentar",
@@ -234,6 +256,20 @@ const dict = {
     reminders: "Recordatorios de mantenimiento",
     sharePassport: "Compartir pasaporte",
     exportPdf: "Exportar PDF",
+    // P0-3 rating
+    rateTitle: "Califica este trabajo",
+    rateHint: "¿Qué salió bien? (opcional)",
+    rateSubmit: "Enviar calificación",
+    ratedThanks: "¡Gracias por calificar!",
+    // P0-3 pro dashboard
+    available: "Disponible para trabajos",
+    earnings: "Ganancias",
+    pendingPayout: "pendiente",
+    speakStep: "Leer el paso actual en voz alta",
+    // P0-3 quote extras
+    afterPreview: "Ver adelanto del después",
+    previewNeedsKey: "El adelanto necesita una clave API — llega con el modelo real.",
+    noQuestions: "Sin preguntas abiertas — listo para reservar.",
     // S2 Smart Calendar
     calTitle: "Calendario y plan del día",
     calSub: "Bloquea tiempo, escucha tu resumen, sincroniza por ICS.",

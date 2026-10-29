@@ -29,9 +29,9 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
-  const parsed = z.object({ scanId: z.string().min(1).max(100), proId: z.string().min(1).max(100), slot: z.string().min(1).max(100) }).safeParse(body);
+  const parsed = z.object({ scanId: z.string().min(1).max(100), proId: z.string().min(1).max(100), slot: z.string().min(1).max(100), lat: z.number().min(-90).max(90).default(13.6929), lng: z.number().min(-180).max(180).default(-89.2182) }).safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
-  const { scanId, proId, slot } = parsed.data;
+  const { scanId, proId, slot, lat, lng } = parsed.data;
 
   const meta = await getScanMeta(scanId);
   if (!meta) return NextResponse.json({ error: "scan_not_found" }, { status: 404 });
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   try {
     const matched = await matchAndBook(
-      { spec: meta.spec, lat: 25.7617, lng: -80.1918, max_km: 25, scan_id: scanId },
+      { spec: meta.spec, lat, lng, max_km: 25, scan_id: scanId },
       {
         search_pros: searchPros,
         get_availability: (a) => getAvailability(a.pro_id),
