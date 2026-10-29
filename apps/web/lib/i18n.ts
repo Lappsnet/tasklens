@@ -122,6 +122,16 @@ const dict = {
     rateHint: "What went well? (optional)",
     rateSubmit: "Submit rating",
     ratedThanks: "Thanks for rating!",
+    // S4 Project Planner
+    projectTitle: "Project plan",
+    projectSub: "Record a 30–60 s walkthrough and get phases, budget and crew.",
+    walkthrough: "Walkthrough video",
+    wantLabel: "What do you want?",
+    wantPh: "e.g. I want to remodel this bathroom…",
+    makePlan: "Make plan",
+    finishTitle: "Finishes (3 options)",
+    bookCrew: "Book crew by phase",
+    notBooked: "Not booked yet",
     // P0-3 pro dashboard
     available: "Available for jobs",
     earnings: "Earnings",
@@ -261,6 +271,16 @@ const dict = {
     rateHint: "¿Qué salió bien? (opcional)",
     rateSubmit: "Enviar calificación",
     ratedThanks: "¡Gracias por calificar!",
+    // S4 Project Planner
+    projectTitle: "Plan de proyecto",
+    projectSub: "Graba un recorrido de 30–60 s y obtén fases, presupuesto y equipo.",
+    walkthrough: "Video del recorrido",
+    wantLabel: "¿Qué quieres lograr?",
+    wantPh: "ej. Quiero remodelar este baño…",
+    makePlan: "Crear plan",
+    finishTitle: "Acabados (3 opciones)",
+    bookCrew: "Reservar equipo por fases",
+    notBooked: "Sin reservar todavía",
     // P0-3 pro dashboard
     available: "Disponible para trabajos",
     earnings: "Ganancias",
