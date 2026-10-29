@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { TRANSITIONS, getEvents, transitionJob } from "@/lib/jobs";
 
@@ -13,7 +13,7 @@ const Body = z.object({
 
 /** Advance a job through the Day 4 state machine. Illegal jumps → 409. */
 export async function POST(req: Request) {
-  if (!rateLimit(`transition:${clientKey(req)}`, 30)) {
+  if (!(await hitRateLimit(`transition:${clientKey(req)}`, 30))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   // Pro (or admin) only: customers never move jobs.

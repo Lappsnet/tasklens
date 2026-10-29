@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { TextFields, processScan, validateUpload } from "@/lib/scan-pipeline";
 
@@ -13,7 +13,7 @@ export const maxDuration = 60;
  * can speak the quote back with on-phone TTS.
  */
 export async function POST(req: Request) {
-  if (!rateLimit(`glasses:${clientKey(req)}`, 30)) {
+  if (!(await hitRateLimit(`glasses:${clientKey(req)}`, 30))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   // Companion app authenticates like the web client (demo cookie or magic-link JWT).

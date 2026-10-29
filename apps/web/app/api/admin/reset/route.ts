@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 
@@ -13,7 +13,7 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   const gate = await requireRole(req, ["admin"]);
   if ("response" in gate) return gate.response;
-  if (!rateLimit(`admin:${clientKey(req)}`, 5)) {
+  if (!(await hitRateLimit(`admin:${clientKey(req)}`, 5))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const t0 = Date.now();

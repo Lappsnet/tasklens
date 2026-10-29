@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { AiSpec, matchAndBook } from "@tasklens/ai";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { getMemoryScan, getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
@@ -35,7 +35,7 @@ async function loadSpec(scanId: string): Promise<AiSpec | null> {
 
 /** Match-only pass: ranks top 3 WITHOUT booking. Booking happens in /api/book. */
 export async function POST(req: Request) {
-  if (!rateLimit(`match:${clientKey(req)}`, 20)) {
+  if (!(await hitRateLimit(`match:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["customer", "admin"]);

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { hasSupabase, serviceClient } from "./supabase-server";
+import { demoAllowed } from "./env";
 
 export type Role = "customer" | "pro" | "admin";
 export interface Session {
@@ -21,11 +22,14 @@ function demoSession(req: Request): Session {
 
 /**
  * Resolve the caller's session. Real mode (Supabase configured) validates the
- * Supabase JWT from `Authorization: Bearer …` and reads the role from profiles.
- * Demo mode trusts the demo cookie (default: customer).
+ * Supabase JWT and reads the role from profiles. Demo mode trusts the role
+ * cookie (default: customer). Demo sessions are impossible in production.
  */
 export async function getSession(req: Request): Promise<Session | null> {
-  if (!hasSupabase()) return demoSession(req);
+  if (!hasSupabase()) {
+    if (!demoAllowed()) return null;
+    return demoSession(req);
+  }
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
   if (!token) return null;

@@ -7,7 +7,7 @@ import {
   type AiSpec,
   type VerifyResult,
 } from "@tasklens/ai";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { getMemoryScan, getScanSpec } from "@/lib/scans";
 import {
@@ -20,17 +20,12 @@ import {
 } from "@/lib/jobs";
 import { IMAGE_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
 import { capturePayment } from "@/lib/stripe";
+import { demoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const Fields = z.object({ jobId: z.string().min(1).max(100) });
-
-function demoMode(): boolean {
-  if (process.env.DEMO_MODE === "true") return true;
-  if (process.env.DEMO_MODE === "false") return false;
-  return !process.env.MODEL_API_KEY;
-}
 
 async function fileToDataUrl(f: File): Promise<string> {
   const buf = Buffer.from(await f.arrayBuffer());
@@ -42,7 +37,7 @@ async function fileToDataUrl(f: File): Promise<string> {
  * completes AND escrow is captured. Anything else is rejected or stays pending.
  */
 export async function POST(req: Request) {
-  if (!rateLimit(`verify:${clientKey(req)}`, 10)) {
+  if (!(await hitRateLimit(`verify:${clientKey(req)}`, 10))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   // Pro (or admin) submits verification. Capture happens server-side on pass.

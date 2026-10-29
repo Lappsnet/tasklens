@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { transcribeBuffer } from "@tasklens/ai";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
+import { demoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,14 +20,8 @@ const MAX_FILE = 10 * 1024 * 1024;
 
 const Fields = z.object({ lang: z.enum(["en", "es"]).default("en") });
 
-function demoMode(): boolean {
-  if (process.env.DEMO_MODE === "true") return true;
-  if (process.env.DEMO_MODE === "false") return false;
-  return !process.env.MODEL_API_KEY;
-}
-
 export async function POST(req: Request) {
-  if (!rateLimit(`transcribe:${clientKey(req)}`, 20)) {
+  if (!(await hitRateLimit(`transcribe:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["customer", "pro", "admin"]);

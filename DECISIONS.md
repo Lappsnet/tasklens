@@ -1,6 +1,21 @@
 # TaskLens — decisions
 
-Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
+Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
+
+## 2026-10-29 — P0-1 code (persistence + keys, no owner keys yet)
+
+- Production boot guard (`instrumentation.ts` + `lib/env.ts`): serving production without
+  Supabase or `MODEL_API_KEY` throws at boot. Demo paths (`demoMode`, demo cookie login,
+  memory stores) are impossible in production — `demoAllowed()` is false there.
+- CSP moved to `middleware.ts`: dynamic per environment (Supabase https+wss, PayPal, Mapbox
+  only when configured; `unsafe-eval` dropped in production). Static headers removed.
+- Rate limiting is Postgres-backed (`004_rate_limits.sql` + `rate_limit_hit()` RPC) with
+  in-memory fallback; all 14 route call sites now `await hitRateLimit()`.
+- Demo accounts (production) = real Supabase users via `packages/db/scripts/seed-demo-users.ts`
+  (service role; owner runs with keys). `/api/auth/demo-login` signs server-side into the
+  seeded customer/pro accounts and returns tokens; admin is never one click.
+- NOT DONE (owner blockers): link Supabase project, apply 001–004, `supabase gen types`,
+  Vercel project + env vars, real Meta/PayPal/Stripe keys, keyed end-to-end verification.
 
 ## 2026-10-29 — Day 8: fixes-only + submit readiness
 

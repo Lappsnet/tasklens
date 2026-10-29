@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { matchAndBook } from "@tasklens/ai";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
@@ -35,7 +35,7 @@ async function loadScan(scanId: string) {
  * price range (spec midpoint), never taken from the client.
  */
 export async function POST(req: Request) {
-  if (!rateLimit(`book:${clientKey(req)}`, 20)) {
+  if (!(await hitRateLimit(`book:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["customer", "admin"]);

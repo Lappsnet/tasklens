@@ -22,6 +22,23 @@ export async function demoLogin(role: "customer" | "pro" | "admin"): Promise<boo
   return res.ok;
 }
 
+/** Production "Try as …": server signs in to the seeded demo account, browser takes the session. */
+export async function demoLoginServer(role: "customer" | "pro"): Promise<boolean> {
+  const res = await fetch("/api/auth/demo-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) return false;
+  const json = (await res.json()) as { access_token?: string; refresh_token?: string };
+  if (!json.access_token || !json.refresh_token) return false;
+  const { error } = await browserAuth().auth.setSession({
+    access_token: json.access_token,
+    refresh_token: json.refresh_token,
+  });
+  return !error;
+}
+
 export async function demoLogout(): Promise<void> {
   await fetch("/api/auth/demo", { method: "DELETE" });
 }

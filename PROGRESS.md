@@ -5,8 +5,10 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 
 ## Where we are (2026-10-29)
 - Branch `master` → `origin/master` (https://github.com/Lappsnet/tasklens, private).
-- Last commit: `515a6e6` (Day 7). Tests 44/44 green, `next build` green.
-- Days 1–8 DONE. Submit by noon Nov 4. Only human steps remain (below).
+- Last commit: `515a6e6` (Day 7). AGENTS.md adopted as single source; agent.md removed.
+- P0-1 code DONE (prod guard, dynamic CSP, pg rate limits, demo-account seed + server login).
+  Tests 44/44 green, `next build` green.
+- BLOCKED ON OWNER: Supabase link, keys, Vercel, PayPal/Stripe creds (see report). Then P0-2.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

@@ -20,3 +20,8 @@ export function modelId(): string {
 export function fallbackModelId(): string {
   return process.env.MODEL_FALLBACK_ID ?? "muse-spark-1.2";
 }
+
+/** Production never takes mock paths (memory stores are for tests/local demo only). */
+export function isProduction(): boolean {
+  return process.env.NODE_ENV === "production";
+}

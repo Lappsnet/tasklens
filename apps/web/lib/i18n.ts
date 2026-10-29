@@ -68,6 +68,7 @@ const dict = {
     emailLabel: "Email",
     magicLink: "Send magic link",
     magicSent: "Check your email for the sign-in link.",
+    tryDemo: "No account? Try a seeded demo role (admin is never one click).",
     demoNote: "Demo mode (no Supabase configured): pick a role. Real deployments use magic-link sign-in.",
     // Day 6 admin
     adminTitle: "Admin",
@@ -157,6 +158,7 @@ const dict = {
     emailLabel: "Correo",
     magicLink: "Enviar enlace",
     magicSent: "Revisa tu correo para el enlace de acceso.",
+    tryDemo: "¿Sin cuenta? Prueba un rol demo (admin nunca es un clic).",
     demoNote: "Modo demo (sin Supabase): elige un rol. En producción se usa el enlace mágico.",
     // Day 6 admin
     adminTitle: "Administración",

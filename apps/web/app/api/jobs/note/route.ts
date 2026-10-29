@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { transcribeBuffer } from "@tasklens/ai";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
+import { demoMode } from "@/lib/env";
 import { appendEvent, getBooking } from "@/lib/jobs";
 import { AUDIO_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
 
@@ -11,15 +12,9 @@ export const maxDuration = 60;
 
 const Fields = z.object({ jobId: z.string().min(1).max(100) });
 
-function demoMode(): boolean {
-  if (process.env.DEMO_MODE === "true") return true;
-  if (process.env.DEMO_MODE === "false") return false;
-  return !process.env.MODEL_API_KEY;
-}
-
 /** Pro hands-free voice note: transcribe → append to the job log. */
 export async function POST(req: Request) {
-  if (!rateLimit(`note:${clientKey(req)}`, 30)) {
+  if (!(await hitRateLimit(`note:${clientKey(req)}`, 30))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["pro", "admin"]);

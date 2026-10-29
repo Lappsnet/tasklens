@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { signPhotoUrl } from "@/lib/storage";
 
@@ -10,7 +10,7 @@ const Body = z.object({ path: z.string().min(1).max(500) });
 
 /** Mint a 60-second signed URL for a private media object. */
 export async function POST(req: Request) {
-  if (!rateLimit(`sign:${clientKey(req)}`, 30)) {
+  if (!(await hitRateLimit(`sign:${clientKey(req)}`, 30))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["customer", "pro", "admin"]);

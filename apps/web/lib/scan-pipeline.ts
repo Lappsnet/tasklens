@@ -3,6 +3,7 @@ import { mockScanSpec, scanToSpec, transcribeBuffer, type AiSpec } from "@taskle
 import { saveMemoryScan } from "./scans";
 import { hasSupabase, serviceClient } from "./supabase-server";
 import { hasStorage, uploadPhoto } from "./storage";
+import { demoMode } from "./env";
 
 export const IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 export const AUDIO_MIME = new Set([
@@ -20,12 +21,6 @@ export const TextFields = z.object({
   transcript: z.string().max(2000).default(""),
   lang: z.enum(["en", "es"]).default("en"),
 });
-
-export function demoMode(): boolean {
-  if (process.env.DEMO_MODE === "true") return true;
-  if (process.env.DEMO_MODE === "false") return false;
-  return !process.env.MODEL_API_KEY;
-}
 
 async function fileToDataUrl(f: File): Promise<string> {
   const buf = Buffer.from(await f.arrayBuffer());

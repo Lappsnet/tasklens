@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { browserAuth, demoLogin, hasSupabaseBrowser } from "@/lib/auth-client";
+import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
 import { t, type Lang } from "@/lib/i18n";
 
 export default function LoginPage() {
@@ -34,26 +34,45 @@ export default function LoginPage() {
     else setError(strings.errorGeneric);
   }
 
+  /** Production one-click demo (seeded Supabase accounts). Admin is never one click. */
+  async function demoServer(role: "customer" | "pro") {
+    setError("");
+    if (await demoLoginServer(role)) router.push(role === "pro" ? "/pro" : "/scan");
+    else setError(strings.errorGeneric);
+  }
+
   return (
     <main>
       <h1>{strings.loginTitle}</h1>
       <p className="muted">{strings.loginSub}</p>
       {configured ? (
-        <section className="card">
-          <label className="lbl" htmlFor="email">{strings.emailLabel}</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }}
-          />
-          <button type="button" className="btn big" disabled={!email} onClick={magicLink}>
-            {strings.magicLink}
-          </button>
-          {sent && <p className="muted" role="status">{strings.magicSent}</p>}
-        </section>
+        <>
+          <section className="card">
+            <label className="lbl" htmlFor="email">{strings.emailLabel}</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }}
+            />
+            <button type="button" className="btn big" disabled={!email} onClick={magicLink}>
+              {strings.magicLink}
+            </button>
+            {sent && <p className="muted" role="status">{strings.magicSent}</p>}
+          </section>
+          <section className="card">
+            <p className="muted small">{strings.tryDemo}</p>
+            <div className="row">
+              {(["customer", "pro"] as const).map((r) => (
+                <button key={r} type="button" className="btn btn-secondary" onClick={() => demoServer(r)}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </section>
+        </>
       ) : (
         <section className="card">
           <p className="muted small">{strings.demoNote}</p>

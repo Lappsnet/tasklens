@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { appendEvent, getBooking } from "@/lib/jobs";
 
@@ -14,7 +14,7 @@ const Body = z.object({
 
 /** Hands-free checklist ticks: step done/undone appended to the job log. */
 export async function POST(req: Request) {
-  if (!rateLimit(`step:${clientKey(req)}`, 60)) {
+  if (!(await hitRateLimit(`step:${clientKey(req)}`, 60))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
   const gate = await requireRole(req, ["pro", "admin"]);

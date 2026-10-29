@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { z } from "zod";
-import { museClient, modelId, fallbackModelId } from "./client.js";
+import { museClient, modelId, fallbackModelId, isProduction } from "./client.js";
 import { AiSpec } from "./schemas.js";
 
 export const ProTool = z.object({
@@ -142,6 +142,7 @@ const TOOL_DEFS = [
 ];
 
 function demoMode(): boolean {
+  if (isProduction()) return false;
   return process.env.DEMO_MODE === "true" || !process.env.MODEL_API_KEY;
 }
 
