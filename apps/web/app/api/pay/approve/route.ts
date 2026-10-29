@@ -33,6 +33,12 @@ export async function POST(req: Request) {
   const booking = await getBooking(jobId);
   if (!booking) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (booking.status !== "quoted") return NextResponse.json({ error: "not_quotable", status: booking.status }, { status: 409 });
+  // S1: escrow is authorized only after both signatures — when a contract exists.
+  const { getContractByJob } = await import("@/lib/contracts");
+  const contract = await getContractByJob(jobId);
+  if (contract && contract.status !== "fully_signed") {
+    return NextResponse.json({ error: "contract_not_signed", status: contract.status }, { status: 409 });
+  }
   if (!gate.session.demo && gate.session.role === "customer" && booking.customer_id && booking.customer_id !== gate.session.userId) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }

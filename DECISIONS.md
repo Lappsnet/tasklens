@@ -2,6 +2,17 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — S1 Contract Studio (never-cut)
+
+- Fixed clause library (`packages/ai/contracts/clauses/*.md`, 8 files); Muse fills ONLY
+  `{placeholders}` (mock fallback when keyless). Zod `ContractDraft` + 5-line bilingual summary.
+- E-sign: typed name + hand-drawn canvas (no new dep — plan's `signature_pad` named one
+  option; canvas avoids audit surface) + email OTP (Supabase in prod, demo code shown in
+  dev). Both roles → `fully_signed`; escrow approval is gated on it when a contract exists.
+- PDF: hand-rolled deterministic writer (`lib/pdf.ts`) — `@react-pdf/renderer` breaks under
+  Next.js dev bundling (dual-React reconciler split, React #31; reproduced in isolation as
+  working, failing only in the route; uninstalled). Hash covers the canonical text rendering.
+
 ## 2026-10-29 — P0-1 code (persistence + keys, no owner keys yet)
 
 - Production boot guard (`instrumentation.ts` + `lib/env.ts`): serving production without
