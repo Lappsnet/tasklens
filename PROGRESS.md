@@ -5,8 +5,8 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 
 ## Where we are (2026-10-29)
 - Branch `master` → `origin/master` (https://github.com/Lappsnet/tasklens, private).
-- Last commit: `2778e6a` (Day 6 guards). Tests 44/44 green, `next build` green.
-- Days 1–7 DONE. Feature freeze Nov 2, 8 PM. Day 8 NEXT (fixes only until 10 AM; submit by noon).
+- Last commit: `515a6e6` (Day 7). Tests 44/44 green, `next build` green.
+- Days 1–8 DONE. Submit by noon Nov 4. Only human steps remain (below).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
@@ -30,6 +30,6 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - Next.js pinned 15.5.28 (CVE fix). 5 residual audit findings are non-actionable (see DECISIONS.md).
 - Auth/RLS still missing (Day 6): every API trusts anonymous demo callers. MUST fix before production.
 
-## Next
-- Day 8 (Nov 4): fixes only until 10 AM; keyed verification first (Supabase Auth/RLS/Storage,
-  Stripe capture, Muse key paths); record `demo.gif`; submit by noon. Public repo flip needed.
+## Next (human steps — no agent action left)
+- Record `apps/web/public/demo.gif` via DEMO.md; flip repo public; link Supabase/Stripe/
+  Muse keys and run keyed verification; submit by noon Nov 4.

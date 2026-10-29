@@ -2,6 +2,16 @@
 
 Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Day 8: fixes-only + submit readiness
+
+- Fixed the last unguarded route: `GET /api/scan` now requires a session and enforces
+  scan ownership (real mode, customers). All 20 API routes now check sessions or
+  signatures (Stripe webhook).
+- Final regression: 44/44 tests, typecheck, production build, audit (same 5
+  non-actionable), full core loop ×2 (~5 s both, no manual DB edits).
+- Still open before production: keyed verification (Supabase Auth/RLS/Storage, Stripe
+  capture, Muse key paths), `demo.gif` recording (human step), public repo flip.
+
 ## 2026-10-29 — Day 7: demo recording support + README
 
 - README now covers problem, GIF slot (`apps/web/public/demo.gif`, recorded via DEMO.md),

@@ -50,8 +50,19 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const gate = await requireRole(req, ["customer", "pro", "admin"]);
+  if ("response" in gate) return gate.response;
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  // Ownership: real mode restricts customers to their own scans.
+  if (!gate.session.demo && gate.session.role === "customer") {
+    const { getScanMeta } = await import("@/lib/scans");
+    const meta = await getScanMeta(id);
+    if (!meta) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    if (meta.customerId && meta.customerId !== gate.session.userId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
   const mem = getMemoryScan(id);
   if (mem) {
     return NextResponse.json({ scanId: mem.scanId, spec: mem.spec, transcript: mem.transcript, lang: mem.lang, mock: true });
