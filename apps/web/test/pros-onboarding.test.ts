@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
+import { __clearRateLimits } from "../lib/ratelimit";
 import { __clearApplications } from "../lib/applications";
 import { __clearApprovedPros, searchPros } from "../lib/pros";
 import { POST as apply } from "../app/api/pros/apply/route";
@@ -11,6 +12,7 @@ const CUSTOMER = { cookie: "tasklens_demo=customer" };
 function applyForm(over: Record<string, string> = {}, withPhoto = true, headers: Record<string, string> = ADMIN) {
   const fd = new FormData();
   fd.append("name", over.name ?? "Juan Pérez");
+  fd.append("email", over.email ?? "juan@example.com");
   fd.append("category", over.category ?? "plumbing");
   fd.append("zone", over.zone ?? "Soyapango, SV");
   fd.append("phone", over.phone ?? "+503 7000 0001");
@@ -24,6 +26,10 @@ function json(url: string, body: unknown) {
 }
 
 describe("P1 pro onboarding + admin queue", () => {
+  beforeEach(() => {
+    __clearRateLimits();
+  });
+
   it("accepts a public application without a session", async () => {
     __clearApplications();
     const res = await apply(applyForm({}, true, {}));
@@ -39,6 +45,8 @@ describe("P1 pro onboarding + admin queue", () => {
     expect((await apply(noPhoto)).status).toBe(400);
     const badCat = applyForm({ category: "rocket" });
     expect((await apply(badCat)).status).toBe(400);
+    const badEmail = applyForm({ email: "not-an-email" });
+    expect((await apply(badEmail)).status).toBe(400);
   });
 
   it("admin queue is admin-only; approve creates a searchable pro", async () => {

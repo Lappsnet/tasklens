@@ -39,6 +39,8 @@ environment (Supabase project, Vercel) and are owner steps.
 - Production guard (`instrumentation.ts` + `lib/env.ts`): serving production
   without Supabase or `MODEL_API_KEY` throws at boot; demo cookie login is
   impossible in production.
+- New auth users get a `profiles` row from the `014 handle_new_user()` trigger
+  (customer default; promoted to pro on approved-application email match).
 - OPEN: applying `001`–`013` to a live Supabase project, the real magic-link
   round-trip, and live Storage RLS have never run (no project linked). Owner step.
 

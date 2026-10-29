@@ -9,6 +9,7 @@ export const maxDuration = 60;
 
 const Fields = z.object({
   name: z.string().min(2).max(120),
+  email: z.string().email().max(200),
   category: z.enum(["plumbing", "electrical", "appliance", "drywall_paint", "assembly", "cleaning"]),
   zone: z.string().min(2).max(120),
   phone: z.string().min(6).max(30),
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
   }
   const parsed = Fields.safeParse({
     name: String(form.get("name") ?? ""),
+    email: String(form.get("email") ?? ""),
     category: String(form.get("category") ?? ""),
     zone: String(form.get("zone") ?? ""),
     phone: String(form.get("phone") ?? ""),

@@ -12,6 +12,7 @@ const TRADES = ["plumbing", "electrical", "appliance", "drywall_paint", "assembl
 export default function ApplyPage() {
   const [lang, setLang] = useState<Lang>("en");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [category, setCategory] = useState<string>("plumbing");
   const [zone, setZone] = useState("");
   const [phone, setPhone] = useState("");
@@ -28,7 +29,7 @@ export default function ApplyPage() {
   }, []);
 
   async function submit() {
-    if (!name.trim() || !zone.trim() || !phone.trim()) {
+    if (!name.trim() || !email.trim() || !zone.trim() || !phone.trim()) {
       setError(strings.errorGeneric);
       return;
     }
@@ -41,6 +42,7 @@ export default function ApplyPage() {
     try {
       const fd = new FormData();
       fd.append("name", name.trim());
+      fd.append("email", email.trim());
       fd.append("category", category);
       fd.append("zone", zone.trim());
       fd.append("phone", phone.trim());
@@ -66,6 +68,8 @@ export default function ApplyPage() {
         <section className="card">
           <label className="lbl">{strings.proName}</label>
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+          <label className="lbl">{strings.emailLabel}</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} maxLength={200} inputMode="email" placeholder="tu@correo.com" />
           <label className="lbl">{strings.tradeLabel}</label>
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
             {TRADES.map((c) => (

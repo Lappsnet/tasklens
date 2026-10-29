@@ -25,6 +25,10 @@ create policy "ratings pro read" on ratings
   );
 
 -- El Salvador seed: San Salvador metro + Santa Ana + San Miguel (USD rates).
+-- Trim the Day-1 Miami pool to 5 keepers for the US demo (match/search is
+-- distance-fenced, but 25 stale rows would clutter the admin views).
+delete from pros where city like '%, FL'
+  and name not in ('Carlos Mendez','Mike Ross','Maria Gonzalez','Carmen Diaz','Alex Johnson');
 insert into pros (name, category, rating, reviews, rate_usd_hr, lat, lng, city) values
 ('Carlos Méndez','plumbing',4.9,214,45,13.6929,-89.2182,'San Salvador, SV'),
 ('Rosa Jiménez','plumbing',4.8,167,40,13.7000,-89.2000,'San Salvador, SV'),

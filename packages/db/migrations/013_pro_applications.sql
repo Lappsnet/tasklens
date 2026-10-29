@@ -5,6 +5,7 @@
 create table if not exists pro_applications (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  email text not null,
   category text not null check (category in ('plumbing','electrical','appliance','drywall_paint','assembly','cleaning')),
   zone text not null,
   phone text not null,

@@ -2,7 +2,19 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
-## 2026-10-29 — P1 batch (onboarding, share, security review, docs)
+## 2026-10-29 — P1 fix: auth onboarding that works (014)
+
+- Audit finding: no signup trigger existed, so magic-link users got NO profile
+  row (customer default forever) and approved pros could never log in as pro;
+  `seed-demo-users.ts` upsert on `pros.user_id` would have failed (no unique
+  constraint). Fixed before any live apply: `014_auth_onboarding.sql` adds a
+  `SECURITY DEFINER handle_new_user()` trigger (customer profile + approved-
+  application email match → promote to pro + link `pros.user_id`), a
+  `pros.application_id` link, and the missing unique constraint.
+- `pro_applications` gains `email` (form field + Zod + approve-time linking if
+  the pro already signed in). `009` trims Miami to the 5 documented keepers.
+- Runbook for the go-live gate: `docs/keyed-verification.md` (two-phone loop ×2,
+  RLS negatives, money checks, sign-off). Launch doc §1 updated to 001→014.
 
 - Pro onboarding: public `/pro/apply` (name, trade, zone, phone, rate, ID photo;
   no session, 5/min, Zod) → `pro_applications` (migration `013`, RLS default

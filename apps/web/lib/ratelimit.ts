@@ -22,6 +22,11 @@ export function clientKey(req: Request): string {
   );
 }
 
+/** Test helper: reset the in-memory limiter between tests. */
+export function __clearRateLimits(): void {
+  hits.clear();
+}
+
 /**
  * P0-1: Postgres-backed sliding window (works across serverless instances).
  * Falls back to the in-memory limiter when Supabase is unconfigured or the

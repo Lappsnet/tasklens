@@ -24,9 +24,9 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   ai 37/37, web 75/75, typecheck + `next build` green.
 - Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
   1 residual zod advisory is non-actionable (see DECISIONS.md).
+- NEXT (autonomous): keyed-verification runbook written (`docs/keyed-verification.md`).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
-- NEXT (autonomous): P1 (admin pros queue, business accounts, notifications, live
-  Muse Image preview, architecture/meta-tech docs, security-review checklist).
+- NEXT (autonomous, after your call): transactional email provider decision.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

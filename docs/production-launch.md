@@ -16,10 +16,10 @@ Owner steps are marked OWNER. Do in order — each unblocks the next.
 
 1. Create project (region closest to SV/GT users), save URL + anon + service
    role keys.
-2. Apply migrations in order: `packages/db/migrations/001` → `013`
-   (schema, seed ES+Miami pros, RLS lockdown, rate limits, PayPal escrow,
+2. Apply migrations in order: `packages/db/migrations/001` → `014`
+   (schema, seed ES+Miami keepers, RLS lockdown, rate limits, PayPal escrow,
    contracts, calendar, passport, ratings, projects, funding/disputes, city,
-   pro applications).
+   pro applications, **auth onboarding trigger**).
 3. Create private Storage bucket `media` (RLS default deny; server uses
    service role + 60 s signed URLs — already coded).
 4. `supabase gen types typescript --linked > packages/db/src/types.ts`

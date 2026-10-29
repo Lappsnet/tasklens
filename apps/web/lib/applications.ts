@@ -8,6 +8,7 @@ export type ApplicationStatus = "pending" | "approved" | "rejected";
 export interface ProApplication {
   id: string;
   name: string;
+  email: string;
   category: string;
   zone: string;
   phone: string;
@@ -32,6 +33,7 @@ export function __clearApplications(): void {
 
 export interface ApplicationInput {
   name: string;
+  email: string;
   category: string;
   zone: string;
   phone: string;
@@ -62,6 +64,7 @@ export async function submitApplication(input: ApplicationInput): Promise<ProApp
           .from("pro_applications")
           .insert({
             name: input.name,
+            email: input.email.toLowerCase(),
             category: input.category,
             zone: input.zone,
             phone: input.phone,
@@ -81,6 +84,7 @@ export async function submitApplication(input: ApplicationInput): Promise<ProApp
   const row: ProApplication = {
     id: randomUUID(),
     name: input.name,
+    email: input.email.toLowerCase(),
     category: input.category,
     zone: input.zone,
     phone: input.phone,
@@ -155,15 +159,31 @@ export async function decideApplication(
         if (appErr || !app) return null;
         const row = rowFromDb(app);
         if (approve) {
-          await db.from("pros").insert({
-            user_id: null,
-            name: row.name,
-            category: row.category,
-            rating: 4.5,
-            reviews: 0,
-            rate_usd_hr: row.rate_usd_hr,
-            city: row.zone,
-          });
+          // Link the pro row to this application so the signup trigger (014)
+          // can attach the auth user even if they sign in AFTER approval.
+          const { data: pro } = await db
+            .from("pros")
+            .insert({
+              user_id: null,
+              application_id: row.id,
+              name: row.name,
+              category: row.category,
+              rating: 4.5,
+              reviews: 0,
+              rate_usd_hr: row.rate_usd_hr,
+              city: row.zone,
+            })
+            .select("id")
+            .single();
+          // If the pro already signed in (profile exists), link immediately.
+          if (pro) {
+            const { data: users } = await db.auth.admin.listUsers();
+            const match = users?.users.find((u) => u.email?.toLowerCase() === row.email.toLowerCase());
+            if (match) {
+              await db.from("pros").update({ user_id: match.id }).eq("id", (pro as { id: string }).id);
+              await db.from("profiles").update({ role: "pro" }).eq("id", match.id);
+            }
+          }
         }
         return row;
       }
@@ -205,6 +225,7 @@ function rowFromDb(r: unknown): ProApplication {
   return {
     id: String(x.id),
     name: String(x.name),
+    email: String(x.email ?? ""),
     category: String(x.category),
     zone: String(x.zone ?? ""),
     phone: String(x.phone ?? ""),
