@@ -1,0 +1,34 @@
+{
+  "packageId": "com.tasklens.app",
+  "host": "tasklens.app",
+  "name": "TaskLens",
+  "launcherName": "TaskLens",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#0F1B2D",
+  "backgroundColor": "#FAF7F2",
+  "startUrl": "/?source=twa",
+  "iconUrl": "https://tasklens.app/icons/icon-512.png",
+  "maskableIconUrl": "https://tasklens.app/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "enableNotifications": false,
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "shortcuts": [],
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "minSdkVersion": 24,
+  "targetSdkVersion": 36,
+  "generatorApp": "bubblewrap-cli"
+}

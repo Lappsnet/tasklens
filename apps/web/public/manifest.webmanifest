@@ -1,9 +1,33 @@
 {
-  "name": "TaskLens — Look, speak, book a pro",
+  "name": "TaskLens — Tu reparación, cotizada en segundos",
   "short_name": "TaskLens",
-  "start_url": "/",
+  "description": "Mira el problema, descríbelo en voz alta y reserva un profesional verificado. Pago protegido hasta verificación.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#fafafa",
-  "theme_color": "#111111",
-  "icons": []
+  "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "es",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0F1B2D",
+  "categories": ["utilities", "business", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }

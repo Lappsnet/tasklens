@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className={`${display.variable} ${body.variable} min-h-screen bg-paper font-body text-ink antialiased`}>
         <div className="mx-auto w-full max-w-md px-4 pb-16 pt-6 sm:max-w-2xl">{children}</div>
+        <Script src="/sw-register.js" strategy="afterInteractive" />
       </body>
     </html>
   );

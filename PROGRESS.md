@@ -6,10 +6,12 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 ## Where we are (2026-10-29)
 - Branch `master` → `origin/master` (https://github.com/Lappsnet/tasklens, private).
 - S5+S6 code DONE (funding links, fair-fix mediator), tests 80/80 green, `next build` green.
+- P0-5 code DONE (PWA installable, TWA wrapper, assetlinks, full privacy/terms,
+  store assets), tests 88/88 green, `next build` green.
 - Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
   1 residual zod advisory is non-actionable (see DECISIONS.md).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
-- NEXT (autonomous): P0-5 → P0-6 → S7 → S8 → P1.
+- NEXT (autonomous): P0-6 → S7 → S8 → P1.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
