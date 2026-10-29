@@ -2,6 +2,21 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — S7 TaskLens for Cities (all of LatAm, private per city)
+
+- Directory-first design (`lib/cities.ts`, 14 cities SV/GT/HN/NI/CR/PA/CO/PE/MX):
+  every report, cluster read and operator write is fenced by `city_slug`, so a
+  resident only ever sees their own city's board (location → nearest directory
+  city, remembered). Operators carry their municipality in the session
+  (`profiles.city_slug` real mode, `tasklens_city` cookie demo mode) and
+  `updateReport` + RLS reject cross-city writes. New `city_operator` role in
+  auth, demo login (city select on `/login`), seed script and migration 012.
+- Muse Spark triages each report (category/severity/ES summary/SLA 4–168 h) with
+  an image-input person-subject check; 422 `person_subject` rejects, never stores.
+  Coords snapped to 4 decimals. Duplicates cluster geo+category (150 m).
+  Operators get AI-suggested contractors (trade map → pro search ≤40 km) and a
+  status pipeline with guarded transitions; `/city` board is ES/EN with SLA badges.
+
 ## 2026-10-29 — P0-6 glasses companion (real project, honest mock)
 
 - `apps/glasses-android` is now a real Android Studio project (AGP 8.9.2, Kotlin

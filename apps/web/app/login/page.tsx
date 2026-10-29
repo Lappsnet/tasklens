@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
+import { CITIES } from "@/lib/cities";
 import { t, type Lang } from "@/lib/i18n";
+
+type DemoRole = "customer" | "pro" | "admin" | "city_operator";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +14,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [opCity, setOpCity] = useState(CITIES[0].slug);
   const strings = t(lang);
   const configured = hasSupabaseBrowser();
 
@@ -28,9 +32,10 @@ export default function LoginPage() {
     }
   }
 
-  async function demo(role: "customer" | "pro" | "admin") {
+  async function demo(role: DemoRole) {
     setError("");
-    if (await demoLogin(role)) router.push(role === "pro" ? "/pro" : role === "admin" ? "/admin" : "/scan");
+    const ok = await demoLogin(role, role === "city_operator" ? opCity : undefined);
+    if (ok) router.push(role === "pro" ? "/pro" : role === "admin" ? "/admin" : role === "city_operator" ? "/city" : "/scan");
     else setError(strings.errorGeneric);
   }
 
@@ -82,6 +87,21 @@ export default function LoginPage() {
                 {r}
               </button>
             ))}
+          </div>
+          <div className="row" style={{ marginTop: 8 }}>
+            <select
+              aria-label="operator city"
+              value={opCity}
+              onChange={(e) => setOpCity(e.target.value)}
+              style={{ border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }}
+            >
+              {CITIES.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.name}, {c.country}</option>
+              ))}
+            </select>
+            <button type="button" className="btn btn-secondary" onClick={() => demo("city_operator")}>
+              city_operator
+            </button>
           </div>
         </section>
       )}

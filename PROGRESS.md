@@ -11,10 +11,12 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - P0-6 code DONE (real Android Studio project, Mock Device Kit with bundled
   sample photo, user-token auth, TTS + deep link flow). `./gradlew assembleDebug`
   NOT run — no JDK/Android SDK in this env (owner step, documented).
+- S7 code DONE (City board for all of LatAm, city-fenced, operator dashboard),
+  tests 96/96 green, `next build` green.
 - Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
   1 residual zod advisory is non-actionable (see DECISIONS.md).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
-- NEXT (autonomous): S7 → S8 → P1.
+- NEXT (autonomous): S8 → P1.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

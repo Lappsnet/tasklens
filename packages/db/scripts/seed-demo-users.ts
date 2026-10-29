@@ -9,6 +9,7 @@
  * Creates (idempotent):
  *   - demo-customer@tasklens.example / profiles{role: customer}
  *   - demo-pro@tasklens.example / profiles{role: pro} + pros row
+ *   - demo-city@tasklens.example / profiles{role: city_operator, city_slug: san-salvador}
  * Password: $DEMO_USER_PASSWORD (min 12 chars). Never commit it.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -22,7 +23,12 @@ if (!password || password.length < 12) throw new Error("Set DEMO_USER_PASSWORD (
 
 const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
 
-async function upsertUser(email: string, role: "customer" | "pro", displayName: string) {
+async function upsertUser(
+  email: string,
+  role: "customer" | "pro" | "city_operator",
+  displayName: string,
+  city_slug?: string,
+) {
   const { data: existing } = await admin.auth.admin.listUsers();
   const found = existing?.users.find((u) => u.email === email);
   const userId =
@@ -31,7 +37,7 @@ async function upsertUser(email: string, role: "customer" | "pro", displayName: 
   if (!userId) throw new Error(`could not create ${email}`);
   const { error: profErr } = await admin
     .from("profiles")
-    .upsert({ id: userId, role, display_name: displayName }, { onConflict: "id" });
+    .upsert({ id: userId, role, display_name: displayName, city_slug: city_slug ?? null }, { onConflict: "id" });
   if (profErr) throw new Error(`profiles upsert failed: ${profErr.message}`);
   console.log(`demo ${role}: ${email} (${userId})`);
   return userId;
@@ -39,6 +45,7 @@ async function upsertUser(email: string, role: "customer" | "pro", displayName: 
 
 const customerId = await upsertUser("demo-customer@tasklens.example", "customer", "Demo Customer");
 const proId = await upsertUser("demo-pro@tasklens.example", "pro", "Demo Pro");
+await upsertUser("demo-city@tasklens.example", "city_operator", "Demo City Operator", "san-salvador");
 
 const { error: proErr } = await admin.from("pros").upsert(
   {

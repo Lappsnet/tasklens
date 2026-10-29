@@ -7,5 +7,5 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   const session = await getSession(req);
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  return NextResponse.json({ userId: session.userId, role: session.role, demo: session.demo });
+  return NextResponse.json({ userId: session.userId, role: session.role, demo: session.demo, city: session.city ?? null });
 }

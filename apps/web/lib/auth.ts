@@ -2,22 +2,26 @@ import { createClient } from "@supabase/supabase-js";
 import { hasSupabase, serviceClient } from "./supabase-server";
 import { demoAllowed } from "./env";
 
-export type Role = "customer" | "pro" | "admin";
+export type Role = "customer" | "pro" | "admin" | "city_operator";
 export interface Session {
   userId: string;
   email?: string;
   role: Role;
   demo: boolean;
+  /** Operator's municipality (city_slug). Undefined for non-operators. */
+  city?: string;
 }
 
 const DEMO_COOKIE = "tasklens_demo";
+const CITY_COOKIE = "tasklens_city";
 
 /** Demo session from the signed demo cookie. Disabled when Supabase is configured. */
 function demoSession(req: Request): Session {
   const cookie = req.headers.get("cookie") ?? "";
-  const m = cookie.match(new RegExp(`${DEMO_COOKIE}=(customer|pro|admin)`));
+  const m = cookie.match(new RegExp(`${DEMO_COOKIE}=(customer|pro|admin|city_operator)`));
   const role = (m?.[1] as Role | undefined) ?? "customer";
-  return { userId: `demo-${role}`, role, demo: true };
+  const c = cookie.match(new RegExp(`${CITY_COOKIE}=([a-z0-9-]+)`));
+  return { userId: `demo-${role}`, role, demo: true, city: c?.[1] };
 }
 
 /**
@@ -40,13 +44,15 @@ export async function getSession(req: Request): Promise<Session | null> {
     const { data, error } = await anonClient.auth.getUser(token);
     if (error || !data.user) return null;
     let role: Role = "customer";
+    let city: string | undefined;
     const db = serviceClient();
     if (db) {
-      const { data: profile } = await db.from("profiles").select("role").eq("id", data.user.id).single();
-      const r = (profile as { role: string } | null)?.role;
-      if (r === "pro" || r === "admin" || r === "customer") role = r;
+      const { data: profile } = await db.from("profiles").select("role,city_slug").eq("id", data.user.id).single();
+      const r = (profile as { role: string; city_slug?: string } | null)?.role;
+      if (r === "pro" || r === "admin" || r === "customer" || r === "city_operator") role = r;
+      if (role === "city_operator") city = (profile as { city_slug?: string } | null)?.city_slug ?? undefined;
     }
-    return { userId: data.user.id, email: data.user.email ?? undefined, role, demo: false };
+    return { userId: data.user.id, email: data.user.email ?? undefined, role, demo: false, city };
   } catch (e) {
     console.error("[auth] session error:", e instanceof Error ? e.message : e);
     return null;
@@ -70,4 +76,4 @@ export async function requireRole(
   return { session };
 }
 
-export { DEMO_COOKIE };
+export { DEMO_COOKIE, CITY_COOKIE };
