@@ -85,6 +85,12 @@ export function eventLabel(kind: string): string {
       return "Payment released";
     case "completed":
       return "Completed";
+    case "copilot_qa":
+      return "Copilot answer";
+    case "hazard":
+      return "Hazard advisory";
+    case "step_evidence":
+      return "Step evidence";
     default:
       if (kind.startsWith("photo_")) return kind === "photo_before" ? "Before photos" : "After photos";
       return kind;

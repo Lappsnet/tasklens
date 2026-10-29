@@ -2,6 +2,24 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — S8 Pro Copilot (hands-free expert in job mode)
+
+- `packages/ai/copilot.ts` + `prompts/copilot.md`: `answerCopilot` (Q&A grounded in
+  the spec, short spoken answers, Zod + one retry) and `watchHazards` (advisory-only
+  frame check, never blocks, never certifies safety). Mock-first when keyless.
+- Routes `/api/copilot/ask|hazard|evidence` (pro/admin, rate-limited): ask logs a
+  `copilot_qa` event and the phone speaks the answer; hazard logs a `hazard` event
+  only on positives (60 s watch re-checks the latest frame note); evidence stores a
+  ≤2 MB frame as `step_evidence` and ticks the step done, feeding verification.
+  `booked` counts as on-the-job for copilot (pro prepping early is realistic).
+- Job mode gains a Copilot card (type or hold-to-talk via `/api/transcribe`), a
+  hazard-watch card (frame note + check + 60 s toggle, spoken warnings), and a per-step
+  "✓ Listo" camera button. The customer live view renders Q&A, advisories and evidence
+  thumbnails. Spanish detection covers unaccented text (stopword fallback).
+- `apps/web/vitest.config.ts` maps `@/` for route-level tests (none existed before).
+- ai tests 37/37, web tests 71/71, typecheck + `next build` green. 1 residual audit
+  high = known non-actionable zod advisory.
+
 ## 2026-10-29 — S7 TaskLens for Cities (all of LatAm, private per city)
 
 - Directory-first design (`lib/cities.ts`, 14 cities SV/GT/HN/NI/CR/PA/CO/PE/MX):

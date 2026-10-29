@@ -130,6 +130,36 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
               {events.filter((e) => e.kind === "note").map((e) => (
                 <Note key={e.id} payload={e.payload} />
               ))}
+              {events.filter((e) => e.kind === "copilot_qa").map((e) => {
+                const p = e.payload as { question?: string; answer?: string; safety_note?: string | null };
+                return (
+                  <div key={e.id} className="text-sm text-slate2">
+                    <div>❓ {p.question}</div>
+                    <div>🤖 {p.answer}</div>
+                    {p.safety_note && <div className="warn">⚠ {p.safety_note}</div>}
+                  </div>
+                );
+              })}
+              {events.filter((e) => e.kind === "hazard").map((e) => {
+                const p = e.payload as { warning?: string; hazards?: string[] };
+                return (
+                  <div key={e.id} className="warn text-sm" role="alert">
+                    ⚠ {p.warning} <span className="pill">{strings.advisoryBadge}</span>
+                  </div>
+                );
+              })}
+              {events.filter((e) => e.kind === "step_evidence").map((e) => {
+                const p = e.payload as { step?: string; photoDataUrl?: string };
+                return (
+                  <div key={e.id} className="text-sm text-slate2">
+                    <div>📷 ✓ {p.step} <span className="pill">{strings.evidenceSaved}</span></div>
+                    {p.photoDataUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.photoDataUrl} alt={p.step ?? "step evidence"} style={{ maxWidth: "100%", borderRadius: 8, marginTop: 4 }} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {events.length === 0 && <EmptyState title={strings.logTitle} />}
           </Card>

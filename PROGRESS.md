@@ -13,10 +13,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   NOT run — no JDK/Android SDK in this env (owner step, documented).
 - S7 code DONE (City board for all of LatAm, city-fenced, operator dashboard),
   tests 96/96 green, `next build` green.
+- S8 code DONE (Pro Copilot: spec-grounded Q&A with spoken answers, advisory hazard
+  watch with 60 s toggle, "listo" frame evidence per step), ai 37/37, web 71/71,
+  typecheck + `next build` green.
 - Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
   1 residual zod advisory is non-actionable (see DECISIONS.md).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
-- NEXT (autonomous): S8 → P1.
+- NEXT (autonomous): P1 (admin pros queue, business accounts, notifications, live
+  Muse Image preview, architecture/meta-tech docs, security-review checklist).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

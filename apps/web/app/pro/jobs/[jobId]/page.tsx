@@ -132,12 +132,145 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
   );
   const currentStep = steps.find((s) => !doneSteps.has(s)) ?? steps[0];
 
-  function speakStep() {
-    if (!("speechSynthesis" in window) || !currentStep) return;
+  const [copilotQ, setCopilotQ] = useState("");
+  const [copilotA, setCopilotA] = useState<{ answer: string; safety_note: string | null } | null>(null);
+  const [copilotMock, setCopilotMock] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [frameNote, setFrameNote] = useState("");
+  const [hazard, setHazard] = useState<{ safe: boolean; warning: string | null } | null>(null);
+  const [watchOn, setWatchOn] = useState(false);
+  const watchTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const frameNoteRef = useRef("");
+  frameNoteRef.current = frameNote;
+
+  function speak(text: string) {
+    if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(`${job?.status.replace("_", " ")}. ${currentStep}`);
+    const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === "es" ? "es-ES" : "en-US";
     window.speechSynthesis.speak(u);
+  }
+
+  function speakStep() {
+    if (!currentStep) return;
+    speak(`${job?.status.replace("_", " ")}. ${currentStep}`);
+  }
+
+  async function askCopilot(question: string) {
+    const q = question.trim();
+    if (!q || asking) return;
+    setAsking(true);
+    setError("");
+    try {
+      const res = await fetch("/api/copilot/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId, question: q, frameNote: frameNote || undefined, lang }),
+      });
+      const json = (await res.json()) as {
+        answer?: { answer: string; safety_note: string | null };
+        mock?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !json.answer) throw new Error(json.error ?? strings.errorGeneric);
+      setCopilotA(json.answer);
+      setCopilotMock(!!json.mock);
+      speak(json.answer.safety_note ? `${json.answer.answer} ${json.answer.safety_note}` : json.answer.answer);
+      await reload();
+    } catch {
+      setError(strings.errorGeneric);
+    } finally {
+      setAsking(false);
+    }
+  }
+
+  async function askByVoice() {
+    if (recording) {
+      recorderRef.current?.stop();
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      rec.onstop = async () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        setRecording(false);
+        const blob = new Blob(chunksRef.current, { type: rec.mimeType || "audio/webm" });
+        const fd = new FormData();
+        fd.append("lang", lang);
+        fd.append("audio", new File([blob], "question.webm", { type: blob.type || "audio/webm" }));
+        setAsking(true);
+        try {
+          const tr = await fetch("/api/transcribe", { method: "POST", body: fd });
+          const tj = (await tr.json()) as { transcript?: string };
+          if (tr.ok && tj.transcript) {
+            setCopilotQ(tj.transcript);
+            await askCopilot(tj.transcript);
+          }
+        } finally {
+          setAsking(false);
+        }
+      };
+      recorderRef.current = rec;
+      rec.start();
+      setRecording(true);
+    } catch {
+      setError(strings.errorGeneric);
+    }
+  }
+
+  async function checkHazards(note: string) {
+    try {
+      const res = await fetch("/api/copilot/hazard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId, frameNote: note, lang }),
+      });
+      const json = (await res.json()) as { safe?: boolean; warning?: string | null; hazards?: string[] };
+      if (!res.ok) return;
+      setHazard({ safe: json.safe ?? true, warning: json.warning ?? null });
+      if (json.safe === false && json.warning) {
+        speak(json.warning);
+        await reload();
+      }
+    } catch {
+      /* hazard watch is advisory; failures stay silent */
+    }
+  }
+
+  // Hazard watch: re-check the latest frame note every 60 s while enabled.
+  useEffect(() => {
+    if (!watchOn) {
+      if (watchTimer.current) clearInterval(watchTimer.current);
+      return;
+    }
+    watchTimer.current = setInterval(() => checkHazards(frameNoteRef.current), 60_000);
+    return () => {
+      if (watchTimer.current) clearInterval(watchTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchOn, frameNote]);
+
+  async function saveEvidence(stepText: string, list: FileList | null) {
+    if (!list || list.length === 0) return;
+    const fd = new FormData();
+    fd.append("jobId", jobId);
+    fd.append("step", stepText);
+    fd.append("photo", list[0], list[0].name);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/copilot/evidence", { method: "POST", body: fd });
+      if (!res.ok) throw new Error(strings.errorGeneric);
+      await reload();
+    } catch {
+      setError(strings.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
   }
 
   // Load the repair-plan checklist from the scan spec (hands-free job mode).
@@ -209,6 +342,71 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
             </div>
           </section>
 
+          {(job.status === "in_progress" || job.status === "pending_verify" || job.status === "en_route") && (
+            <section className="card highlight">
+              <h2>{strings.copilotTitle}</h2>
+              <p className="muted small">{strings.copilotSub}</p>
+              <div className="row">
+                <input
+                  value={copilotQ}
+                  onChange={(e) => setCopilotQ(e.target.value)}
+                  placeholder={strings.askPh}
+                  maxLength={500}
+                  aria-label={strings.askPh}
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="btn" disabled={asking || !copilotQ.trim()} onClick={() => askCopilot(copilotQ)}>
+                  {asking ? "…" : strings.askButton}
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={askByVoice} aria-label={strings.askVoice}>
+                  {recording ? `● ${strings.stop}` : `🎙 ${strings.askVoice}`}
+                </button>
+              </div>
+              {copilotA && (
+                <div role="status">
+                  <p>“{copilotA.answer}”</p>
+                  {copilotA.safety_note && <p className="warn">⚠ {copilotA.safety_note}</p>}
+                  <div className="row">
+                    <button type="button" className="btn btn-secondary" onClick={() => speak(copilotA.answer)}>
+                      🔊 {strings.speakAnswer}
+                    </button>
+                    <span className="pill">{strings.advisoryBadge}{copilotMock ? " · mock" : ""}</span>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {(job.status === "in_progress" || job.status === "pending_verify" || job.status === "en_route") && (
+            <section className="card">
+              <h2>{strings.hazardTitle}</h2>
+              <p className="muted small">{strings.hazardSub}</p>
+              <div className="row">
+                <input
+                  value={frameNote}
+                  onChange={(e) => setFrameNote(e.target.value)}
+                  placeholder={strings.framePh}
+                  maxLength={500}
+                  aria-label={strings.framePh}
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="btn btn-secondary" onClick={() => checkHazards(frameNote)}>
+                  {strings.checkFrame}
+                </button>
+              </div>
+              <div className="row">
+                <button type="button" className="btn btn-secondary" onClick={() => setWatchOn((v) => !v)} aria-pressed={watchOn}>
+                  {watchOn ? strings.hazardOn : strings.hazardOff}
+                </button>
+              </div>
+              {hazard && (
+                hazard.safe
+                  ? <p className="muted" role="status">✓ {strings.hazardSafe}</p>
+                  : <p className="warn" role="alert">⚠ {hazard.warning} <span className="pill">{strings.advisoryBadge}</span></p>
+              )}
+            </section>
+          )}
+
           {(job.status === "in_progress" || job.status === "pending_verify") && (
             <section className="card highlight">
               <label className="lbl" htmlFor="after-input">📸 {strings.afterPhotos}</label>
@@ -240,6 +438,12 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
                       <input type="checkbox" checked={doneSteps.has(s)} onChange={(e) => tickStep(s, e.target.checked)} />{" "}
                       {doneSteps.has(s) ? <s>{s}</s> : s}
                     </label>
+                    {!doneSteps.has(s) && (
+                      <label className="btn btn-secondary filebtn" style={{ marginLeft: 8 }}>
+                        📷 {strings.listo}
+                        <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={(e) => saveEvidence(s, e.target.files)} />
+                      </label>
+                    )}
                   </li>
                 ))}
               </ol>
