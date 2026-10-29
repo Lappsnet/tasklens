@@ -5,8 +5,8 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 
 ## Where we are (2026-10-29)
 - Branch `master` → `origin/master` (https://github.com/Lappsnet/tasklens, private).
-- Last commit: `940d139` (Day 4). Tests 36/36 green (`turbo run test typecheck`), `next build` green.
-- Days 1–5 DONE and verified live. Day 6 NEXT (harden, i18n, security review; freeze Nov 2 8 PM).
+- Last commit: `bcd0cb6` (Day 5). Tests 44/44 green (`turbo run test typecheck`), `next build` green.
+- Days 1–6 DONE (Day 6: auth/RLS hardening). Feature freeze Nov 2, 8 PM. Day 7 NEXT (demo support + README).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
@@ -31,6 +31,5 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - Auth/RLS still missing (Day 6): every API trusts anonymous demo callers. MUST fix before production.
 
 ## Next
-- Day 6: harden, i18n, security review vs §7 (auth/RLS still missing — MUST fix before
-  production; tighten allow-all policies, add magic-link + demo login, session checks).
-  Feature freeze Nov 2, 8 PM.
+- Day 7: demo recording support + README (GIF, architecture diagram, Meta tech, 5-command setup).
+  Freeze Nov 2, 8 PM — only fixes after.

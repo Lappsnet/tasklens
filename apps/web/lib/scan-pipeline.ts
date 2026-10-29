@@ -2,6 +2,7 @@ import { z } from "zod";
 import { mockScanSpec, scanToSpec, transcribeBuffer, type AiSpec } from "@tasklens/ai";
 import { saveMemoryScan } from "./scans";
 import { hasSupabase, serviceClient } from "./supabase-server";
+import { hasStorage, uploadPhoto } from "./storage";
 
 export const IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 export const AUDIO_MIME = new Set([
@@ -44,6 +45,7 @@ export interface ScanPipelineInput {
   lang: "en" | "es";
   audio: File | null;
   source: "web" | "glasses";
+  userId?: string;
 }
 
 export interface ScanPipelineOutput {
@@ -67,7 +69,7 @@ export async function processScan(input: ScanPipelineInput): Promise<ScanPipelin
     const spec = mockScanSpec();
     const first = input.photos[0];
     const photoDataUrl = first ? await fileToDataUrl(first) : undefined;
-    return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl, mock });
+    return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl, userId: input.userId, mock });
   }
 
   if (!transcriptUsed && input.audio) {
@@ -81,7 +83,7 @@ export async function processScan(input: ScanPipelineInput): Promise<ScanPipelin
 
   const images = await Promise.all(input.photos.map((p) => fileToDataUrl(p)));
   const spec = await withTimeout(scanToSpec({ images, transcript: transcriptUsed, lang: input.lang }));
-  return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl: images[0], mock: false });
+  return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl: images[0], userId: input.userId, mock: false });
 }
 
 async function persist(args: {
@@ -90,17 +92,28 @@ async function persist(args: {
   lang: string;
   photoCount: number;
   photoDataUrl?: string;
+  userId?: string;
   mock: boolean;
 }): Promise<ScanPipelineOutput> {
   if (hasSupabase()) {
     try {
       const db = serviceClient();
       if (db) {
-        // Documented service-role use: anonymous demo has no auth session yet
-        // (magic-link login lands later); RLS demo policies allow the insert.
+        // Private bucket upload (service role). Photo URLs stay server-side;
+        // clients receive short-lived signed URLs from /api/media/sign.
+        let photo_urls: string[] = [];
+        if (args.photoDataUrl && hasStorage()) {
+          const m = args.photoDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+          if (m) {
+            const path = await uploadPhoto(Buffer.from(m[2], "base64"), m[1], "scans");
+            if (path) photo_urls = [path];
+          }
+        }
+        // Documented service-role use: server sets customer_id after validating
+        // the session; service role bypasses RLS (Day 6 lockdown, 003 migration).
         const { data, error } = await db
           .from("scans")
-          .insert({ transcript: args.transcript, lang: args.lang, ai_spec: args.spec })
+          .insert({ customer_id: args.userId ?? null, photo_urls, transcript: args.transcript, lang: args.lang, ai_spec: args.spec })
           .select("id")
           .single();
         if (!error && data) {

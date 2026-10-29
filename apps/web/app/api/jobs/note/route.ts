@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { transcribeBuffer } from "@tasklens/ai";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { appendEvent, getBooking } from "@/lib/jobs";
 import { AUDIO_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
 
@@ -21,6 +22,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`note:${clientKey(req)}`, 30)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["pro", "admin"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();

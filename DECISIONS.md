@@ -2,6 +2,23 @@
 
 Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Day 6: harden, i18n, security review (§7)
+
+- Auth: Supabase magic-link (browser) + demo role login (`POST /api/auth/demo`, rate-limited,
+  demo-only 404s when Supabase is configured). `getSession()` validates the Supabase JWT and
+  reads the role from profiles in real mode; demo mode trusts the role cookie (default customer).
+- Every API route now checks the session: scan/transcribe/glasses (any role), match/book
+  (customer/admin + scan ownership in real mode), job mutations + verify + preview (pro/admin),
+  admin reset (admin). `/login` page; role shown via `/api/auth/me`.
+- `003_rls_lockdown.sql` replaces allow-all with per-role policies (default deny); pros and
+  availability stay publicly readable (marketplace listing). Private `media` bucket, service
+  role only; scans upload the first photo; clients get 60 s signed URLs via `/api/media/sign`.
+- `/admin` + `POST /api/admin/reset` (admin-only, rate-limited): clears demo data in <5 s
+  (0 ms mock, measured). Full i18n sweep: home/scan/quote/book/pro/watch/login/admin EN+ES.
+- NOT YET PROVEN (no Supabase project linked): applying 003 to a live DB, real magic-link
+  round-trip, real Storage upload/sign, real Stripe capture. All code paths exist and mock
+  cleanly; keyed verification required before production (Day 8 or sooner).
+
 ## 2026-10-29 — Day 5: verification, payment release, SAM highlight, Muse Image preview
 
 - `POST /api/jobs/verify` runs `verifyCompletion` (mock `mockVerifyResult` without a key).

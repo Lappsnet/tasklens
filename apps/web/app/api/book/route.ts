@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { AiSpec, matchAndBook } from "@tasklens/ai";
+import { matchAndBook } from "@tasklens/ai";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
-import { getMemoryScan } from "@/lib/scans";
+import { requireRole } from "@/lib/auth";
+import { getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { getAvailability, searchPros } from "@/lib/pros";
-import { getBooking, persistBooking } from "@/lib/jobs";
+import { getBooking, persistBooking, visibleJobs } from "@/lib/jobs";
 import { holdPayment } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -22,19 +23,11 @@ const Body = z.object({
 });
 
 async function loadScan(scanId: string) {
-  const mem = getMemoryScan(scanId);
-  if (mem) return { spec: mem.spec, mock: true as const };
-  if (hasSupabase()) {
-    const db = serviceClient();
-    if (db) {
-      const { data } = await db.from("scans").select("ai_spec").eq("id", scanId).single();
-      if (data) {
-        const parsed = AiSpec.safeParse((data as { ai_spec: unknown }).ai_spec);
-        if (parsed.success) return { spec: parsed.data, mock: false as const };
-      }
-    }
-  }
-  return null;
+  const meta = await getScanMeta(scanId);
+  if (!meta) return null;
+  if (hasSupabase()) return { spec: meta.spec, customerId: meta.customerId, mock: false as const };
+  const mem = meta;
+  return { spec: mem.spec, customerId: mem.customerId, mock: true as const };
 }
 
 /**
@@ -45,6 +38,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`book:${clientKey(req)}`, 20)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["customer", "admin"]);
+  if ("response" in gate) return gate.response;
   let body: unknown;
   try {
     body = await req.json();
@@ -61,6 +56,12 @@ export async function POST(req: Request) {
 
   const scan = await loadScan(scanId);
   if (!scan) return NextResponse.json({ error: "scan_not_found" }, { status: 404 });
+  // Ownership: real mode restricts customers to their own scans.
+  if (!gate.session.demo && gate.session.role === "customer") {
+    if (scan.customerId && scan.customerId !== gate.session.userId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
 
   try {
     // Re-run matching server-side so proId must be one of the ranked top 3 —
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
 
     const { jobId, mock: storeMock } = await persistBooking({
       scan_id: scanId,
+      customer_id: scan.customerId ?? gate.session.userId,
       pro_id: proId,
       price_usd: amountUsd,
       slot,
@@ -119,9 +121,14 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const gate = await requireRole(req, ["customer", "pro", "admin"]);
+  if ("response" in gate) return gate.response;
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "bad_request" }, { status: 400 });
   const job = await getBooking(id);
   if (!job) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  if (visibleJobs([job], gate.session).length === 0) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   return NextResponse.json(job);
 }

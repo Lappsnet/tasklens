@@ -1,19 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { t, type Lang } from "@/lib/i18n";
+
 export default function Home() {
+  const [lang, setLang] = useState<Lang>("en");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("tasklens:lang");
+    if (saved === "en" || saved === "es") setLang(saved);
+  }, []);
+  const strings = t(lang);
   return (
     <main>
       <h1>TaskLens</h1>
-      <p className="muted">Look at the problem. Speak. Book a pro. (Day 2: phone scan → AI quote is live.)</p>
+      <p className="muted">{strings.homeSub}</p>
       <p>
-        <a className="btn" href="/scan">Start a scan</a>
+        <a className="btn" href="/scan">{strings.startScan}</a>
       </p>
-      <h2>Core loop</h2>
+      <h2>{strings.coreLoopTitle}</h2>
       <ol className="steps">
-        <li>scan → quote</li>
-        <li>match → book + hold payment</li>
-        <li>pro accepts → job mode</li>
-        <li>before/after photos → AI verification → release payment</li>
+        <li>{strings.loop1}</li>
+        <li>{strings.loop2}</li>
+        <li>{strings.loop3}</li>
+        <li>{strings.loop4}</li>
       </ol>
-      <p className="muted">API day-1 check: <code>/api/health</code> should return ok.</p>
+      <p className="muted">{strings.apiNote} <code>/api/health</code></p>
     </main>
   );
 }

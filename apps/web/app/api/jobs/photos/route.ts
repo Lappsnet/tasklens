@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { appendEvent, getBooking } from "@/lib/jobs";
 import { IMAGE_MIME, MAX_FILE } from "@/lib/scan-pipeline";
 
@@ -17,6 +18,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`jobphotos:${clientKey(req)}`, 30)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["pro", "admin"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();

@@ -103,7 +103,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
           )}
         </div>
       ) : (
-        <div className="card"><p className="muted small">photo unavailable on this device — spec below still applies.</p></div>
+        <div className="card"><p className="muted small">{strings.photoUnavailable}</p></div>
       )}
 
       <section className="card highlight">

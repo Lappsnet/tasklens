@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { AiSpec, matchAndBook } from "@tasklens/ai";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
-import { getMemoryScan } from "@/lib/scans";
+import { requireRole } from "@/lib/auth";
+import { getMemoryScan, getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { getAvailability, searchPros } from "@/lib/pros";
 
@@ -37,6 +38,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`match:${clientKey(req)}`, 20)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["customer", "admin"]);
+  if ("response" in gate) return gate.response;
   let body: unknown;
   try {
     body = await req.json();
@@ -49,6 +52,13 @@ export async function POST(req: Request) {
 
   const spec = await loadSpec(scanId);
   if (!spec) return NextResponse.json({ error: "scan_not_found" }, { status: 404 });
+  // Ownership: real mode restricts customers to their own scans.
+  if (!gate.session.demo && gate.session.role === "customer") {
+    const meta = await getScanMeta(scanId);
+    if (meta?.customerId && meta.customerId !== gate.session.userId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
 
   try {
     const { top3, mock } = await matchAndBook(

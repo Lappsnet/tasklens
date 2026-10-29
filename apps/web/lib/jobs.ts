@@ -4,6 +4,7 @@ import { hasSupabase, serviceClient } from "./supabase-server";
 export interface JobRow {
   id: string;
   scan_id: string;
+  customer_id?: string;
   pro_id: string;
   status: string;
   price_usd: number;
@@ -52,9 +53,17 @@ export function getMemoryPaymentByJob(jobId: string): PaymentRow | undefined {
   return payments.get(jobId);
 }
 
+/** Test/admin helper: clear the demo memory stores. */
+export function __clearForReset(): void {
+  jobs.clear();
+  payments.clear();
+  events.clear();
+}
+
 /** Persist job + payment. Supabase when configured, else memory. Returns job id. */
 export async function persistBooking(args: {
   scan_id: string;
+  customer_id?: string;
   pro_id: string;
   price_usd: number;
   slot: string;
@@ -69,6 +78,7 @@ export async function persistBooking(args: {
           .from("jobs")
           .insert({
             scan_id: args.scan_id,
+            customer_id: args.customer_id ?? null,
             pro_id: args.pro_id,
             status: "booked",
             price_usd: args.price_usd,
@@ -98,6 +108,7 @@ export async function persistBooking(args: {
   }
   const row = saveMemoryJob({
     scan_id: args.scan_id,
+    customer_id: args.customer_id,
     pro_id: args.pro_id,
     status: "booked",
     price_usd: args.price_usd,
@@ -154,6 +165,15 @@ export async function updatePaymentStatus(stripePiId: string, status: string): P
 
 // --- Day 4: job mode + realtime log ---
 
+/** Defense-in-depth ownership filter. Demo mode returns everything (documented);
+ * real mode restricts customers to their own jobs. (Supabase RLS enforces per-row.) */
+export function visibleJobs<T extends { customer_id?: string }>(
+  rows: T[],
+  session: { role: string; userId: string; demo: boolean },
+): T[] {
+  if (session.demo || session.role !== "customer") return rows;
+  return rows.filter((r) => !r.customer_id || r.customer_id === session.userId);
+}
 /** Valid Day 4+5 transitions. completed is reached only via /api/jobs/verify on a pass. */
 export const TRANSITIONS: Record<string, string[]> = {
   booked: ["en_route"],

@@ -62,6 +62,33 @@ const dict = {
     afterPhotos: "After photos",
     passed: "Verified — payment released to the pro. Thanks!",
     needsFix: "Needs attention — the pro can fix it and resubmit.",
+    // Day 6
+    loginTitle: "Log in",
+    loginSub: "Magic link by email, or one-click demo roles while Supabase is unconfigured.",
+    emailLabel: "Email",
+    magicLink: "Send magic link",
+    magicSent: "Check your email for the sign-in link.",
+    demoNote: "Demo mode (no Supabase configured): pick a role. Real deployments use magic-link sign-in.",
+    // Day 6 admin
+    adminTitle: "Admin",
+    adminSub: "Demo controls. Dangerous actions require the admin role.",
+    adminOnly: "Admin role required. Log in as admin:",
+    resetDemo: "Reset demo",
+    resetDone: "Demo reset complete",
+    roleLabel: "role",
+    // Shared
+    photoUnavailable: "photo unavailable on this device — spec below still applies.",
+    mainPhoto: "main",
+    removePhoto: "remove photo",
+    // Home
+    homeSub: "Look at the problem. Speak. Book a pro.",
+    startScan: "Start a scan",
+    coreLoopTitle: "Core loop",
+    loop1: "scan → quote",
+    loop2: "match → book + hold payment",
+    loop3: "pro accepts → job mode",
+    loop4: "before/after photos → AI verification → release payment",
+    apiNote: "API check: /api/health should return ok.",
   },
   es: {
     scanTitle: "Describe el problema",
@@ -123,6 +150,33 @@ const dict = {
     afterPhotos: "Fotos del después",
     passed: "Verificado — pago liberado al profesional. ¡Gracias!",
     needsFix: "Requiere atención — el profesional puede corregirlo y reenviarlo.",
+    // Day 6
+    loginTitle: "Iniciar sesión",
+    loginSub: "Enlace mágico por correo, o roles de demostración con un clic.",
+    emailLabel: "Correo",
+    magicLink: "Enviar enlace",
+    magicSent: "Revisa tu correo para el enlace de acceso.",
+    demoNote: "Modo demo (sin Supabase): elige un rol. En producción se usa el enlace mágico.",
+    // Day 6 admin
+    adminTitle: "Administración",
+    adminSub: "Controles de demostración. Las acciones peligrosas requieren rol de administrador.",
+    adminOnly: "Se requiere rol de administrador. Inicia sesión como admin:",
+    resetDemo: "Restablecer demo",
+    resetDone: "Demostración restablecida",
+    roleLabel: "rol",
+    // Shared
+    photoUnavailable: "foto no disponible en este dispositivo — la cotización sigue abajo.",
+    mainPhoto: "principal",
+    removePhoto: "quitar foto",
+    // Home
+    homeSub: "Mira el problema. Habla. Reserva un profesional.",
+    startScan: "Iniciar escaneo",
+    coreLoopTitle: "Ciclo principal",
+    loop1: "escaneo → cotización",
+    loop2: "emparejar → reservar + retener pago",
+    loop3: "el profesional acepta → modo trabajo",
+    loop4: "fotos antes/después → verificación IA → liberar pago",
+    apiNote: "Verificación de API: /api/health debe devolver ok.",
   },
 } as const;
 

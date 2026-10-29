@@ -189,11 +189,12 @@ export default function ScanPage() {
             {previews.map((u, i) => (
               <div key={u} className="thumb">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={u} alt={`scan photo ${i + 1}`} />
-                {i === 0 && <span className="badge">main</span>}
+                {i === 0 && <span className="badge">{strings.mainPhoto}</span>}
                 <button
                   type="button"
-                  aria-label={`remove photo ${i + 1}`}
+                  aria-label={`${strings.removePhoto} ${i + 1}`}
                   onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
                 >
                   ×

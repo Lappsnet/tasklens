@@ -8,6 +8,7 @@ import {
   type VerifyResult,
 } from "@tasklens/ai";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { getMemoryScan, getScanSpec } from "@/lib/scans";
 import {
   appendEvent,
@@ -44,6 +45,9 @@ export async function POST(req: Request) {
   if (!rateLimit(`verify:${clientKey(req)}`, 10)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  // Pro (or admin) submits verification. Capture happens server-side on pass.
+  const gate = await requireRole(req, ["pro", "admin"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();

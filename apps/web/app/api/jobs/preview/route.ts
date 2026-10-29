@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { previewAfter, type AiSpec } from "@tasklens/ai";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { getScanSpec } from "@/lib/scans";
 import { getBooking } from "@/lib/jobs";
 import { IMAGE_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
@@ -22,6 +23,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`preview:${clientKey(req)}`, 10)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["pro", "admin", "customer"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();
