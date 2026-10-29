@@ -8,7 +8,8 @@ import { eventLabel, useJobFeed } from "@/lib/use-job";
 const NEXT_STEP: Record<string, { to: string; label: keyof ReturnType<typeof t> } | null> = {
   booked: { to: "en_route", label: "startRoute" },
   en_route: { to: "in_progress", label: "startWork" },
-  in_progress: { to: "pending_verify", label: "submitVerify" },
+  // in_progress advances only via after-photo verification below; pending_verify resubmits the same way.
+  in_progress: null,
   pending_verify: null,
 };
 
@@ -19,6 +20,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
   const [error, setError] = useState("");
   const [recording, setRecording] = useState(false);
   const [steps, setSteps] = useState<string[]>([]);
+  const [verdict, setVerdict] = useState<string>("");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const strings = t(lang);
@@ -100,6 +102,27 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
     }
   }
 
+  async function onAfterPhotos(list: FileList | null) {
+    if (!list || list.length === 0) return;
+    const fd = new FormData();
+    fd.append("jobId", jobId);
+    Array.from(list).slice(0, 3).forEach((f) => fd.append("after", f, f.name));
+    setBusy(true);
+    setError("");
+    setVerdict("");
+    try {
+      const res = await fetch("/api/jobs/verify", { method: "POST", body: fd });
+      const json = (await res.json()) as { verdict?: { verdict: string; summary: string }; error?: string };
+      if (!res.ok) throw new Error(json.error ?? strings.errorGeneric);
+      setVerdict(`${json.verdict?.verdict}: ${json.verdict?.summary ?? ""}`);
+      await reload();
+    } catch {
+      setError(strings.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const step = job ? NEXT_STEP[job.status] : null;
   const doneSteps = new Set(
     events
@@ -167,6 +190,27 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
               </label>
             </div>
           </section>
+
+          {(job.status === "in_progress" || job.status === "pending_verify") && (
+            <section className="card highlight">
+              <label className="lbl" htmlFor="after-input">📸 {strings.afterPhotos}</label>
+              <p className="muted small">{strings.submitVerify}</p>
+              <label className="btn big filebtn">
+                {strings.submitVerify}
+                <input
+                  id="after-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  multiple
+                  hidden
+                  disabled={busy}
+                  onChange={(e) => onAfterPhotos(e.target.files)}
+                />
+              </label>
+              {verdict && <p className="muted" role="status">{verdict}</p>}
+            </section>
+          )}
 
           <section className="card">
             <h2>{strings.logTitle}</h2>

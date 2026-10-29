@@ -65,7 +65,9 @@ export async function processScan(input: ScanPipelineInput): Promise<ScanPipelin
       transcriptUsed = input.lang === "es" ? "(nota de voz de demostración)" : "(demo voice note)";
     }
     const spec = mockScanSpec();
-    return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, mock });
+    const first = input.photos[0];
+    const photoDataUrl = first ? await fileToDataUrl(first) : undefined;
+    return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl, mock });
   }
 
   if (!transcriptUsed && input.audio) {
@@ -79,7 +81,7 @@ export async function processScan(input: ScanPipelineInput): Promise<ScanPipelin
 
   const images = await Promise.all(input.photos.map((p) => fileToDataUrl(p)));
   const spec = await withTimeout(scanToSpec({ images, transcript: transcriptUsed, lang: input.lang }));
-  return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, mock: false });
+  return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl: images[0], mock: false });
 }
 
 async function persist(args: {
@@ -87,6 +89,7 @@ async function persist(args: {
   transcript: string;
   lang: string;
   photoCount: number;
+  photoDataUrl?: string;
   mock: boolean;
 }): Promise<ScanPipelineOutput> {
   if (hasSupabase()) {
@@ -109,7 +112,7 @@ async function persist(args: {
       console.error("[scan-pipeline] supabase error:", e instanceof Error ? e.message : e);
     }
   }
-  const row = saveMemoryScan({ spec: args.spec, transcript: args.transcript, lang: args.lang, photoCount: args.photoCount });
+  const row = saveMemoryScan({ spec: args.spec, transcript: args.transcript, lang: args.lang, photoCount: args.photoCount, photoDataUrl: args.photoDataUrl });
   return { scanId: row.scanId, spec: args.spec, transcript: args.transcript, lang: args.lang, mock: args.mock };
 }
 

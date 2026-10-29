@@ -158,6 +158,19 @@ export async function transcribeBuffer(args: {
   return json.transcript ?? "";
 }
 
+/** Deterministic Day 5 mock verdict (no API key needed). Passes with per-step checks. */
+export function mockVerifyResult(spec: AiSpec): VerifyResult {
+  return {
+    verdict: "pass",
+    checks: spec.steps.map((step, i) => ({
+      step,
+      passed: true,
+      evidence: i === 0 ? "Mock: before/after comparison shows the repair completed." : "Mock: step consistent with after photo.",
+    })),
+    summary: `Mock: all ${spec.steps.length} repair steps verified against after photos.`,
+  };
+}
+
 /** Deterministic Day 2 mock spec (no API key needed). Shared by CLI --mock and web DEMO_MODE. */
 export function mockScanSpec(): AiSpec {
   return {

@@ -58,6 +58,10 @@ const dict = {
     pollBadge: "updating",
     watchTitle: "Your job, live",
     heldNote: "Payment is held in escrow until verification passes.",
+    // Day 5
+    afterPhotos: "After photos",
+    passed: "Verified — payment released to the pro. Thanks!",
+    needsFix: "Needs attention — the pro can fix it and resubmit.",
   },
   es: {
     scanTitle: "Describe el problema",
@@ -115,6 +119,10 @@ const dict = {
     pollBadge: "actualizando",
     watchTitle: "Tu trabajo, en vivo",
     heldNote: "El pago queda retenido hasta que pase la verificación.",
+    // Day 5
+    afterPhotos: "Fotos del después",
+    passed: "Verificado — pago liberado al profesional. ¡Gracias!",
+    needsFix: "Requiere atención — el profesional puede corregirlo y reenviarlo.",
   },
 } as const;
 

@@ -8,6 +8,7 @@ export interface JobRow {
   status: string;
   price_usd: number;
   slot: string | null;
+  verify_result?: unknown;
   createdAt: number;
 }
 
@@ -153,11 +154,12 @@ export async function updatePaymentStatus(stripePiId: string, status: string): P
 
 // --- Day 4: job mode + realtime log ---
 
-/** Valid Day 4 transitions. completed/disputed land Day 5 (verification). */
+/** Valid Day 4+5 transitions. completed is reached only via /api/jobs/verify on a pass. */
 export const TRANSITIONS: Record<string, string[]> = {
   booked: ["en_route"],
   en_route: ["in_progress"],
   in_progress: ["pending_verify"],
+  pending_verify: ["completed"],
 };
 
 export async function appendEvent(jobId: string, kind: string, payload: unknown): Promise<JobEvent> {
@@ -257,4 +259,21 @@ export async function transitionJob(jobId: string, to: string): Promise<JobRow |
   list.push({ id: randomUUID(), job_id: jobId, kind: to, payload: { from }, createdAt: Date.now() });
   events.set(jobId, list);
   return mem;
+}
+
+/** Record a verification verdict; on pass the caller completes + captures payment. */
+export async function saveVerifyResult(jobId: string, verdict: unknown): Promise<void> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        await db.from("jobs").update({ verify_result: verdict }).eq("id", jobId);
+        return;
+      }
+    } catch (e) {
+      console.error("[jobs] verify save error:", e instanceof Error ? e.message : e);
+    }
+  }
+  const mem = getMemoryJob(jobId);
+  if (mem) mem.verify_result = verdict;
 }

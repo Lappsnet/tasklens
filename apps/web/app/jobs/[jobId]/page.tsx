@@ -20,6 +20,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
   const [lang, setLang] = useState<Lang>("en");
   const strings = t(lang);
   const { job, events, live } = useJobFeed(jobId);
+  const verified = events.find((e) => e.kind === "verified");
 
   useEffect(() => {
     const saved = window.localStorage.getItem("tasklens:lang");
@@ -40,10 +41,17 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
             <p className="muted small">
               job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}
             </p>
-            <p className="muted small">
-              {strings.held} · {job.payment?.status ?? "requires_capture"}
-            </p>
+            {job.status === "completed" ? (
+              <p className="muted small">✓ {strings.passed} ({job.payment?.status ?? "succeeded"})</p>
+            ) : (
+              <p className="muted small">
+                {strings.held} · {job.payment?.status ?? "requires_capture"}
+              </p>
+            )}
           </section>
+          {verified && (verified.payload as { verdict?: string }).verdict === "review" && (
+            <p className="warn" role="alert">{strings.needsFix}</p>
+          )}
           <section className="card">
             <h2>{strings.logTitle}</h2>
             <ol className="steps">

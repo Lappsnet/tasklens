@@ -44,6 +44,17 @@ export async function holdPayment(args: { amountUsd: number; jobRef: string }): 
   return { piId: pi.id, status: pi.status, amountUsd: args.amountUsd, mock: false };
 }
 
+/** Release escrow: capture a manually-held PaymentIntent. Only called on a pass verdict. */
+export async function capturePayment(piId: string): Promise<{ status: string; mock: boolean }> {
+  const stripe = stripeClient();
+  if (!stripe || piId.startsWith("pi_mock_")) {
+    await new Promise((r) => setTimeout(r, 300));
+    return { status: "succeeded", mock: true };
+  }
+  const pi = await stripe.paymentIntents.capture(piId);
+  return { status: pi.status, mock: false };
+}
+
 /** Verify a Stripe webhook signature; throws on mismatch. */
 export function verifyWebhook(rawBody: string | Buffer, signature: string): Stripe.Event {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;

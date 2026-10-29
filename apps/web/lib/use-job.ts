@@ -77,6 +77,14 @@ export function eventLabel(kind: string): string {
       return "Voice note";
     case "step":
       return "Checklist";
+    case "verified":
+      return "AI verification";
+    case "highlight":
+      return "Damage highlight";
+    case "payment_released":
+      return "Payment released";
+    case "completed":
+      return "Completed";
     default:
       if (kind.startsWith("photo_")) return kind === "photo_before" ? "Before photos" : "After photos";
       return kind;

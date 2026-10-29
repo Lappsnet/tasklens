@@ -2,6 +2,17 @@
 
 Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Day 5: verification, payment release, SAM highlight, Muse Image preview
+
+- `POST /api/jobs/verify` runs `verifyCompletion` (mock `mockVerifyResult` without a key).
+  Pass → job `completed` + Stripe capture (mock `succeeded`); ONLY this path captures payment.
+  Review → stays `pending_verify` for fix + resubmit. Real mode requires a stored "before"
+  (scan's first photo kept in memory, ≤1.5 MB); mock grades on after photos.
+- SAM highlight is best-effort inside verify (`segmentDamage`, 15 s cap, never blocks);
+  mock returns the spec `damage_box` overlay instead. Muse Image preview endpoint exists
+  (`POST /api/jobs/preview`); mock returns null with an honest note until a key is set.
+- Full loop verified twice end-to-end with no manual DB edits (~2.6 s/loop in mock).
+
 ## 2026-10-29 — Day 4: pro job mode + realtime job log
 
 - Job state machine (Day 4): booked → en_route → in_progress → pending_verify.
