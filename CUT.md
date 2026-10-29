@@ -1,6 +1,10 @@
 # TaskLens — Day 1 cut log (fallback decisions)
 # Rule: if a Meta API or glasses SDK blocks >45 min, switch to fallback and log here.
 
+- 2026-10-29 P1: Business accounts (team pros) deferred past the freeze: approved
+  pros cover the demo's crew-booking story (S4 books one pro per trade already);
+  teams need new tables + UI with ~zero seconds in a 3-minute video. Revisit post-hackathon.
+
 - 2026-10-29 P0-6: Meta Wearables Device Access Toolkit has no public artifact in
   the developer docs (same finding as Day 1). No 45-min integration attempt was
   possible against docs that don't exist — shipping the Mock Device Kit with a

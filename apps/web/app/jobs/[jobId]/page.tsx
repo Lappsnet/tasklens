@@ -17,6 +17,60 @@ function StepTick({ payload }: { payload: { step: string; done: boolean } }) {
   );
 }
 
+/** P1: share this job — WhatsApp + Facebook intents, native sheet (covers
+ * Instagram app) with copy-link fallback. No WhatsApp/FB/IG API involved. */
+function Share({ strings }: { strings: ReturnType<typeof t> }) {
+  const [copied, setCopied] = useState(false);
+  const [canNative, setCanNative] = useState(false);
+  useEffect(() => {
+    setCanNative(typeof navigator !== "undefined" && "share" in navigator);
+  }, []);
+  const url = typeof window !== "undefined" ? window.location.href : "";
+  const text = encodeURIComponent(`${strings.watchTitle}: ${url}`);
+  const enc = encodeURIComponent(url);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+  async function native() {
+    try {
+      await (navigator as Navigator & { share: (d: { title: string; url: string }) => Promise<void> }).share({
+        title: strings.watchTitle,
+        url,
+      });
+    } catch {
+      /* dismissed */
+    }
+  }
+  return (
+    <div className="flex gap-2 flex-wrap items-center">
+      <a className="btn btn-secondary" href={`https://wa.me/?text=${text}`} target="_blank" rel="noopener noreferrer">
+        {strings.shareWhatsApp}
+      </a>
+      <a className="btn btn-secondary" href={`https://www.facebook.com/sharer/sharer.php?u=${enc}`} target="_blank" rel="noopener noreferrer">
+        {strings.shareFacebook}
+      </a>
+      {canNative ? (
+        <button type="button" className="btn btn-secondary" onClick={native}>
+          {strings.shareInstagram} / …
+        </button>
+      ) : (
+        <button type="button" className="btn btn-secondary" onClick={copy} title={strings.shareIgNote}>
+          {strings.shareInstagram}
+        </button>
+      )}
+      <button type="button" className="btn btn-secondary" onClick={copy}>
+        {copied ? `✓ ${strings.shareCopied}` : strings.shareCopy}
+      </button>
+    </div>
+  );
+}
+
 function Note({ payload }: { payload: unknown }) {
   if (typeof payload === "object" && payload !== null && "text" in payload) {
     return <div className="text-sm text-slate2">“{(payload as { text: string }).text}”</div>;
@@ -218,6 +272,11 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
         )}
 
         <p className="text-slate2 text-sm">{strings.heldNote}</p>
+        <Card>
+          <h2 className="font-bold mb-2">{strings.shareTitle}</h2>
+          <Share strings={strings} />
+          <p className="text-slate2 text-xs mt-2">{strings.shareIgNote}</p>
+        </Card>
           <Link className="btn btn-secondary" href={`/quote/${(job as unknown as { scan_id?: string }).scan_id ?? ""}`}>
             ← {strings.quoteTitle}
           </Link>

@@ -53,6 +53,9 @@ export default function AdminPage() {
       <button type="button" className="btn big" disabled={busy || role !== "admin"} onClick={reset}>
         {busy ? "…" : strings.resetDemo}
       </button>
+      {role === "admin" && (
+        <p><Link href="/admin/pros">{strings.queueTitle} →</Link></p>
+      )}
       {result && <p className="muted" role="status">{result}</p>}
       {error && <p className="err" role="alert">{error}</p>}
     </main>

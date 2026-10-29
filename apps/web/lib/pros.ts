@@ -15,6 +15,19 @@ const MOCK_PROS: ProCandidate[] = [
   { id: "mock-sofia", name: "Sofía Ramírez", category: "electrical", rating: 4.6, rate_usd_hr: 40, city: "Santa Ana, SV", lat: 13.9949, lng: -89.5596 },
 ];
 
+/** Pros approved through the onboarding queue (memory mode). Listed alongside MOCK_PROS. */
+const APPROVED_PROS: ProCandidate[] = [];
+
+/** Register an admin-approved pro in memory mode so match/search sees them. */
+export function addApprovedPro(p: ProCandidate): void {
+  if (!APPROVED_PROS.some((x) => x.id === p.id)) APPROVED_PROS.push(p);
+}
+
+/** Test/admin helper: clear approved memory pros. */
+export function __clearApprovedPros(): void {
+  APPROVED_PROS.length = 0;
+}
+
 function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const r = 6371;
   const dLat = ((bLat - aLat) * Math.PI) / 180;
@@ -52,7 +65,7 @@ export async function searchPros(args: {
       console.error("[pros] supabase error:", e instanceof Error ? e.message : e);
     }
   }
-  return MOCK_PROS.filter(
+  return [...MOCK_PROS, ...APPROVED_PROS].filter(
     (p) =>
       p.category === args.category &&
       distanceKm(args.lat, args.lng, p.lat ?? args.lat, p.lng ?? args.lng) <= args.max_km,

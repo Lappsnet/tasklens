@@ -14,8 +14,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - S7 code DONE (City board for all of LatAm, city-fenced, operator dashboard),
   tests 96/96 green, `next build` green.
 - S8 code DONE (Pro Copilot: spec-grounded Q&A with spoken answers, advisory hazard
-  watch with 60 s toggle, "listo" frame evidence per step), ai 37/37, web 71/71,
-  typecheck + `next build` green.
+  watch with 60 s toggle, "listo" frame evidence per step), ai 37/37, web 71/75
+  (+4 onboarding), typecheck + `next build` green.
+- P1 code DONE: pro onboarding (`/pro/apply` → `/admin/pros` approve/reject,
+  migration 013, approve creates a searchable pro), job-page share
+  (WhatsApp + Facebook intents, native sheet for Instagram, copy-link), docs
+  (`architecture.md`, `meta-tech.md`, `security-review.md` vs AGENTS §7 —
+  all PASS, 2 OPEN owner-keyed items). Business accounts deferred (CUT.md).
+  ai 37/37, web 75/75, typecheck + `next build` green.
 - Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
   1 residual zod advisory is non-actionable (see DECISIONS.md).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.

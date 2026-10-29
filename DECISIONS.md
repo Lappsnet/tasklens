@@ -2,6 +2,27 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — P1 batch (onboarding, share, security review, docs)
+
+- Pro onboarding: public `/pro/apply` (name, trade, zone, phone, rate, ID photo;
+  no session, 5/min, Zod) → `pro_applications` (migration `013`, RLS default
+  deny, service-role only) → `/admin/pros` queue (signed 60 s ID-photo URLs,
+  reject requires a reason) → approve inserts into `pros` (real) or the approved
+  memory pool (demo) so match/search sees them. Landing "Únete" now points at
+  `/pro/apply`. ID photos: private `media` bucket in real mode, ≤1.5 MB data URL
+  in memory mode (same bound pattern as scans).
+- Share: job page gets WhatsApp + Facebook share intents (plain links, no APIs)
+  plus `navigator.share` when available (reaches the Instagram app) with
+  copy-link fallback; Instagram has no web share endpoint, stated in the UI note.
+- Security review (`docs/security-review.md`): all §7 sections PASS on code;
+  2 OPEN items need keys (live RLS apply, live payment capture). Verified 55/55
+  route files gated (5 intentionally public). `docs/architecture.md` +
+  `docs/meta-tech.md` written (every Meta tool, where, latency table).
+- Business accounts deferred to CUT.md (crew story already covered by S4
+  per-trade booking).
+- web tests 75/75, ai 37/37, typecheck + `next build` green. Audit unchanged
+  (1 non-actionable zod).
+
 ## 2026-10-29 — S8 Pro Copilot (hands-free expert in job mode)
 
 - `packages/ai/copilot.ts` + `prompts/copilot.md`: `answerCopilot` (Q&A grounded in

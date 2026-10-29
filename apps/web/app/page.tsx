@@ -163,7 +163,7 @@ export default function LandingPage() {
       <section className="py-8">
         <h2 className="font-display text-2xl font-bold">{t.prosT}</h2>
         <p className="text-slate2 mt-2">{t.pros}</p>
-        <Link href="/login" className="inline-block mt-4 border border-ink rounded-btn px-6 py-3 font-bold">{t.join}</Link>
+        <Link href="/pro/apply" className="inline-block mt-4 border border-ink rounded-btn px-6 py-3 font-bold">{t.join}</Link>
       </section>
 
       <section className="py-8">
