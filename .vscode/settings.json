@@ -1,0 +1,6 @@
+{
+  // Use the repo's TypeScript (5.9) instead of VS Code's bundled copy so the
+  // editor resolves types exactly like `pnpm typecheck` does.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
