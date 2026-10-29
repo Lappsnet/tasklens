@@ -4,3 +4,4 @@ export * from "./muse.js";
 export * from "./match.js";
 export * from "./contracts.js";
 export * from "./schedule.js";
+export * from "./home.js";

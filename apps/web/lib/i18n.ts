@@ -105,6 +105,14 @@ const dict = {
     continueBooking: "Continue to payment",
     changeOrders: "Change orders",
     aiTemplateNote: "AI-generated template; not legal advice.",
+    // S3 Home Passport
+    passportTitle: "Home Passport",
+    passportSub: "Every verified repair, its warranty and maintenance — one permanent record.",
+    warranty: "Warranty",
+    rebook: "Book again",
+    reminders: "Maintenance reminders",
+    sharePassport: "Share passport",
+    exportPdf: "Export PDF",
     // S2 Smart Calendar
     calTitle: "Calendar & day plan",
     calSub: "Block time, hear your briefing, sync by ICS.",
@@ -218,6 +226,14 @@ const dict = {
     continueBooking: "Continuar al pago",
     changeOrders: "Órdenes de cambio",
     aiTemplateNote: "Plantilla generada con IA; no constituye asesoría legal.",
+    // S3 Home Passport
+    passportTitle: "Pasaporte del hogar",
+    passportSub: "Cada reparación verificada, su garantía y mantenimiento — un registro permanente.",
+    warranty: "Garantía",
+    rebook: "Reservar de nuevo",
+    reminders: "Recordatorios de mantenimiento",
+    sharePassport: "Compartir pasaporte",
+    exportPdf: "Exportar PDF",
     // S2 Smart Calendar
     calTitle: "Calendario y plan del día",
     calSub: "Bloquea tiempo, escucha tu resumen, sincroniza por ICS.",

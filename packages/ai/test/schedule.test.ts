@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { briefDay, distanceKm, suggestSlots } from "../src/schedule.js";
+import { radarSuggestions } from "../src/home.js";
 import { mockScanSpec } from "../src/muse.js";
 
 describe("S2 suggestSlots", () => {
@@ -34,6 +35,17 @@ describe("S2 suggestSlots", () => {
   it("haversine sanity", () => {
     expect(distanceKm(25.7617, -80.1918, 25.7617, -80.1918)).toBe(0);
     expect(distanceKm(25.7617, -80.1918, 13.6929, -89.2182)).toBeGreaterThan(1000);
+  });
+});
+
+describe("S3 radarSuggestions", () => {
+  it("emits a dated bilingual reminder per entry", async () => {
+    const out = await radarSuggestions([
+      { entryId: "e1", category: "plumbing", title: "Fix sink", completedAt: "2026-10-29" },
+    ]);
+    expect(out.reminders).toHaveLength(1);
+    expect(out.reminders[0].due_in_days).toBe(360);
+    expect(out.mock).toBe(true);
   });
 });
 

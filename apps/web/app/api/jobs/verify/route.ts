@@ -119,7 +119,7 @@ export async function POST(req: Request) {
     if (!completed) return NextResponse.json({ error: "complete_failed" }, { status: 500 });
     const payment = booking.payment;
     let capture = { status: "succeeded", capturedUsd: booking.price_usd, mock };
-    if (payment) {
+    if (payment && booking.price_usd > 0) {
       const provider = getProvider();
       const authId = payment.authorizationId ?? payment.stripe_pi_id;
       capture = {
@@ -129,6 +129,44 @@ export async function POST(req: Request) {
       await updatePaymentStatus(authId, capture.status);
       await recordPayout({ jobId: booking.id, proId: booking.pro_id, amountUsd: capture.capturedUsd });
       await appendEvent(parsed.data.jobId, "payment_released", { amount_usd: capture.capturedUsd, provider: provider.name });
+    } else if (payment) {
+      await updatePaymentStatus(payment.authorizationId ?? payment.stripe_pi_id, "succeeded");
+    }
+    // S3: every verified job writes a Home Passport entry + maintenance reminder.
+    try {
+      const [{ getOrCreateHome, addEntry, addReminder }, { radarSuggestions }, { getContractByJob }] = await Promise.all([
+        import("@/lib/passport"),
+        import("@tasklens/ai"),
+        import("@/lib/contracts"),
+      ]);
+      const home = await getOrCreateHome(booking.customer_id);
+      const contract = await getContractByJob(booking.id).catch(() => null);
+      const warrantyDays = contract?.warranty_days ?? 30;
+      const entry = await addEntry({
+        home_id: home.id,
+        job_id: booking.id,
+        category: (spec as AiSpec).category,
+        title: (spec as AiSpec).title,
+        before_photo: beforeUrl,
+        after_photo: afterUrls[0],
+        contract_id: contract?.id,
+        materials: (spec as AiSpec).materials,
+        pro_id: booking.pro_id,
+        warranty_until: new Date(Date.now() + warrantyDays * 86400_000).toISOString().slice(0, 10),
+        ai_summary: verdict.summary,
+      });
+      const radar = await radarSuggestions([{ entryId: entry.id, category: entry.category, title: entry.title, completedAt: new Date().toISOString() }]);
+      for (const r of radar.reminders.slice(0, 2)) {
+        await addReminder({
+          home_id: home.id,
+          entry_id: entry.id,
+          title: r.title,
+          due_on: new Date(Date.now() + r.due_in_days * 86400_000).toISOString().slice(0, 10),
+          done: false,
+        });
+      }
+    } catch (e) {
+      console.error("[verify] passport entry failed (non-blocking):", e instanceof Error ? e.message : e);
     }
     return NextResponse.json({
       verdict,
