@@ -41,6 +41,35 @@ export default function ScanPage() {
     window.localStorage.setItem("tasklens:lang", l);
   }
 
+  /** Deterministic demo fixture: a leaking-P-trap illustration rendered to PNG.
+   * Goes through the real upload pipeline — for recordings and leak-less reviewers. */
+  async function useDemoPhoto() {
+    setError("");
+    const c = document.createElement("canvas");
+    c.width = 640;
+    c.height = 480;
+    const g = c.getContext("2d");
+    if (!g) return;
+    g.fillStyle = "#e8e0d0"; g.fillRect(0, 0, 640, 480); // wall
+    g.fillStyle = "#8a5a33"; g.fillRect(120, 300, 400, 180); // cabinet
+    g.fillStyle = "#5b3a1e"; g.fillRect(120, 300, 400, 14);
+    g.fillStyle = "#9aa3a8"; // pipes
+    g.fillRect(290, 40, 26, 180);
+    g.fillRect(290, 220, 120, 26); // trap arm
+    g.fillRect(384, 150, 26, 96);
+    g.beginPath(); g.arc(303, 246, 34, 0, Math.PI); g.fill(); // P-trap bend
+    g.fillStyle = "#2f9e44"; g.beginPath(); g.arc(320, 130, 10, 0, 7); g.fill(); // joint
+    g.fillStyle = "#1c7ed6"; // drip + puddle
+    g.beginPath(); g.ellipse(303, 300, 9, 13, 0, 0, 7); g.fill();
+    g.beginPath(); g.ellipse(303, 330, 42, 12, 0, 0, 7); g.fill();
+    const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/png"));
+    if (!blob) {
+      setError(strings.errorGeneric);
+      return;
+    }
+    setPhotos((p) => [...p, new File([blob], "demo-leak.png", { type: "image/png" })].slice(0, 3));
+  }
+
   function onFiles(list: FileList | null) {
     setError("");
     if (!list) return;
@@ -172,23 +201,27 @@ export default function ScanPage() {
       <section className="card">
         <label className="lbl" htmlFor="photo-input">{strings.photoLabel}</label>
         <p className="muted small">{strings.photoHint}</p>
-        <label className="btn btn-secondary filebtn">
-          {strings.takePhoto}
-          <input
-            id="photo-input"
-            type="file"
-            accept={ACCEPT}
-            capture="environment"
-            multiple
-            hidden
-            onChange={(e) => onFiles(e.target.files)}
-          />
-        </label>
+        <div className="row">
+          <label className="btn btn-secondary filebtn">
+            {strings.takePhoto}
+            <input
+              id="photo-input"
+              type="file"
+              accept={ACCEPT}
+              capture="environment"
+              multiple
+              hidden
+              onChange={(e) => onFiles(e.target.files)}
+            />
+          </label>
+          <button type="button" className="btn btn-secondary" onClick={useDemoPhoto}>
+            {strings.demoPhoto}
+          </button>
+        </div>
         {previews.length > 0 && (
           <div className="thumbs">
             {previews.map((u, i) => (
               <div key={u} className="thumb">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={u} alt={`scan photo ${i + 1}`} />
                 {i === 0 && <span className="badge">{strings.mainPhoto}</span>}

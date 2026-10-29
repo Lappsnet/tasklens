@@ -89,6 +89,7 @@ const dict = {
     loop3: "pro accepts → job mode",
     loop4: "before/after photos → AI verification → release payment",
     apiNote: "API check: /api/health should return ok.",
+    demoPhoto: "Try demo photo",
   },
   es: {
     scanTitle: "Describe el problema",
@@ -177,6 +178,7 @@ const dict = {
     loop3: "el profesional acepta → modo trabajo",
     loop4: "fotos antes/después → verificación IA → liberar pago",
     apiNote: "Verificación de API: /api/health debe devolver ok.",
+    demoPhoto: "Probar foto demo",
   },
 } as const;
 

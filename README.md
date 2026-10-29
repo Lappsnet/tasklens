@@ -1,21 +1,31 @@
 # TaskLens
 
-Hackathon MVP: look at a home problem through glasses/phone camera + speak → AI job spec + price → matched pro → escrow → verified completion.
+Look at a home problem through glasses or a phone camera, say what you see, and get an AI job spec, price range and matched pro — with escrow held until Muse Spark verifies the finished work.
+
+**The problem:** getting a small home repair done means describing the issue over the phone, waiting for callbacks, haggling over price, paying upfront, and hoping the work is good. TaskLens collapses that into one flow: point the camera, speak, approve a quote, and the payment is only released when AI verification passes.
 
 ## 60-second GIF
-(TODO Day 7)
+![TaskLens demo](apps/web/public/demo.gif)
+Record it with the shot-by-shot script in [DEMO.md](DEMO.md) (mock mode — no API keys needed).
 
 ## Architecture
-- `apps/web` — Next.js 15 PWA + API routes (server-only keys)
-- `packages/ai` — Muse client, prompts, Zod schemas, scanToSpec/match/verify/transcribe/preview
-- `packages/db` — Supabase migrations + seed + queries
-- `apps/glasses-android` — Kotlin/Compose thin companion (Mock Device Kit Day 1)
+```
+phone / glasses ──photo+voice──▶ Next.js 15 (apps/web)
+                                        │  /api/scan → scanToSpec (Muse Spark 1.3)
+                                        │  /api/match /api/book (agent loop + Stripe TEST hold)
+                                        │  pro job mode → /api/jobs/* (transitions, notes, photos)
+                                        │  /api/jobs/verify (pass → capture, review → resubmit)
+                                        ▼
+packages/ai (Muse client, prompts, Zod contracts) ──▶ Muse Model API
+packages/db (Supabase Postgres + RLS, seed 25 pros) ◀──▶ Supabase (Auth, Realtime, Storage)
+apps/glasses-android (Kotlin thin companion, Mock Device Kit → GlassesUploader)
+```
 
 ## Meta tech used
 - Muse Spark (`muse-spark-1.3`, fallback 1.2) via Model API `https://api.meta.ai/v1`, OpenAI SDK, `response_format: json_schema`
 - Muse Voice Transcribe (`muse-voice-transcribe-1.0`): `POST /v1/asr/transcribe`, `wss://api.meta.ai/v1/asr/realtime`
 - Muse Image (`muse-image-1.0`): `POST /v1/images/generations`, `POST /v1/images/edits`
-- SAM 3.1 (`sam-3.1`): `POST /v1/responses` streamed — NOT a separate $SAM_ENDPOINT_URL
+- SAM 3.1 (`sam-3.1`): `POST /v1/responses` streamed — NOT a separate endpoint; `ai_spec.damage_box` overlay is the guaranteed fallback
 
 ## Setup (5 commands)
 ```sh

@@ -2,6 +2,15 @@
 
 Record of stack/behavior decisions. Newest first. (agent.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Day 7: demo recording support + README
+
+- README now covers problem, GIF slot (`apps/web/public/demo.gif`, recorded via DEMO.md),
+  ASCII architecture, Meta tech, 5-command setup, env table. `DEMO.md` holds the 60 s
+  shot-by-shot recording script (reset → scan → quote → book → job mode → live watch).
+- One-click demo fixture on `/scan` ("Try demo photo"): canvas-rendered leaking-P-trap PNG
+  through the real upload pipeline — for recordings and reviewers without a leak at hand.
+  The actual `demo.gif` must be recorded by a human (no screen recorder in this env).
+
 ## 2026-10-29 — Day 6: harden, i18n, security review (§7)
 
 - Auth: Supabase magic-link (browser) + demo role login (`POST /api/auth/demo`, rate-limited,
