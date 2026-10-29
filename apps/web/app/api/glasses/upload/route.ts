@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { TextFields, processScan, validateUpload } from "@/lib/scan-pipeline";
 
 export const runtime = "nodejs";
@@ -15,6 +16,9 @@ export async function POST(req: Request) {
   if (!rateLimit(`glasses:${clientKey(req)}`, 30)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  // Companion app authenticates like the web client (demo cookie or magic-link JWT).
+  const gate = await requireRole(req, ["customer", "pro", "admin"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();
@@ -46,6 +50,7 @@ export async function POST(req: Request) {
       lang: parsed.data.lang,
       audio: files.audio,
       source: "glasses",
+      userId: gate.session.userId,
     });
     return NextResponse.json({
       ...out,

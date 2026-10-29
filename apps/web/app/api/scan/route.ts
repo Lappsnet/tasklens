@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
+import { requireRole } from "@/lib/auth";
 import { getMemoryScan } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { TextFields, processScan, validateUpload } from "@/lib/scan-pipeline";
@@ -11,6 +12,8 @@ export async function POST(req: Request) {
   if (!rateLimit(`scan:${clientKey(req)}`, 20)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
+  const gate = await requireRole(req, ["customer", "pro", "admin"]);
+  if ("response" in gate) return gate.response;
   let form: FormData;
   try {
     form = await req.formData();
@@ -37,6 +40,7 @@ export async function POST(req: Request) {
         lang: parsed.data.lang,
         audio: files.audio,
         source: "web",
+        userId: gate.session.userId,
       }),
     );
   } catch (e) {
