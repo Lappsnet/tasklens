@@ -1,6 +1,11 @@
 # TaskLens — Day 1 cut log (fallback decisions)
 # Rule: if a Meta API or glasses SDK blocks >45 min, switch to fallback and log here.
 
+- 2026-10-29 P0-6: Meta Wearables Device Access Toolkit has no public artifact in
+  the developer docs (same finding as Day 1). No 45-min integration attempt was
+  possible against docs that don't exist — shipping the Mock Device Kit with a
+  real bundled sample photo (`res/raw/sample_leak.jpg`, generated synthetic,
+  labeled "sample (mock)" in-app). Real path stays a documented seam.
 - 2026-10-28 Day1: SAM via Model API (model sam-3.1 over POST /v1/responses), NOT $SAM_ENDPOINT_URL.
   Docs show no standalone hosted SAM endpoint; removed SAM_ENDPOINT_URL from env plan.
   Fallback already in place: use ai_spec.damage_box overlay, never block flow.

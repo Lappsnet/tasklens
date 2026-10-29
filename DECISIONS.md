@@ -2,6 +2,20 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — P0-6 glasses companion (real project, honest mock)
+
+- `apps/glasses-android` is now a real Android Studio project (AGP 8.9.2, Kotlin
+  2.1.20, Compose BOM, compile/targetSdk 35 — raise to Play-required at build).
+  Flow: "Fix this" → capture → `POST /api/glasses/upload` → TTS summary on the
+  phone speaker → "Open quote" deep link. Auth = user's credential only
+  (`demo:<role>` cookie on demo servers, Supabase JWT Bearer in production).
+- No compile in this env (no JDK/SDK): `./gradlew assembleDebug` is an owner step
+  in `apps/glasses-android/README.md`. Code was reviewed file-by-file instead
+  (DeviceProvider seam, FileProvider authority, audio/mp4 accepted server-side).
+- Real-glasses path is a documented seam (`WearablesDeviceKit` throws with setup
+  steps; `DeviceProvider.USE_WEARABLES=false`); mock capture is a real bundled
+  synthetic JPEG, always labeled "sample (mock)". No real integration claimed.
+
 ## 2026-10-29 — P0-5 Android TWA + PWA
 
 - Hand-rolled `sw.js` (network-first navigations → `/offline`, cache-first icons;
