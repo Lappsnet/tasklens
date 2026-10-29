@@ -32,6 +32,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [pendingOrder, setPendingOrder] = useState<{ jobId: string; orderId: string; amountUsd: number; sandbox?: boolean } | null>(null);
+  const [suggested, setSuggested] = useState<Set<string>>(new Set());
   const strings = t(lang);
 
   useEffect(() => {
@@ -49,6 +50,18 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
         setPros(json.top3);
         setSelected(json.top3[0]?.pro_id ?? null);
         setSlot(json.top3[0]?.slots[0] ?? "");
+        // S2: AI slot suggestions get a star.
+        try {
+          const s = await fetch("/api/calendar/suggest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ scanId }),
+          });
+          const sj = (await s.json()) as { slots?: { slot: string }[] };
+          if (s.ok && sj.slots) setSuggested(new Set(sj.slots.map((x) => x.slot)));
+        } catch {
+          /* suggestions are a bonus, not a blocker */
+        }
       } catch {
         setError(strings.errorGeneric);
       }
@@ -190,7 +203,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
                     onChange={(e) => setSlot(e.target.value)}
                   >
                     {p.slots.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{suggested.has(s) ? `★ ${s}` : s}</option>
                     ))}
                   </select>
                 </div>

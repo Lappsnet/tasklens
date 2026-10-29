@@ -2,6 +2,14 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — S2 Smart Calendar
+
+- AI slot suggestions (urgency + availability + haversine travel; Mapbox Matrix is the
+  upgrade when a key exists), starred in the book UI. Day plan + spoken briefing (Web
+  Speech API), week view with block/unblock, private ICS feeds (random token, hash-only,
+  revocable) and mutual-approval reschedule (flags PayPal re-auth when moving >3 days).
+- Same dual-bundling lesson as P0-2: calendar stores also live on `globalThis`.
+
 ## 2026-10-29 — S1 Contract Studio (never-cut)
 
 - Fixed clause library (`packages/ai/contracts/clauses/*.md`, 8 files); Muse fills ONLY

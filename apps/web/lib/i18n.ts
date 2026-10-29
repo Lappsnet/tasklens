@@ -105,6 +105,15 @@ const dict = {
     continueBooking: "Continue to payment",
     changeOrders: "Change orders",
     aiTemplateNote: "AI-generated template; not legal advice.",
+    // S2 Smart Calendar
+    calTitle: "Calendar & day plan",
+    calSub: "Block time, hear your briefing, sync by ICS.",
+    speakBrief: "Read briefing",
+    blockDay: "Block day",
+    dayJobs: "Jobs",
+    blocks: "Blocked time",
+    newFeed: "New ICS link",
+    revokeFeed: "Revoke link",
   },
   es: {
     scanTitle: "Describe el problema",
@@ -209,6 +218,15 @@ const dict = {
     continueBooking: "Continuar al pago",
     changeOrders: "Órdenes de cambio",
     aiTemplateNote: "Plantilla generada con IA; no constituye asesoría legal.",
+    // S2 Smart Calendar
+    calTitle: "Calendario y plan del día",
+    calSub: "Bloquea tiempo, escucha tu resumen, sincroniza por ICS.",
+    speakBrief: "Leer resumen",
+    blockDay: "Bloquear día",
+    dayJobs: "Trabajos",
+    blocks: "Tiempo bloqueado",
+    newFeed: "Nuevo enlace ICS",
+    revokeFeed: "Revocar enlace",
   },
 } as const;
 
