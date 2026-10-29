@@ -2,6 +2,21 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — S5+S6 + audit fix
+
+- Funding links (`lib/funding.ts`, migration `011`): random 32-byte token in URL, SHA-256
+  hash only in DB, single-use, 72 h expiry. Payer view (`/fund/[token]`, `GET /api/funding/[token]`)
+  shows title/price/summary only — never address/phone. Mock provider auto-approves;
+  PayPal returns an order for the relative to approve, then PATCH finalizes.
+- Fair-fix mediator (`packages/ai/mediator.ts` + `/api/disputes`): Muse compares signed
+  scope + change orders + verification checks → `redo | partial_release`. AI never moves
+  money: partial capture happens only after the OTHER party (or admin) accepts.
+  Same-side accept → 403 `needs_other_party`; double-accept guarded. Redo reopens
+  `pending_verify/completed → in_progress` (TRANSITIONS extended).
+- Audit: root `pnpm.overrides` pins `postcss` to 8.5.32 (kills 8 transitive highs from
+  Next/Tailwind; build + tests re-verified). 1 residual (zod GHSA-mrhx, via openai SDK
+  pin 3.25.76, basic schemas only) stays non-actionable.
+
 ## 2026-10-29 — S4 Project Planner
 
 - Walkthrough video is sampled to 8 JPEG frames client-side (canvas seeks) — no server

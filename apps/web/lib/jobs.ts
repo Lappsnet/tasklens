@@ -96,7 +96,7 @@ export async function persistBooking(args: {
         const { data: job, error: jobErr } = await db
           .from("jobs")
           .insert({
-            scan_id: args.scan_id,
+            scan_id: args.scan_id || null,
             customer_id: args.customer_id ?? null,
             pro_id: args.pro_id,
             status,
@@ -261,13 +261,14 @@ export function visibleJobs<T extends { customer_id?: string }>(
   if (session.demo || session.role !== "customer") return rows;
   return rows.filter((r) => !r.customer_id || r.customer_id === session.userId);
 }
-/** Valid transitions (P0-2 adds quoted→booked on PayPal authorization). completed only via verify pass. */
+/** Valid transitions (P0-2 quoted→booked; S6 rework loop pending_verify/completed→in_progress). */
 export const TRANSITIONS: Record<string, string[]> = {
   quoted: ["booked"],
   booked: ["en_route"],
   en_route: ["in_progress"],
   in_progress: ["pending_verify"],
-  pending_verify: ["completed"],
+  pending_verify: ["completed", "in_progress"],
+  completed: ["in_progress"],
 };
 
 export async function appendEvent(jobId: string, kind: string, payload: unknown): Promise<JobEvent> {

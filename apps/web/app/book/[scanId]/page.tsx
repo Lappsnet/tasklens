@@ -288,6 +288,44 @@ function PayPalCheckout({
           {busy ? "…" : "Approve hold (demo)"}
         </button>
       )}
+      <FundLink jobId={order.jobId} />
     </section>
   );
+}
+
+function FundLink({ jobId }: { jobId: string }) {
+  const [link, setLink] = useState<{ url?: string; whatsapp?: string }>({});
+  const strings = t(useLang());
+  async function create() {
+    const res = await fetch("/api/funding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId }),
+    });
+    const json = (await res.json()) as { link?: { url: string; whatsapp: string } };
+    if (res.ok && json.link) setLink(json.link);
+  }
+  if (link.url) {
+    return (
+      <p className="text-sm mt-2 break-all">
+        <a className="underline" href={link.whatsapp} target="_blank" rel="noreferrer">{strings.shareVia}</a>
+        <br />
+        <span className="text-xs text-slate2">{link.url}</span>
+      </p>
+    );
+  }
+  return (
+    <button type="button" className="btn btn-secondary mt-2" onClick={create}>
+      {strings.askRelative}
+    </button>
+  );
+}
+
+function useLang() {
+  const [lang, setLang] = useState<Lang>("en");
+  useEffect(() => {
+    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
+    if (saved === "en" || saved === "es") setLang(saved);
+  }, []);
+  return lang;
 }

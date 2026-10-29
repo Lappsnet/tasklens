@@ -5,13 +5,11 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 
 ## Where we are (2026-10-29)
 - Branch `master` → `origin/master` (https://github.com/Lappsnet/tasklens, private).
-- Last commit: `515a6e6` (Day 7). AGENTS.md adopted as single source; agent.md removed.
-- P0-1 code DONE (prod guard, dynamic CSP, pg rate limits, demo-account seed + server login).
-  Tests 44/44 green, `next build` green.
-- P0-2 code DONE (PayPal-first provider interface, hold/approve/capture/void, payouts,
-  mock done-check green).
+- S5+S6 code DONE (funding links, fair-fix mediator), tests 80/80 green, `next build` green.
+- Audit: postcss forced to 8.5.32 via pnpm override (all postcss highs fixed);
+  1 residual zod advisory is non-actionable (see DECISIONS.md).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
-- NEXT (autonomous): S1 Contract Studio → S2 → S3 → P0-3/P0-4 → S4/S5/S6 → P0-5 → P0-6 → S7/S8 → P1.
+- NEXT (autonomous): P0-5 → P0-6 → S7 → S8 → P1.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
