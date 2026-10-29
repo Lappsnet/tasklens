@@ -16,7 +16,11 @@ export interface JobRow {
 export interface PaymentRow {
   id: string;
   job_id: string;
+  /** Legacy Stripe PI id; now also holds the PayPal authorization id. Prefer authorizationId. */
   stripe_pi_id: string;
+  provider?: string;
+  orderId?: string;
+  authorizationId?: string;
   amount_usd: number;
   status: string;
 }
@@ -29,9 +33,17 @@ export interface JobEvent {
   createdAt: number;
 }
 
-const jobs = new Map<string, JobRow>();
-const payments = new Map<string, PaymentRow>(); // keyed by job_id
-const events = new Map<string, JobEvent[]>(); // keyed by job_id
+// Process-wide stores: Next.js dev can evaluate this module twice (dual bundling),
+// so module-level Maps would split. globalThis is shared by every evaluation.
+const gs = globalThis as unknown as {
+  __tasklens_jobs?: Map<string, JobRow>;
+  __tasklens_payments?: Map<string, PaymentRow>;
+  __tasklens_events?: Map<string, JobEvent[]>;
+  __tasklens_payouts?: Map<string, PayoutRow>;
+};
+const jobs = (gs.__tasklens_jobs ??= new Map<string, JobRow>());
+const payments = (gs.__tasklens_payments ??= new Map<string, PaymentRow>()); // keyed by job_id
+const events = (gs.__tasklens_events ??= new Map<string, JobEvent[]>()); // keyed by job_id
 
 export function saveMemoryJob(j: Omit<JobRow, "id" | "createdAt">): JobRow {
   const row: JobRow = { ...j, id: randomUUID(), createdAt: Date.now() };
@@ -58,6 +70,7 @@ export function __clearForReset(): void {
   jobs.clear();
   payments.clear();
   events.clear();
+  payouts.clear();
 }
 
 /** Persist job + payment. Supabase when configured, else memory. Returns job id. */
@@ -67,20 +80,26 @@ export async function persistBooking(args: {
   pro_id: string;
   price_usd: number;
   slot: string;
+  status?: "quoted" | "booked";
+  provider?: string;
+  orderId?: string;
+  authorizationId?: string;
   stripe_pi_id: string;
+  paymentStatus?: string;
 }): Promise<{ jobId: string; mock: boolean }> {
+  const status = args.status ?? "booked";
   if (hasSupabase()) {
     try {
       const db = serviceClient();
       if (db) {
-        // Documented service-role use: anonymous Day 3 demo has no auth session yet.
+        // Documented service-role use: server validates the session before writing.
         const { data: job, error: jobErr } = await db
           .from("jobs")
           .insert({
             scan_id: args.scan_id,
             customer_id: args.customer_id ?? null,
             pro_id: args.pro_id,
-            status: "booked",
+            status,
             price_usd: args.price_usd,
             slot: args.slot,
           })
@@ -89,13 +108,16 @@ export async function persistBooking(args: {
         if (!jobErr && job) {
           await db.from("payments").insert({
             job_id: (job as { id: string }).id,
-            stripe_pi_id: args.stripe_pi_id,
+            provider: args.provider ?? "stripe",
+            order_id: args.orderId ?? null,
+            authorization_id: args.authorizationId ?? null,
+            stripe_pi_id: args.authorizationId ?? args.stripe_pi_id,
             amount_usd: args.price_usd,
-            status: "requires_capture",
+            status: args.paymentStatus ?? "requires_capture",
           });
           await db.from("job_events").insert({
             job_id: (job as { id: string }).id,
-            kind: "booked",
+            kind: status,
             payload: { pro_id: args.pro_id, slot: args.slot, stripe_pi_id: args.stripe_pi_id },
           });
           return { jobId: (job as { id: string }).id, mock: false };
@@ -110,18 +132,21 @@ export async function persistBooking(args: {
     scan_id: args.scan_id,
     customer_id: args.customer_id,
     pro_id: args.pro_id,
-    status: "booked",
+    status,
     price_usd: args.price_usd,
     slot: args.slot,
   });
   saveMemoryPayment({
     job_id: row.id,
-    stripe_pi_id: args.stripe_pi_id,
+    stripe_pi_id: args.authorizationId ?? args.stripe_pi_id,
+    provider: args.provider,
+    orderId: args.orderId,
+    authorizationId: args.authorizationId,
     amount_usd: args.price_usd,
-    status: "requires_capture",
+    status: args.paymentStatus ?? "requires_capture",
   });
   const list = events.get(row.id) ?? [];
-  list.push({ id: randomUUID(), job_id: row.id, kind: "booked", payload: { pro_id: args.pro_id, slot: args.slot }, createdAt: Date.now() });
+  list.push({ id: randomUUID(), job_id: row.id, kind: status, payload: { pro_id: args.pro_id, slot: args.slot }, createdAt: Date.now() });
   events.set(row.id, list);
   return { jobId: row.id, mock: true };
 }
@@ -159,8 +184,70 @@ export async function updatePaymentStatus(stripePiId: string, status: string): P
     }
   }
   for (const p of payments.values()) {
-    if (p.stripe_pi_id === stripePiId) p.status = status;
+    if (p.stripe_pi_id === stripePiId || p.authorizationId === stripePiId) p.status = status;
   }
+}
+
+export interface PayoutRow {
+  id: string;
+  job_id: string;
+  pro_id: string;
+  amount_usd: number;
+  fee_usd: number;
+  status: string;
+}
+
+const payouts = (gs.__tasklens_payouts ??= new Map<string, PayoutRow>()); // keyed by job_id
+
+/** Record the pro's payout ledger row on capture (amount minus platform fee). */
+export async function recordPayout(args: { jobId: string; proId: string; amountUsd: number }): Promise<PayoutRow> {
+  const feePct = Number(process.env.PLATFORM_FEE_PCT ?? 10);
+  const fee_usd = Math.max(0, Math.round((args.amountUsd * feePct) / 100));
+  const row: PayoutRow = {
+    id: randomUUID(),
+    job_id: args.jobId,
+    pro_id: args.proId,
+    amount_usd: Math.max(0, args.amountUsd - fee_usd),
+    fee_usd,
+    status: "pending",
+  };
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        const { data, error } = await db
+          .from("payouts")
+          .insert({ job_id: row.job_id, pro_id: row.pro_id, amount_usd: row.amount_usd, fee_usd: row.fee_usd, status: row.status })
+          .select("*")
+          .single();
+        if (!error && data) return data as unknown as PayoutRow;
+        console.error("[payouts] insert failed:", error?.message);
+      }
+    } catch (e) {
+      console.error("[payouts] error:", e instanceof Error ? e.message : e);
+    }
+  }
+  payouts.set(row.job_id, row);
+  return row;
+}
+
+/** Pro payout rows. Demo returns all; real mode filters by the caller's pro rows server-side. */
+export async function getPayouts(proIds?: string[]): Promise<PayoutRow[]> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        let q = db.from("payouts").select("*").order("created_at", { ascending: false }).limit(100);
+        if (proIds && proIds.length > 0) q = q.in("pro_id", proIds);
+        const { data, error } = await q;
+        if (!error && data) return data as unknown as PayoutRow[];
+      }
+    } catch (e) {
+      console.error("[payouts] read error:", e instanceof Error ? e.message : e);
+    }
+  }
+  const all = [...payouts.values()];
+  return proIds && proIds.length > 0 ? all.filter((p) => proIds.includes(p.pro_id)) : all;
 }
 
 // --- Day 4: job mode + realtime log ---
@@ -174,8 +261,9 @@ export function visibleJobs<T extends { customer_id?: string }>(
   if (session.demo || session.role !== "customer") return rows;
   return rows.filter((r) => !r.customer_id || r.customer_id === session.userId);
 }
-/** Valid Day 4+5 transitions. completed is reached only via /api/jobs/verify on a pass. */
+/** Valid transitions (P0-2 adds quoted→booked on PayPal authorization). completed only via verify pass. */
 export const TRANSITIONS: Record<string, string[]> = {
+  quoted: ["booked"],
   booked: ["en_route"],
   en_route: ["in_progress"],
   in_progress: ["pending_verify"],

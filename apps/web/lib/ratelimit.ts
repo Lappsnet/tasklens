@@ -2,7 +2,8 @@
  * Day 1: tiny in-memory sliding-window rate limiter for API routes.
  * Single-instance only (dev / single-region demo). Tighten with Redis post-demo.
  */
-const hits = new Map<string, number[]>();
+const gs = globalThis as unknown as { __tasklens_hits?: Map<string, number[]> };
+const hits = (gs.__tasklens_hits ??= new Map<string, number[]>());
 
 export function rateLimit(key: string, limit = 20, windowMs = 60_000): boolean {
   const now = Date.now();

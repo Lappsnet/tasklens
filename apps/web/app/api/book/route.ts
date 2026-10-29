@@ -8,6 +8,7 @@ import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { getAvailability, searchPros } from "@/lib/pros";
 import { getBooking, persistBooking, visibleJobs } from "@/lib/jobs";
 import { holdPayment } from "@/lib/stripe";
+import { getProvider, idempotencyKey, sandboxMode } from "@/lib/payments";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -85,13 +86,49 @@ export async function POST(req: Request) {
     // Server-side amount: midpoint of the AI price range, whole dollars.
     const [lo, hi] = scan.spec.price_range_usd;
     const amountUsd = Math.max(25, Math.round((lo + hi) / 2));
+    const provider = getProvider();
 
+    // PayPal flow: create the quoted job + order here; the buyer approves in
+    // the PayPal UI and POST /api/pay/approve authorizes (job → booked).
+    if (provider.name === "paypal") {
+      const { jobId, mock: storeMock } = await persistBooking({
+        scan_id: scanId,
+        customer_id: scan.customerId ?? gate.session.userId,
+        pro_id: proId,
+        price_usd: amountUsd,
+        slot,
+        status: "quoted",
+        provider: "paypal",
+        stripe_pi_id: "pending",
+        paymentStatus: "created",
+      });
+      const hold = await provider.createHold({ jobId, amountUsd, idempotencyKey: idempotencyKey(jobId, "order") });
+      const created = await getBooking(jobId);
+      if (created?.payment) {
+        created.payment.orderId = hold.orderId;
+        created.payment.status = hold.status;
+      }
+      return NextResponse.json({
+        jobId,
+        proId,
+        slot,
+        amountUsd,
+        provider: "paypal",
+        order: hold.approvalData ?? { orderId: hold.orderId },
+        sandbox: sandboxMode(),
+        mock: scan.mock || storeMock,
+        testMode: true,
+      });
+    }
+
+    // Mock/Stripe flow: atomic book + hold (unchanged legacy behavior).
     const { jobId, mock: storeMock } = await persistBooking({
       scan_id: scanId,
       customer_id: scan.customerId ?? gate.session.userId,
       pro_id: proId,
       price_usd: amountUsd,
       slot,
+      provider: provider.name,
       stripe_pi_id: "pending",
     });
     const held = await holdPayment({ amountUsd, jobRef: jobId });

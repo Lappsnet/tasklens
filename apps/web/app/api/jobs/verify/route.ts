@@ -14,12 +14,13 @@ import {
   appendEvent,
   getBooking,
   getEvents,
+  recordPayout,
   saveVerifyResult,
   transitionJob,
   updatePaymentStatus,
 } from "@/lib/jobs";
 import { IMAGE_MIME, MAX_FILE, withTimeout } from "@/lib/scan-pipeline";
-import { capturePayment } from "@/lib/stripe";
+import { getProvider, idempotencyKey } from "@/lib/payments";
 import { demoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
@@ -117,11 +118,17 @@ export async function POST(req: Request) {
     const completed = await transitionJob(parsed.data.jobId, "completed");
     if (!completed) return NextResponse.json({ error: "complete_failed" }, { status: 500 });
     const payment = booking.payment;
-    let capture = { status: "succeeded", mock };
+    let capture = { status: "succeeded", capturedUsd: booking.price_usd, mock };
     if (payment) {
-      capture = await capturePayment(payment.stripe_pi_id);
-      await updatePaymentStatus(payment.stripe_pi_id, capture.status);
-      await appendEvent(parsed.data.jobId, "payment_released", { amount_usd: booking.price_usd });
+      const provider = getProvider();
+      const authId = payment.authorizationId ?? payment.stripe_pi_id;
+      capture = {
+        ...(await provider.capture({ authorizationId: authId, amountUsd: booking.price_usd, idempotencyKey: idempotencyKey(booking.id, "capture") })),
+        mock: provider.name === "mock",
+      };
+      await updatePaymentStatus(authId, capture.status);
+      await recordPayout({ jobId: booking.id, proId: booking.pro_id, amountUsd: capture.capturedUsd });
+      await appendEvent(parsed.data.jobId, "payment_released", { amount_usd: capture.capturedUsd, provider: provider.name });
     }
     return NextResponse.json({
       verdict,

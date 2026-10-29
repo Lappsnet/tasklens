@@ -31,6 +31,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<{ jobId: string; orderId: string; amountUsd: number; sandbox?: boolean } | null>(null);
   const strings = t(lang);
 
   useEffect(() => {
@@ -71,7 +72,12 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scanId, proId: selected, slot, confirm: true }),
       });
-      const json = (await res.json()) as Receipt & { error?: string };
+      const json = (await res.json()) as Receipt & {
+        error?: string;
+        provider?: string;
+        order?: { orderId: string };
+        sandbox?: boolean;
+      };
       if (!res.ok) {
         throw new Error(
           json.error === "confirmation_required"
@@ -83,7 +89,34 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
                 : strings.errorGeneric,
         );
       }
-      setReceipt(json);
+      if (json.provider === "paypal" && json.order) {
+        // PayPal escrow: buyer approves in the PayPal UI, server authorizes after.
+        setPendingOrder({ jobId: json.jobId, orderId: json.order.orderId, amountUsd: json.amountUsd, sandbox: json.sandbox });
+      } else {
+        setReceipt(json);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : strings.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function approvePayPal() {
+    if (!pendingOrder) return;
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/pay/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: pendingOrder.jobId, orderId: pendingOrder.orderId }),
+      });
+      const json = (await res.json()) as { error?: string; job?: Receipt };
+      if (!res.ok) throw new Error(strings.errorGeneric);
+      const r = json.job as unknown as Receipt;
+      setReceipt({ ...r, mock: pendingOrder.sandbox ?? true });
+      setPendingOrder(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : strings.errorGeneric);
     } finally {
@@ -169,8 +202,58 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           <button type="button" className="btn big" disabled={busy || !selected || !slot} onClick={confirm}>
             {busy ? "…" : strings.confirm}
           </button>
+          {pendingOrder && <PayPalCheckout order={pendingOrder} busy={busy} onApprove={approvePayPal} />}
         </>
       )}
     </main>
+  );
+}
+
+function PayPalCheckout({
+  order,
+  busy,
+  onApprove,
+}: {
+  order: { jobId: string; orderId: string; amountUsd: number; sandbox?: boolean };
+  busy: boolean;
+  onApprove: () => void;
+}) {
+  const [sdkReady, setSdkReady] = useState(false);
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    if (!clientId || (window as unknown as { paypal?: unknown }).paypal) {
+      setSdkReady(Boolean((window as unknown as { paypal?: unknown }).paypal));
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&intent=authorize&currency=USD`;
+    s.onload = () => setSdkReady(true);
+    document.body.appendChild(s);
+    return () => {
+      document.body.removeChild(s);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sdkReady) return;
+    const paypal = (window as unknown as { paypal?: { Buttons(o: unknown): { render(el: string): void } } }).paypal;
+    paypal?.Buttons({
+      createOrder: () => order.orderId,
+      onApprove: () => onApprove(),
+    }).render("#paypal-buttons");
+  }, [sdkReady, order.orderId, onApprove]);
+
+  return (
+    <section className="card highlight">
+      <div className="muted small">
+        {order.sandbox ?? true ? "Prueba / Sandbox — no real charge" : "PayPal"} · ${order.amountUsd} · order {order.orderId.slice(0, 12)}…
+      </div>
+      <div id="paypal-buttons" />
+      {!sdkReady && (
+        <button type="button" className="btn big" disabled={busy} onClick={onApprove}>
+          {busy ? "…" : "Approve hold (demo)"}
+        </button>
+      )}
+    </section>
   );
 }

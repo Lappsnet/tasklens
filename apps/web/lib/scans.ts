@@ -16,7 +16,8 @@ export interface StoredScan {
 }
 
 /** Dev/demo fallback store so scan -> quote works with no Supabase configured. */
-const mem = new Map<string, StoredScan>();
+const globalStore = globalThis as unknown as { __tasklens_scans?: Map<string, StoredScan> };
+const mem = (globalStore.__tasklens_scans ??= new Map<string, StoredScan>());
 
 export function saveMemoryScan(s: Omit<StoredScan, "scanId" | "createdAt">): StoredScan {
   // Bound stored photo size: memory fallback only, never persisted to DB.
