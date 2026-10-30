@@ -46,10 +46,13 @@ function waitForPort(port, timeoutMs = 60000) {
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
-  const server = spawn("npx", ["next", "start", "-p", String(PORT)], {
+  // Local proof runs against the dev server: the P0-1 boot guard refuses
+  // keyless `next start`, and real keys are owner-blocked. Same components,
+  // same theme system; production `next build` still gates this script.
+  const nextBin = path.join(__dirname, "..", "..", "node_modules", "next", "dist", "bin", "next");
+  const server = spawn(process.execPath, [nextBin, "dev", "-p", String(PORT)], {
     cwd: path.join(__dirname, ".."),
     stdio: "ignore",
-    shell: process.platform === "win32",
   });
   const failures = [];
   try {
