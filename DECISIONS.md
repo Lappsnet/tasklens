@@ -2,6 +2,24 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — U3 auth (phone or Meta glasses)
+
+- `company` added to the UI role set (auth cookie, menus, badges); data model
+  (`015_companies` + widened `profiles_role_check`) lands with U4. Until then a
+  company demo session reads pro surfaces.
+- Real magic-link login fixed: `@supabase/ssr` cookie sessions (callback at
+  `/auth/callback` → role home), middleware session refresh, `getSession`
+  accepts Bearer OR cookie, browser client is cookie-based. Contract-sign OTP
+  untouched (signing ceremony, not login).
+- Pairing: 6-char codes from an unambiguous alphabet, SHA-256 only in DB,
+  single-claim, 10-min expiry, live polling (2 s) with Realtime upgrade path.
+  QR is a server-rendered data-URL (no raw SVG injection). Honest copy about
+  the companion developer preview + phone fallback everywhere.
+- Old `/login` replaced by the (auth) group (same URL): role cards → phone or
+  glasses → sent/resend-30s → signup profile step (PATCH /api/profile).
+  Alcaldía/Empresa show "Requiere verificación" (empresa → /pro/apply;
+  alcaldía access form lands in U5).
+
 ## 2026-10-29 — U2 header, footer, global nav
 
 - `motion` 14.8.0 installed (spec named v12; v14 keeps the `motion/react` API).

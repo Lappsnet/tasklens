@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -47,14 +48,29 @@ function csp(): string {
   ].join("; ");
 }
 
-export function middleware(req: import("next/server").NextRequest) {
+export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Content-Security-Policy", csp());
   res.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
-  // P0-3: Spanish is the default language when Accept-Language starts with es.
+  // U3: refresh the Supabase cookie session so magic-link users stay signed in.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (url && anon) {
+    const sb = createServerClient(url, anon, {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(toSet) {
+          toSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+        },
+      },
+    });
+    await sb.auth.getUser();
+  }
   if (!req.cookies.get("tasklens:lang")) {
     const al = req.headers.get("accept-language") ?? "";
     res.cookies.set("tasklens:lang", al.toLowerCase().startsWith("es") ? "es" : "en", { path: "/", maxAge: 31536000 });

@@ -47,6 +47,11 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   route-aware SiteChrome (marketing only; app keeps interim container to U4),
   landing anchor ids, nav config tests. web 79/79, build green. Company role UI
   mapped, data model (015) lands with U4.
+- U3 auth DONE: (auth) split-screen group, login/signup 3-step flow (role cards,
+  phone magic-link + resend-30s, Meta glasses pairing with QR/code/live status),
+  /auth/callback + SSR cookie sessions + middleware refresh (real login fixed),
+  profile PATCH, 016 pairings migration, pairing/profile tests. web 83/83,
+  build green (79 pages).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

@@ -9,7 +9,7 @@ import { CITIES } from "@/lib/cities";
 export const runtime = "nodejs";
 
 const Body = z.object({
-  role: z.enum(["customer", "pro", "admin", "city_operator"]),
+  role: z.enum(["customer", "pro", "company", "admin", "city_operator"]),
   city_slug: z.string().min(1).max(60).optional(),
 });
 
