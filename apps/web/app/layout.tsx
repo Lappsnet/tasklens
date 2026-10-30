@@ -69,7 +69,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <QueryProvider>{children}</QueryProvider>
         <Toaster />
-        <Script src="/sw-register.js" strategy="afterInteractive" />
+        {/* F2.6: service worker in production only — never cache /_next in dev. */}
+        {process.env.NODE_ENV === "production" && (
+          <Script src="/sw-register.js" strategy="afterInteractive" />
+        )}
       </body>
     </html>
   );

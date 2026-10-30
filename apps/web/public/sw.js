@@ -4,7 +4,7 @@
  * Same-origin GET assets (icons, manifest) are cache-first.
  * The worker never touches API POSTs or cross-origin requests.
  */
-const VERSION = "tasklens-v1";
+const VERSION = "tasklens-v2";
 const PRECACHE = ["/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -27,6 +27,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // F2.6: the worker never handles framework chunks or API traffic — even in
+  // production these must always hit the network. (Dev never registers at all.)
+  if (url.pathname.startsWith("/_next/") || url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
