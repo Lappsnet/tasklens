@@ -38,7 +38,11 @@ with this file, the docs win; note the change in DECISIONS.md.
 
 ## 4. Stack (do not substitute without asking)
 - Monorepo: Turborepo + pnpm, TypeScript `strict` everywhere.
-- `apps/web`: Next.js 15 App Router, Tailwind, shadcn/ui, React Query, Zustand. Mobile-first PWA.
+- `apps/web`: Next.js 15 App Router, Tailwind, React Query, Zustand. Mobile-first PWA.
+  UI (owner decision, Oct 29): NO shadcn/ui, lucide or Inter. Primitives on React Aria
+  Components, motion with GSAP (+ScrollTrigger, SplitText), Lenis (landing only) and Motion,
+  Phosphor icons, self-hosted Cabinet Grotesk / General Sans / JetBrains Mono.
+  Full spec: `UI_UX_PROMPT.md` ("Blueprint" design direction, blocks U1-U7).
   Routes: `/`, `/scan`, `/quote/[scanId]`, `/book/[scanId]`, `/jobs/[jobId]`, `/pro`,
   `/pro/jobs/[jobId]`, `/admin`. API in route handlers under `/api`.
 - `apps/glasses`: thin native companion (capture, upload, speak, job mode).
@@ -141,7 +145,11 @@ deploy, and report what works, what was cut, and latency numbers.
 The detailed, ordered plan is `PHASE2_PROMPT.md` (blocks P0-1 ... P0-6, then P1). Follow it.
 Summary below.
 Tracks, in priority order:
-1. Frontend: design system (one font pair, 5-colour palette, spacing scale, themed shadcn/ui),
+Current priority (Oct 30): `FIX_PROMPT.md` F0-F4 FIRST (broken dark mode, slow dev, showcase).
+Then: `UI_UX_PROMPT.md` blocks U1-U7 before any new feature.
+Roles shown in the UI: Cliente (`customer`), Profesional (`pro`), Empresa (`company`, new),
+Alcaldia (`city_operator`), Admin.
+1. Frontend: design system per `UI_UX_PROMPT.md`,
    landing page, scan screen as the hero (live camera, streaming progress, SAM highlight),
    quote/booking cards, job log as a live timeline. Every state, 375 px, EN/ES.
 2. Android app on Google Play: wrap the PWA as a Trusted Web Activity with Bubblewrap
