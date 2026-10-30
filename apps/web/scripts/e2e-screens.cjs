@@ -11,7 +11,7 @@ const { chromium } = require("@playwright/test");
 
 const PORT = 3100;
 const BASE = `http://localhost:${PORT}`;
-const OUT = path.join(__dirname, "..", "..", "docs", "screens", "ui-v2");
+const OUT = path.join(__dirname, "..", "..", "..", "docs", "screens", "ui-v2");
 
 const PAGES = [
   { route: "/", name: "home", role: null },
@@ -49,10 +49,15 @@ async function main() {
   // Local proof runs against the dev server: the P0-1 boot guard refuses
   // keyless `next start`, and real keys are owner-blocked. Same components,
   // same theme system; production `next build` still gates this script.
-  const nextBin = path.join(__dirname, "..", "..", "node_modules", "next", "dist", "bin", "next");
+  const webDir = path.join(__dirname, "..");
+  const nextBin = path.join(
+    path.dirname(require.resolve("next/package.json", { paths: [webDir] })),
+    "dist", "bin", "next",
+  );
+  const serverLog = fs.openSync(path.join(webDir, "e2e-server.log"), "w");
   const server = spawn(process.execPath, [nextBin, "dev", "-p", String(PORT)], {
-    cwd: path.join(__dirname, ".."),
-    stdio: "ignore",
+    cwd: webDir,
+    stdio: ["ignore", serverLog, serverLog],
   });
   const failures = [];
   try {
@@ -87,6 +92,7 @@ async function capture(browser, pageDef, vp, theme, label) {
   const context = await browser.newContext({
     viewport: { width: vp.w, height: vp.h },
     colorScheme: theme,
+    locale: "es-SV",
   });
   if (pageDef.role) {
     await context.addCookies([
@@ -99,10 +105,15 @@ async function capture(browser, pageDef, vp, theme, label) {
   const page = await context.newPage();
   const problems = [];
   page.on("console", (msg) => {
-    if (msg.type() === "error") problems.push(`console: ${msg.text().slice(0, 200)}`);
+    if (msg.type() === "error") problems.push(`console: ${msg.text().slice(0, 2000)}`);
   });
-  page.on("pageerror", (err) => problems.push(`pageerror: ${String(err).slice(0, 200)}`));
-  await page.goto(BASE + pageDef.route, { waitUntil: "load", timeout: 60000 });
+  page.on("pageerror", (err) => problems.push(`pageerror: ${String(err).slice(0, 2000)}`));
+  try {
+    await page.goto(BASE + pageDef.route, { waitUntil: "domcontentloaded", timeout: 60000 });
+  } catch {
+    // One retry: dev cold-compile can exceed the first navigation budget.
+    await page.goto(BASE + pageDef.route, { waitUntil: "domcontentloaded", timeout: 90000 });
+  }
   await page.evaluate(() => document.fonts?.ready.then(() => {}).catch(() => {}));
   // Scroll through the page so scroll reveals fire, then back to top.
   await page.evaluate(async () => {
