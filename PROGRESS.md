@@ -67,6 +67,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   test), continuing from f9af291. Clean tree: typecheck 3/3, ai 37/37, web 92/92,
   `next build` green. `apps/web/.next` deleted (was 1.1 GB). Commits: a41906e
   (gradle wrapper 9.7.1), 498b191 (AGENTS.md stack + FIX_PROMPT).
+- F1 DONE (F1.1 dark tokens only in tokens.css; F1.2 single SmoothScroll, no CSS
+  smooth scroll; F1.3 Container sections, no .full-bleed, overflow-x clip; F1.4
+  reveals with clearProps+once, headings only for pinned sections; F1.5 server
+  landing, language from cookie; F1.6 route-group layouts, SiteChrome deleted;
+  F1.7 deferred to F4 per prompt; F1.8 all screens on RAC primitives, legacy
+  block deleted, btn-* effects renamed fx-*). Restored+fixed the stashed U7 WIP
+  (fixed Button title/role/href + Input onChange type errors; byte-identical
+  restore, LF endings). Typecheck 3/3, web 92/92, build green.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
