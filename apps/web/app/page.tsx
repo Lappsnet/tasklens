@@ -53,9 +53,9 @@ export default function LandingPage() {
         </div>
       </Reveal>
 
-      <Reveal className="py-10">
+      <div className="py-10">
         <RaceSection title={t.tvsT} note={t.tvsNote} today={t.tvsSteps} lens={t.lensSteps} />
-      </Reveal>
+      </div>
 
       <section className="py-10" id="como-funciona" aria-label={t.how}>
         <Reveal>
@@ -66,9 +66,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <Reveal className="py-10">
+      <div className="py-10">
         <Theater title={t.featuresT} sub={t.featuresSub} chapters={t.chapters} />
-      </Reveal>
+      </div>
 
       <Reveal className="py-10" >
         <div id="demo">

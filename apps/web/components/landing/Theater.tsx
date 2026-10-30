@@ -8,7 +8,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { Annotation, Viewfinder } from "@/components/blueprint";
 import type { FeatureChapter } from "@/content/landing.es";
-import { reducedMotion, registerGsap } from "./motion";
+import { reducedMotion, registerGsap, Reveal } from "./motion";
 
 function MockScreen({ chapter, active }: { chapter: FeatureChapter; active: boolean }) {
   return (
@@ -75,8 +75,10 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
 
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold lg:text-3xl">{title}</h2>
-      <p className="mt-1 text-sm text-muted">{sub}</p>
+      <Reveal>
+        <h2 className="font-display text-2xl font-bold lg:text-3xl">{title}</h2>
+        <p className="mt-1 text-sm text-muted">{sub}</p>
+      </Reveal>
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div ref={listRef} className="space-y-8">
           {chapters.map((c, i) => (

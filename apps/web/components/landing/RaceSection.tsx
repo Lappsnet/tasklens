@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { StampSeal } from "@/components/blueprint";
-import { reducedMotion, registerGsap } from "./motion";
+import { reducedMotion, registerGsap, Reveal } from "./motion";
 
 export default function RaceSection({ title, note, today, lens }: {
   title: string;
@@ -41,7 +41,9 @@ export default function RaceSection({ title, note, today, lens }: {
 
   return (
     <div ref={rootRef}>
-      <h2 className="font-display text-2xl font-bold">{title} <span className="font-body text-xs font-normal text-muted">({note})</span></h2>
+      <Reveal>
+        <h2 className="font-display text-2xl font-bold">{title} <span className="font-body text-xs font-normal text-muted">({note})</span></h2>
+      </Reveal>
       <div className="mt-4 space-y-4">
         <div className="rounded-card border border-line bg-surface p-4">
           <div className="flex items-baseline justify-between">

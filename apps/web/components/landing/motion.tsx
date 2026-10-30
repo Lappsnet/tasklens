@@ -19,21 +19,26 @@ export function reducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Fade-up reveal on scroll for any element. */
+/** Fade-up reveal on scroll for any element.
+ * Never wrap a pinned/sticky section — reveal headings only. Uses fromTo with
+ * clearProps so no inline transform/opacity is left behind, and fires once. */
 export function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current || reducedMotion()) return;
     registerGsap();
     const ctx = gsap.context(() => {
-      gsap.from(ref.current, {
-        y: 28,
-        opacity: 0,
-        duration: 0.7,
-        delay,
-        ease: "power2.out",
-        scrollTrigger: { trigger: ref.current, start: "top 88%" },
-      });
+      gsap.fromTo(ref.current,
+        { y: 28, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          delay,
+          ease: "power2.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: ref.current, start: "top 88%", once: true },
+        });
     });
     return () => ctx.revert();
   }, [delay]);
