@@ -2,21 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tokens live in app/styles/tokens.css (imported by layout). */
-
-:root {
-  --ink: #0F1B2D;
-  --paper: #F6F3EE;
-  --accent: #F26A1B;
-  --accent-deep: #c24e08;
-  --trust: #0E9F6E;
-  --slate: #5B6B7F;
-  --shadow-sm: var(--shadow-soft);
-  --shadow-md: var(--shadow-lifted);
-  --shadow-glow: 0 0 0 1px rgba(242, 106, 27, 0.35), 0 8px 28px -6px rgba(242, 106, 27, 0.55);
-  --ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
-  --ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
-}
+/* Tokens live ONLY in app/styles/tokens.css (imported by layout).
+   Legacy aliases are defined there too; do not redefine token names here. */
 
 html {
   -webkit-tap-highlight-color: transparent;

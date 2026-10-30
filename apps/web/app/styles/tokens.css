@@ -27,6 +27,16 @@
   --ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
   color-scheme: light;
+  /* Legacy aliases (pre-U7 screens + keyframe helpers). Defined once here;
+     var() resolves at use-time, so dark mode picks up the dark tokens. */
+  --paper: var(--bg);
+  --accent: var(--signal);
+  --accent-deep: #c24e08;
+  --trust: var(--verified);
+  --slate: var(--muted);
+  --shadow-sm: var(--shadow-soft);
+  --shadow-md: var(--shadow-lifted);
+  --shadow-glow: 0 0 0 1px rgba(242, 106, 27, 0.35), 0 8px 28px -6px rgba(242, 106, 27, 0.55);
 }
 
 [data-theme="dark"] {
