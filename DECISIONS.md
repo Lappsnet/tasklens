@@ -2,6 +2,25 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — U4 app shell and role menus
+
+- `015_companies.sql`: companies + company_members (owner/dispatcher/member),
+  jobs.company_id, RLS (members read own company's jobs; writes via service
+  role after dispatcher checks). `profiles_role_check` widened to company.
+- `AppShell`: collapsible desktop sidebar (Motion layoutId active edge),
+  topbar (breadcrumb, ⌘K palette, bell, user menu), mobile tab bar (≤4 tabs +
+  raised center FAB + "Más" sheet), AnimatePresence route transitions.
+- Role menus (nav.ts, tested live): customer Inicio/Mis trabajos/Pasaporte/…,
+  pro Hoy/Calendario/…, empresa Panel/Equipo/…, alcaldía Tablero, admin queue.
+  Only live routes; chat ("Mensajes") cut — no chat feature exists.
+- New: `/inicio` (scan hero, active jobs, appointments, reminders), `/jobs`
+  (list), `/ajustes` (language/theme/sign-out), `/empresa`
+  (panel+dispatch queue+revenue), `/empresa/equipo`. Empresa assign uses a
+  member select (not drag-and-drop — time-boxed). /pro wrapped as-is (earnings
+  + calendar already there); full dashboard visuals in U7.
+- SiteChrome mounts the shell on all non-marketing/auth/dev routes (no file
+  moves pre-freeze — same URLs, logical groups).
+
 ## 2026-10-29 — U3 auth (phone or Meta glasses)
 
 - `company` added to the UI role set (auth cookie, menus, badges); data model

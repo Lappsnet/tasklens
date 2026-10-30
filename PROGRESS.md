@@ -52,6 +52,9 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   /auth/callback + SSR cookie sessions + middleware refresh (real login fixed),
   profile PATCH, 016 pairings migration, pairing/profile tests. web 83/83,
   build green (79 pages).
+- U4 shell + roles DONE: 015 companies, AppShell (sidebar/topbar/palette/mobile),
+  role menus (tested), /inicio /jobs /ajustes /empresa /empresa/equipo.
+  web 87/87, build green (87 pages).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

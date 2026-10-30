@@ -8,17 +8,30 @@ import type { Lang } from "@/lib/i18n";
 import { t } from "@/lib/i18n";
 import type { Icon } from "@phosphor-icons/react";
 import {
+  Bank,
   Buildings,
   CalendarCheck,
+  CurrencyDollar,
   FileText,
+  Gear,
   Globe,
+  GridFour,
   Headset,
   House,
   MapTrifold,
+  PaperPlaneTilt,
+  Play,
+  Plus,
   Receipt,
-  Scales,
   Scan,
+  Scales,
   ShieldCheck,
+  ClipboardText,
+  BookBookmark,
+  Briefcase,
+  Users,
+  SunHorizon,
+  ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 
 export interface FeatureLink {
@@ -101,5 +114,78 @@ export function roleLinks(role: string, lang: Lang): RoleLink[] {
         { href: "/passport", label: s.featPassport },
         { href: "/city", label: lang === "es" ? "Tablero" : "Board" },
       ];
+  }
+}
+
+export interface AppTab {
+  href: string;
+  label: string;
+  icon: Icon;
+  mobile: boolean;
+}
+
+export interface RoleMenu {
+  tabs: AppTab[];
+  center: { href: string; label: string; icon: Icon } | null;
+}
+
+/** U4 role menus. Only live routes — every href must resolve. */
+export function roleMenu(role: string, lang: Lang): RoleMenu {
+  const es = lang === "es";
+  switch (role) {
+    case "pro":
+      return {
+        tabs: [
+          { href: "/pro", label: es ? "Hoy" : "Today", icon: SunHorizon, mobile: true },
+          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true },
+          { href: "/pro", label: es ? "Ganancias" : "Earnings", icon: CurrencyDollar, mobile: false },
+          { href: "/pro", label: es ? "Trabajos" : "Jobs", icon: Briefcase, mobile: true },
+          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+        ],
+        center: { href: "/pro", label: es ? "Iniciar trabajo" : "Start job", icon: Play },
+      };
+    case "company":
+      return {
+        tabs: [
+          { href: "/empresa", label: es ? "Panel" : "Board", icon: GridFour, mobile: true },
+          { href: "/empresa/equipo", label: es ? "Equipo" : "Team", icon: Users, mobile: true },
+          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true },
+          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+        ],
+        center: { href: "/empresa", label: es ? "Asignar" : "Assign", icon: Plus },
+      };
+    case "city_operator":
+      return {
+        tabs: [
+          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true },
+          { href: "/city", label: es ? "Reportes" : "Reports", icon: ClipboardText, mobile: true },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+        ],
+        center: { href: "/city", label: es ? "Despachar" : "Dispatch", icon: PaperPlaneTilt },
+      };
+    case "admin":
+      return {
+        tabs: [
+          { href: "/admin/pros", label: es ? "Verificaciones" : "Reviews", icon: ShieldCheck, mobile: true },
+          { href: "/admin", label: "Demo reset", icon: ArrowCounterClockwise, mobile: true },
+          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+        ],
+        center: null,
+      };
+    default:
+      return {
+        tabs: [
+          { href: "/inicio", label: es ? "Inicio" : "Home", icon: House, mobile: true },
+          { href: "/jobs", label: es ? "Mis trabajos" : "My jobs", icon: ClipboardText, mobile: true },
+          { href: "/passport", label: t(lang).featPassport, icon: BookBookmark, mobile: true },
+          { href: "/projects/new", label: es ? "Proyectos" : "Projects", icon: MapTrifold, mobile: false },
+          { href: "/city", label: es ? "Ciudad" : "City", icon: Buildings, mobile: false },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+        ],
+        center: { href: "/scan", label: es ? "Escanear" : "Scan", icon: Scan },
+      };
   }
 }

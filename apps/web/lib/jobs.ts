@@ -6,6 +6,7 @@ export interface JobRow {
   scan_id: string;
   customer_id?: string;
   pro_id: string;
+  company_id?: string | null;
   status: string;
   price_usd: number;
   slot: string | null;
@@ -78,6 +79,7 @@ export async function persistBooking(args: {
   scan_id: string;
   customer_id?: string;
   pro_id: string;
+  company_id?: string | null;
   price_usd: number;
   slot: string;
   status?: "quoted" | "booked";
@@ -99,6 +101,7 @@ export async function persistBooking(args: {
             scan_id: args.scan_id || null,
             customer_id: args.customer_id ?? null,
             pro_id: args.pro_id,
+            company_id: args.company_id ?? null,
             status,
             price_usd: args.price_usd,
             slot: args.slot,
@@ -132,6 +135,7 @@ export async function persistBooking(args: {
     scan_id: args.scan_id,
     customer_id: args.customer_id,
     pro_id: args.pro_id,
+    company_id: args.company_id ?? null,
     status,
     price_usd: args.price_usd,
     slot: args.slot,
@@ -385,4 +389,31 @@ export async function saveVerifyResult(jobId: string, verdict: unknown): Promise
   }
   const mem = getMemoryJob(jobId);
   if (mem) mem.verify_result = verdict;
+}
+
+/** U4 dispatch: reassign a job to a member pro of a company (dispatcher-checked by callers). */
+export async function assignJob(jobId: string, proId: string, companyId: string | null): Promise<boolean> {
+  if (hasSupabase()) {
+    try {
+      const db = serviceClient();
+      if (db) {
+        const { error } = await db.from("jobs").update({ pro_id: proId, company_id: companyId }).eq("id", jobId);
+        if (!error) {
+          await appendEvent(jobId, "dispatched", { pro_id: proId, company_id: companyId });
+          return true;
+        }
+        console.error("[jobs] assign failed:", error?.message);
+        return false;
+      }
+    } catch (e) {
+      console.error("[jobs] assign error:", e instanceof Error ? e.message : e);
+      return false;
+    }
+  }
+  const mem = getMemoryJob(jobId);
+  if (!mem) return false;
+  mem.pro_id = proId;
+  mem.company_id = companyId;
+  await appendEvent(jobId, "dispatched", { pro_id: proId, company_id: companyId });
+  return true;
 }

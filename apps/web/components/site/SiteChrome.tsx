@@ -1,13 +1,16 @@
 "use client";
 
-/* U2 chrome mount: header + footer on marketing routes only.
-   App routes get the U4 AppShell; /dev stays bare. */
+/* U4 chrome mount: header + footer on marketing, bare on auth/dev,
+   AppShell (sidebar + tab bar) everywhere else. */
 
 import { usePathname } from "next/navigation";
-import SiteHeader from "./SiteHeader";
+import AppShell from "@/components/app/AppShell";
 import SiteFooter from "./SiteFooter";
+import SiteHeader from "./SiteHeader";
 
 const MARKETING = ["/", "/privacy", "/terms"];
+const BARE_PREFIXES = ["/login", "/signup", "/connect-glasses", "/dev", "/auth/"];
+
 function isMarketing(path: string): boolean {
   if (MARKETING.includes(path)) return true;
   return path.startsWith("/funciones/") || ["/profesionales", "/empresas", "/alcaldias"].includes(path);
@@ -15,15 +18,15 @@ function isMarketing(path: string): boolean {
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "/";
-  if (!isMarketing(path)) {
-    // Interim container until the U4 AppShell brings sidebar + 1200px content.
-    return <div className="mx-auto w-full max-w-md px-4 pb-16 pt-6 sm:max-w-2xl">{children}</div>;
+  if (isMarketing(path)) {
+    return (
+      <>
+        <SiteHeader />
+        <div className="mx-auto w-full max-w-[1280px] px-4">{children}</div>
+        <SiteFooter />
+      </>
+    );
   }
-  return (
-    <>
-      <SiteHeader />
-      <div className="mx-auto w-full max-w-[1280px] px-4">{children}</div>
-      <SiteFooter />
-    </>
-  );
+  if (BARE_PREFIXES.some((p) => path === p || path.startsWith(p))) return <>{children}</>;
+  return <AppShell>{children}</AppShell>;
 }
