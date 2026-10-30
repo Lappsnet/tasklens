@@ -17,13 +17,13 @@ import MetaCards from "@/components/landing/MetaCards";
 import ProblemCards from "@/components/landing/ProblemCards";
 import { Reveal } from "@/components/landing/motion";
 import RoleTabs from "@/components/landing/RoleTabs";
-import TrustGrid from "@/components/landing/TrustGrid";
 
 // F2.4: below-fold GSAP sections ship as separate chunks so the heavy
 // animation code never blocks the initial render. HeroLens stays direct (LCP).
 const HowSteps = dynamic(() => import("@/components/landing/HowSteps"));
 const RaceSection = dynamic(() => import("@/components/landing/RaceSection"));
 const Theater = dynamic(() => import("@/components/landing/Theater"));
+const TrustGrid = dynamic(() => import("@/components/landing/TrustGrid"));
 
 export default async function LandingPage() {
   const cookie = (await cookies()).get("tasklens:lang")?.value;

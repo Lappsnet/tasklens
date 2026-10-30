@@ -67,6 +67,23 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   test), continuing from f9af291. Clean tree: typecheck 3/3, ai 37/37, web 92/92,
   `next build` green. `apps/web/.next` deleted (was 1.1 GB). Commits: a41906e
   (gradle wrapper 9.7.1), 498b191 (AGENTS.md stack + FIX_PROMPT).
+- F2 DONE (F2.1 narrow middleware matcher + no session refresh on prefetches;
+  F2.2 Turbopack dev (`serverExternalPackages` verified via /api/match); F2.3
+  optimizePackageImports; F2.4 below-fold GSAP sections as dynamic chunks
+  (RaceSection/Theater/HowSteps/TrustGrid), map already dynamic-only; F2.5 SSR
+  session in group layouts + React Query job counts; F2.6 SW registers in
+  production only, skips /_next//api/ (VERSION tasklens-v2); F2.7 single
+  turbo typecheck task). Fixed en route: root layout {children} restore (F1.6
+  had dropped it — pages rendered empty), dynamic() without ssr:false (illegal
+  in RSC). Typecheck 4/4, ai 37/37, web 92/92, build green.
+- F2 timings (Windows, no AV exclusions — owner action per F2.7):
+  BEFORE (webpack): dev ready 6.4s; first / 73.6s; warm / 3.0s; first /scan 30.7s.
+  AFTER (turbopack): dev ready 7–10s; first / 35–42s (Compiled / ~23s);
+  warm / ~5s; first /scan ~8s; first /inicio ~3–8s.
+  <10s ready: PASS. <4s cold first load: STILL OPEN — cold Turbopack compile of
+  the landing bundle dominates on this box; remaining lever is the owner-side
+  Defender exclusion + real hardware. F3 (next start) is unaffected by dev
+  compile times.
 - F1 DONE (F1.1 dark tokens only in tokens.css; F1.2 single SmoothScroll, no CSS
   smooth scroll; F1.3 Container sections, no .full-bleed, overflow-x clip; F1.4
   reveals with clearProps+once, headings only for pinned sections; F1.5 server
