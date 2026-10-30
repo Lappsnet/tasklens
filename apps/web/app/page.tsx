@@ -113,16 +113,20 @@ export default function LandingPage() {
         <button onClick={toggle} className="text-sm underline" aria-label="language">{lang === "es" ? "EN" : "ES"}</button>
       </div>
 
-      <section className="py-10">
-        <p className="text-sm font-bold tracking-wide text-accent uppercase">{t.heroKicker}</p>
+      <section className="py-10 stagger">
+        <p className="text-sm font-bold tracking-wide text-accent uppercase flex items-center gap-2">
+          <span className="live-dot" aria-hidden="true" />{t.heroKicker}
+        </p>
         <h1 className="font-display font-extrabold text-4xl leading-tight mt-2">{t.hero}</h1>
         <p className="mt-3 text-slate2">{t.sub}</p>
         <div className="flex gap-3 mt-6 flex-wrap">
-          <Link href="/scan" className="bg-accent text-white font-bold rounded-btn px-6 py-3">{t.scan}</Link>
-          <Link href="/pro" className="border border-ink rounded-btn px-6 py-3 font-bold">{t.pro}</Link>
+          <Link href="/scan" className="btn-glow btn-sheen bg-accent text-white font-bold rounded-btn px-6 py-3">{t.scan}</Link>
+          <Link href="/pro" className="border border-ink bg-white rounded-btn px-6 py-3 font-bold">{t.pro}</Link>
         </div>
-        <div className="mt-8 rounded-card bg-ink text-white p-5">
-          <div className="text-xs uppercase tracking-wide opacity-70">TaskLens · quote</div>
+        <div className="mt-8 rounded-card grad-pan text-white p-5 float-slow bg-[linear-gradient(135deg,#16263f,#0f1b2d_45%,#3a1c07)] shadow-[0_2px_4px_rgba(15,27,45,0.2),0_20px_50px_-16px_rgba(15,27,45,0.5)]">
+          <div className="text-xs uppercase tracking-wide opacity-70 flex items-center gap-2">
+            <span className="live-dot" aria-hidden="true" />TaskLens · quote
+          </div>
           <div className="font-display text-4xl font-extrabold mt-1">$120 <span className="text-lg opacity-70">– $220</span></div>
           <div className="text-sm mt-1 opacity-80">P-trap · ~1.5h on-site · verified pro · escrow held</div>
         </div>
@@ -130,9 +134,9 @@ export default function LandingPage() {
 
       <section className="py-8">
         <h2 className="font-display text-2xl font-bold">{t.p1t}</h2>
-        <div className="grid gap-3 mt-4">
+        <div className="grid gap-3 mt-4 stagger">
           {[[t.p1aT, t.p1a], [t.p1bT, t.p1b], [t.p1cT, t.p1c]].map(([h, p]) => (
-            <div key={h} className="rounded-card border border-neutral-200 bg-white p-4">
+            <div key={h} className="rounded-card border border-neutral-200/80 bg-white/95 p-4 shadow-[0_1px_2px_rgba(15,27,45,0.06),0_2px_8px_rgba(15,27,45,0.06)]">
               <div className="font-bold">{h}</div>
               <p className="text-sm text-slate2 mt-1">{p}</p>
             </div>
@@ -150,9 +154,9 @@ export default function LandingPage() {
 
       <section className="py-8">
         <h2 className="font-display text-2xl font-bold">{t.how}</h2>
-        <div className="grid grid-cols-4 gap-2 mt-4 text-center">
+        <div className="grid grid-cols-4 gap-2 mt-4 text-center stagger">
           {[["👁", t.s1], ["🎙", t.s2], ["📝", t.s3], ["✓", t.s4]].map(([icon, label]) => (
-            <div key={label} className="rounded-card bg-white border border-neutral-200 p-3">
+            <div key={label} className="rounded-card bg-white/95 border border-neutral-200/80 p-3 shadow-[0_1px_2px_rgba(15,27,45,0.06),0_2px_8px_rgba(15,27,45,0.06)]">
               <div className="text-2xl">{icon}</div>
               <div className="text-xs font-bold mt-1">{label}</div>
             </div>
@@ -173,8 +177,8 @@ export default function LandingPage() {
 
       <section className="py-8">
         <h2 className="font-display text-2xl font-bold">{t.catT}</h2>
-        <div className="flex flex-wrap gap-2 mt-4">
-          {CATS.map((c) => <span key={c} className="chip">{c}</span>)}
+        <div className="marquee mt-4 pb-1">
+          {CATS.map((c) => <span key={c} className="chip whitespace-nowrap">{c}</span>)}
         </div>
       </section>
 
@@ -200,7 +204,7 @@ export default function LandingPage() {
       <section className="py-10 text-center">
         <h2 className="font-display text-3xl font-extrabold">{t.ctaT}</h2>
         <div className="flex gap-3 mt-5 justify-center flex-wrap">
-          <Link href="/scan" className="bg-accent text-white font-bold rounded-btn px-6 py-3">{t.scan}</Link>
+          <Link href="/scan" className="btn-glow btn-sheen bg-accent text-white font-bold rounded-btn px-6 py-3">{t.scan}</Link>
           <Link href="/pro" className="border border-ink rounded-btn px-6 py-3 font-bold">{t.pro}</Link>
         </div>
         <p className="mt-8 text-xs text-slate2">

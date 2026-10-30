@@ -265,7 +265,7 @@ export default function ScanPage() {
       </div>
       <p className="text-slate2">{strings.scanSub}</p>
 
-      <CameraFrame>
+      <CameraFrame scanning={working}>
         {!noCamera ? (
           <video ref={videoRef} playsInline muted className="w-full aspect-[3/4] object-cover" />
         ) : (
@@ -275,7 +275,7 @@ export default function ScanPage() {
           type="button"
           aria-label={strings.shutter}
           onClick={shutter}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 h-16 w-16 rounded-full bg-white border-4 border-accent active:scale-95"
+          className="shutter absolute bottom-5 left-1/2 -translate-x-1/2"
         />
       </CameraFrame>
 
@@ -290,9 +290,9 @@ export default function ScanPage() {
           <Button variant="secondary" onClick={useDemoPhoto}>{strings.demoPhoto}</Button>
         </div>
         {previews.length > 0 && (
-          <div className="thumbs">
+          <div className="thumbs stagger">
             {previews.map((u, i) => (
-              <div key={u} className="thumb">
+              <div key={u} className="thumb pop-in">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={u} alt={`scan photo ${i + 1}`} />
                 {i === 0 && <span className="badge">{strings.mainPhoto}</span>}
@@ -320,10 +320,12 @@ export default function ScanPage() {
       {error && <ErrorState message={error} onRetry={() => { setError(""); setPhase("idle"); }} />}
 
       <Button size="lg" variant="accent" disabled={working || photos.length === 0} onClick={submit}>
-        {working ? `${steps[Math.min(stepMsg, steps.length - 1)]}…` : strings.submit}
+        {working ? (
+          <span className="ticker" key={stepMsg}><span>{steps[Math.min(stepMsg, steps.length - 1)]}…</span></span>
+        ) : strings.submit}
       </Button>
       {working && (
-        <ol className="steps mt-3">
+        <ol className="steps mt-3 stagger">
           {steps.map((s, i) => (
             <li key={s} className={i <= stepMsg ? "" : "muted"}>{i < stepMsg ? `✓ ${s}` : i === stepMsg ? `… ${s}` : s}</li>
           ))}

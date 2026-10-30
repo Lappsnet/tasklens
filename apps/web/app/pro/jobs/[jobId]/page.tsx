@@ -5,6 +5,7 @@ import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
+import { toast } from "@/components/ui";
 
 const NEXT_STEP: Record<string, { to: string; label: keyof ReturnType<typeof t> } | null> = {
   booked: { to: "en_route", label: "startRoute" },
@@ -265,6 +266,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
     try {
       const res = await fetch("/api/copilot/evidence", { method: "POST", body: fd });
       if (!res.ok) throw new Error(strings.errorGeneric);
+      toast(strings.evidenceSaved);
       await reload();
     } catch {
       setError(strings.errorGeneric);

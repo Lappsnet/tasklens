@@ -115,7 +115,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
   const box = spec.damage_box;
 
   return (
-    <main>
+    <main className="stagger">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="font-display text-2xl font-bold">{strings.quoteTitle}</h1>
         <Badge status={spec.urgency} />
@@ -141,7 +141,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
         <Card><p className="text-slate2 text-sm">{strings.photoUnavailable}</p></Card>
       )}
 
-      <Card className="!border-ink">
+      <Card className="!border-accent pop-in shadow-[0_2px_4px_rgba(15,27,45,0.06),0_16px_40px_-12px_rgba(242,106,27,0.4)]">
         <div className="text-slate2 text-sm">{spec.title}</div>
         <PriceRange lo={lo} hi={hi} />
         <p className="mt-2">{spec.diagnosis}</p>
@@ -180,7 +180,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
       {spec.questions_for_customer.length === 0 && <EmptyState title={strings.questions} hint={strings.noQuestions} />}
 
       <div className="flex gap-2 flex-wrap mt-2">
-        <Link className="btn flex-1 text-center !bg-accent" href={`/book/${scanId}`}>{strings.book}</Link>
+        <Link className="btn btn-glow btn-sheen flex-1 text-center !bg-accent" href={`/book/${scanId}`}>{strings.book}</Link>
         <Link className="btn btn-secondary" href="/scan">{strings.retake}</Link>
       </div>
     </main>

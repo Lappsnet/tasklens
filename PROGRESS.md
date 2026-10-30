@@ -27,6 +27,12 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - NEXT (autonomous): keyed-verification runbook written (`docs/keyed-verification.md`).
 - NEXT (owner-blocked): Supabase link + keys + Vercel deploy + keyed verification.
 - NEXT (autonomous, after your call): transactional email provider decision.
+- Visual Motion Pass DONE (CSS-first, zero deps): gradient paper + glow/shadow
+  system, keyframe library (stagger, pop, beam, ripple, sheen, ticker, float,
+  draw-check), upgraded Button/Card Badge Stepper Timeline CameraFrame, count-up
+  PriceRange, event Toasts; scan viewfinder + shutter + beam, quote stagger +
+  pop price card, landing hero mesh + floating card + marquee. Reduced-motion
+  respected throughout. web 75/75, ai 37/37, build green.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

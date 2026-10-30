@@ -2,6 +2,23 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — Visual Motion Pass (CSS-first, zero new deps)
+
+- Foundation (`globals.css`): warm gradient paper, shadow/glow tokens, keyframe
+  library — stagger (60 ms steps), pop-in spring, scan beam, shutter ripple,
+  CTA sheen, progress ticker, float, SVG draw-check, marquee, toasts. All
+  transform/opacity-only; `prefers-reduced-motion` disables the lot.
+- Components (`ui.tsx`): accent Button glow+sheen, Card hover lift, Badge live
+  dot, Stepper animated fill + glowing current step, Timeline newest-first with
+  live-dot + stagger, CameraFrame viewfinder + beam, `useCountUp` PriceRange,
+  `toast()` + `<Toaster/>` (mounted in layout).
+- Screens: scan (viewfinder brackets, glowing shutter, beam while working,
+  ticker progress), quote (staggered cards, pop price card, draw-in damage box),
+  landing (mesh-gradient floating quote card, staggered hero/how/problem cards,
+  category marquee, glowing CTAs), job watch (draw-check on release).
+- Deliberately no framer-motion: keeps the JS bundle and Lighthouse budget
+  untouched this close to freeze.
+
 ## 2026-10-29 — P1 fix: auth onboarding that works (014)
 
 - Audit finding: no signup trigger existed, so magic-link users got NO profile

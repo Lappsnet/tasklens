@@ -1,11 +1,61 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-/** P0-3 themed component library (shadcn-style API, zero extra deps). */
+/** Themed component library (shadcn-style API, zero extra deps). */
 
 export function cn(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
+}
+
+/** Tiny toast bus: call toast("saved") anywhere, render <Toaster/> once in layout. */
+export function toast(message: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("tasklens:toast", { detail: message }));
+}
+
+export function Toaster() {
+  const [items, setItems] = useState<{ id: number; message: string }[]>([]);
+  const idRef = useRef(0);
+  useEffect(() => {
+    const onToast = (e: Event) => {
+      const id = ++idRef.current;
+      const message = String((e as CustomEvent).detail ?? "");
+      if (!message) return;
+      setItems((xs) => [...xs.slice(-2), { id, message }]);
+      setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), 2600);
+    };
+    window.addEventListener("tasklens:toast", onToast);
+    return () => window.removeEventListener("tasklens:toast", onToast);
+  }, []);
+  return (
+    <div className="toaster" aria-live="polite">
+      {items.map((t) => (
+        <div key={t.id} className="toast">{t.message}</div>
+      ))}
+    </div>
+  );
+}
+
+/** Animated number: counts from 0 to value on mount (respects reduced motion). */
+export function useCountUp(value: number, durationMs = 900): number {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setN(value);
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / durationMs);
+      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, durationMs]);
+  return n;
 }
 
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -14,19 +64,19 @@ type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export function Button({ variant = "primary", size = "md", className, ...rest }: BtnProps) {
-  const base = "inline-flex items-center justify-center font-semibold rounded-btn transition active:scale-[0.98] disabled:opacity-55 disabled:cursor-wait";
+  const base = "inline-flex items-center justify-center font-semibold rounded-btn transition active:scale-[0.96] disabled:opacity-55 disabled:cursor-wait";
   const sizes = size === "lg" ? "w-full px-5 py-3.5 text-base mt-2" : "px-4 py-2.5 text-sm";
   const variants: Record<string, string> = {
-    primary: "bg-ink text-white",
+    primary: "bg-ink text-white shadow-[0_2px_4px_rgba(15,27,45,0.2),0_10px_24px_-12px_rgba(15,27,45,0.5)]",
     secondary: "bg-white text-ink border border-ink",
-    accent: "bg-accent text-white",
+    accent: "btn-glow btn-sheen text-white bg-[linear-gradient(180deg,#ff8a3d,#f26a1b_60%,#c24e08)]",
     ghost: "bg-transparent text-ink underline",
   };
   return <button className={cn(base, sizes, variants[variant], className)} {...rest} />;
 }
 
 export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={cn("rounded-card border border-neutral-200 bg-white p-4 mb-3 fade-up", className)}>{children}</section>;
+  return <section className={cn("rounded-card border border-neutral-200/80 bg-white/95 p-4 mb-3 fade-up shadow-[0_1px_2px_rgba(15,27,45,0.06),0_2px_8px_rgba(15,27,45,0.06)] transition-shadow duration-200 hover:shadow-[0_2px_4px_rgba(15,27,45,0.06),0_12px_32px_-12px_rgba(15,27,45,0.22)]", className)}>{children}</section>;
 }
 
 const badgeColors: Record<string, string> = {
@@ -42,7 +92,10 @@ const badgeColors: Record<string, string> = {
 };
 export function Badge({ status, className }: { status: string; className?: string }) {
   return (
-    <span className={cn("text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase", badgeColors[status] ?? "bg-slate2", className)}>
+    <span className={cn("inline-flex items-center gap-1.5 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase", badgeColors[status] ?? "bg-slate2", className)}>
+      {(status === "in_progress" || status === "en_route" || status === "pending_verify") && (
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-white pulse-dot" aria-hidden="true" />
+      )}
       {status.replace("_", " ")}
     </span>
   );
@@ -55,7 +108,12 @@ export function Stepper({ status }: { status: string }) {
     <ol className="flex items-center gap-1 my-3" aria-label="job progress">
       {STEPS.map((s, i) => (
         <li key={s} className="flex-1" title={s}>
-          <div className={cn("h-2 rounded-full", i < ix ? "bg-trust" : i === ix ? "bg-accent pulse-dot" : "bg-neutral-200")} />
+          <div
+            className={cn(
+              "h-2 rounded-full transition-all duration-500",
+              i < ix ? "bg-trust" : i === ix ? "bg-accent pulse-dot shadow-[0_0_12px_rgba(242,106,27,0.8)]" : "bg-neutral-200",
+            )}
+          />
         </li>
       ))}
     </ol>
@@ -63,10 +121,22 @@ export function Stepper({ status }: { status: string }) {
 }
 
 export function PriceRange({ lo, hi }: { lo: number; hi: number }) {
+  const loN = useCountUp(lo);
+  const hiN = useCountUp(hi);
   return (
     <div className="font-display font-extrabold text-4xl tracking-tight">
-      ${lo} <span className="text-slate2 text-2xl">– ${hi}</span>
+      ${loN} <span className="text-slate2 text-2xl">– ${hiN}</span>
     </div>
+  );
+}
+
+/** Animated success check (SVG stroke draw). */
+export function DrawCheck({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle cx="20" cy="20" r="17" stroke="#0E9F6E" strokeWidth="3" opacity="0.35" />
+      <path className="draw-check" d="M12 20.5 17.5 26 28 14.5" stroke="#0E9F6E" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -110,11 +180,16 @@ export interface FeedEvent {
 
 export function Timeline({ events, label }: { events: FeedEvent[]; label: (kind: string) => string }) {
   if (events.length === 0) return <p className="text-slate2 text-sm">—</p>;
+  const ordered = [...events].reverse();
   return (
     <ol className="relative ml-2 border-l-2 border-neutral-200 pl-4 space-y-3">
-      {events.map((e) => (
-        <li key={e.id} className="fade-up">
-          <span className="absolute -left-[7px] mt-1 h-3 w-3 rounded-full bg-accent border-2 border-white" />
+      {ordered.map((e, i) => (
+        <li key={e.id} className="fade-up" style={{ animationDelay: `${Math.min(i, 7) * 60}ms` }}>
+          {i === 0 ? (
+            <span className="absolute -left-[9px] mt-1 live-dot" aria-hidden="true" />
+          ) : (
+            <span className="absolute -left-[7px] mt-1 h-3 w-3 rounded-full bg-accent border-2 border-white" />
+          )}
           <strong className="text-sm">{label(e.kind)}</strong>
           <div className="text-xs text-slate2">{new Date(e.createdAt).toLocaleString()}</div>
         </li>
@@ -123,8 +198,13 @@ export function Timeline({ events, label }: { events: FeedEvent[]; label: (kind:
   );
 }
 
-export function CameraFrame({ children }: { children: React.ReactNode }) {
-  return <div className="relative rounded-card overflow-hidden border border-neutral-200 bg-ink">{children}</div>;
+export function CameraFrame({ children, scanning }: { children: React.ReactNode; scanning?: boolean }) {
+  return (
+    <div className="viewfinder relative rounded-card overflow-hidden border border-neutral-200 bg-ink shadow-[0_2px_4px_rgba(15,27,45,0.2),0_20px_50px_-16px_rgba(15,27,45,0.5)]">
+      {children}
+      {scanning && <div className="scan-beam" aria-hidden="true" />}
+    </div>
+  );
 }
 
 export function BottomSheet({ children }: { children: React.ReactNode }) {

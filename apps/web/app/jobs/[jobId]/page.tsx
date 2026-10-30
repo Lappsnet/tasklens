@@ -5,7 +5,7 @@ import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
-import { Badge, Button, Card, EmptyState, Skeleton, Stepper, Timeline } from "@/components/ui";
+import { Badge, Button, Card, DrawCheck, EmptyState, Skeleton, Stepper, Timeline } from "@/components/ui";
 
 /** Customer live view: status stepper + live timeline + rating. */
 function StepTick({ payload }: { payload: { step: string; done: boolean } }) {
@@ -163,7 +163,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
               job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}
             </p>
             {job.status === "completed" ? (
-              <p className="text-sm mt-1">✓ {strings.passed} ({job.payment?.status ?? "succeeded"})</p>
+              <p className="text-sm mt-1 flex items-center gap-2 pop-in"><DrawCheck size={28} /> {strings.passed} ({job.payment?.status ?? "succeeded"})</p>
             ) : (
               <p className="text-slate2 text-sm mt-1">{strings.held} · {job.payment?.status ?? "requires_capture"}</p>
             )}
