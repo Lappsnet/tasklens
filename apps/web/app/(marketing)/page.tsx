@@ -19,11 +19,11 @@ import { Reveal } from "@/components/landing/motion";
 import RoleTabs from "@/components/landing/RoleTabs";
 import TrustGrid from "@/components/landing/TrustGrid";
 
-// F2.4: below-fold GSAP sections ship as separate client-only chunks so they
-// never block the initial render. HeroLens stays direct (LCP).
-const HowSteps = dynamic(() => import("@/components/landing/HowSteps"), { ssr: false });
-const RaceSection = dynamic(() => import("@/components/landing/RaceSection"), { ssr: false });
-const Theater = dynamic(() => import("@/components/landing/Theater"), { ssr: false });
+// F2.4: below-fold GSAP sections ship as separate chunks so the heavy
+// animation code never blocks the initial render. HeroLens stays direct (LCP).
+const HowSteps = dynamic(() => import("@/components/landing/HowSteps"));
+const RaceSection = dynamic(() => import("@/components/landing/RaceSection"));
+const Theater = dynamic(() => import("@/components/landing/Theater"));
 
 export default async function LandingPage() {
   const cookie = (await cookies()).get("tasklens:lang")?.value;
