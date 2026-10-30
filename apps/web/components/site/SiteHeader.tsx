@@ -48,10 +48,10 @@ function LangToggle({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => voi
   );
 }
 
-export default function SiteHeader() {
+export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
   const [lang, setLang] = useState<Lang>("es");
   const [scrolled, setScrolled] = useState(false);
-  const [me, setMe] = useState<Me | null>(null);
+  const [me, setMe] = useState<Me | null>(initialMe ?? null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -62,6 +62,8 @@ export default function SiteHeader() {
   useEffect(() => {
     const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
     if (saved === "en" || saved === "es") setLang(saved);
+    // F2.5: session comes from the marketing layout; refetch only if absent.
+    if (initialMe !== undefined) return;
     (async () => {
       try {
         const res = await fetch("/api/auth/me");
@@ -70,7 +72,7 @@ export default function SiteHeader() {
         /* signed out */
       }
     })();
-  }, []);
+  }, [initialMe]);
 
   function pickLang(l: Lang) {
     setLang(l);

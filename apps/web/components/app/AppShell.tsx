@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { Bell, Gear, List, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
@@ -51,16 +52,28 @@ function crumbs(path: string, lang: Lang): string[] {
     .map((s) => CRUMBS[s]?.[lang] ?? s);
 }
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({ children, me: initialMe }: { children: React.ReactNode; me?: Me | null }) {
   const path = usePathname() ?? "/";
   const router = useRouter();
   const [lang, setLang] = useState<Lang>("es");
-  const [me, setMe] = useState<Me | null>(null);
+  const [me, setMe] = useState<Me | null>(initialMe ?? null);
   const [collapsed, setCollapsed] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [recentJobs, setRecentJobs] = useState<{ id: string; status: string; price_usd: number }[]>([]);
   const strings = t(lang);
+
+  // F2.5: job list via React Query (cached + deduped across mounts).
+  const { data: recentJobs = [] } = useQuery({
+    queryKey: ["jobs", me ? "in" : "out"],
+    enabled: me !== null,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const jr = await fetch("/api/jobs");
+      if (!jr.ok) return [];
+      const j = (await jr.json()) as { jobs?: { id: string; status: string; price_usd: number }[] };
+      return (j.jobs ?? []).slice(0, 8);
+    },
+  });
 
   useEffect(() => {
     const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
@@ -70,22 +83,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     } catch {
       /* ignore */
     }
+    // Session comes from the server layout; refetch only if it wasn't provided.
+    if (initialMe !== undefined) return;
     (async () => {
       try {
         const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          setMe((await res.json()) as Me);
-          const jr = await fetch("/api/jobs");
-          if (jr.ok) {
-            const j = (await jr.json()) as { jobs?: { id: string; status: string; price_usd: number }[] };
-            setRecentJobs((j.jobs ?? []).slice(0, 8));
-          }
-        }
+        if (res.ok) setMe((await res.json()) as Me);
       } catch {
         /* offline */
       }
     })();
-  }, []);
+  }, [initialMe]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
