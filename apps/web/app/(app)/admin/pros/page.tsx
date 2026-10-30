@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { FlowNav } from "@/components/ui";
+import { Badge, Button, Card, ErrorState, Field, FlowNav, Input } from "@/components/ui";
 
 interface AppItem {
   id: string;
@@ -74,49 +74,51 @@ export default function AdminProsPage() {
   return (
     <main>
       <h1>{strings.queueTitle}</h1>
-      <p className="muted">{strings.queueSub}</p>
+      <p className="text-sm text-muted">{strings.queueSub}</p>
       <p><Link href="/admin">← {strings.adminTitle}</Link></p>
-      <div className="row" role="tablist" aria-label={strings.queueTitle}>
+      <div className="flex items-center gap-2 flex-wrap" role="tablist" aria-label={strings.queueTitle}>
         {(["pending", "approved", "rejected"] as Filter[]).map((f) => (
-          <button key={f} type="button" role="tab" aria-selected={filter === f} className="btn btn-secondary" onClick={() => setFilter(f)}>
+          <Button key={f} variant={filter === f ? "primary" : "secondary"} aria-selected={filter === f} className="px-3 py-1.5 text-sm" onPress={() => setFilter(f)}>
             {f} {filter === f && `(${items.length})`}
-          </button>
+          </Button>
         ))}
       </div>
-      {error && <p className="err" role="alert">{error}</p>}
-      {items.length === 0 && <p className="muted">{strings.noApplications}</p>}
+      {error && <ErrorState message={error} />}
+      {items.length === 0 && <p className="text-sm text-muted">{strings.noApplications}</p>}
       {items.map((a) => (
-        <section key={a.id} className="card">
-          <div className="row">
+        <Card key={a.id}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <strong>{a.name}</strong>
-            <span className="pill">{a.category.replace("_", " ")} · {a.zone}</span>
+            <Badge status={`${a.category.replace("_", " ")} · ${a.zone}`} />
           </div>
-          <div className="muted small">{a.phone} · ${a.rate_usd_hr}/h · {a.id.slice(0, 8)}</div>
+          <div className="text-sm text-muted">{a.phone} · ${a.rate_usd_hr}/h · {a.id.slice(0, 8)}</div>
           {a.idPhotoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={a.idPhotoUrl} alt={`ID — ${a.name}`} style={{ maxWidth: "100%", borderRadius: 8, marginTop: 8 }} />
           )}
-          {a.reject_reason && <p className="muted">✕ {a.reject_reason}</p>}
+          {a.reject_reason && <p className="text-sm text-muted">✕ {a.reject_reason}</p>}
           {filter === "pending" && (
             <>
-              <input
-                value={reasons[a.id] ?? ""}
-                onChange={(e) => setReasons((r) => ({ ...r, [a.id]: e.target.value }))}
-                placeholder={strings.rejectReasonPh}
-                maxLength={500}
-                aria-label={strings.rejectReasonPh}
-              />
-              <div className="row">
-                <button type="button" className="btn" disabled={busy === a.id} onClick={() => decide(a.id, true)}>
+              <Field label={strings.rejectReasonPh} className="mt-2">
+                <Input
+                  value={reasons[a.id] ?? ""}
+                  onChange={(e) => setReasons((r) => ({ ...r, [a.id]: e.target.value }))}
+                  placeholder={strings.rejectReasonPh}
+                  maxLength={500}
+                  aria-label={strings.rejectReasonPh}
+                />
+              </Field>
+              <div className="flex items-center gap-3 flex-wrap mt-2">
+                <Button disabled={busy === a.id} onPress={() => decide(a.id, true)}>
                   ✓ {strings.approve}
-                </button>
-                <button type="button" className="btn btn-secondary" disabled={busy === a.id} onClick={() => decide(a.id, false)}>
+                </Button>
+                <Button variant="secondary" disabled={busy === a.id} onPress={() => decide(a.id, false)}>
                   ✕ {strings.reject}
-                </button>
+                </Button>
               </div>
             </>
           )}
-        </section>
+        </Card>
       ))}
       <FlowNav backHref="/admin" backLabel={strings.back} />
     </main>

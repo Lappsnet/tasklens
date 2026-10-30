@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Bank, Buildings, DeviceMobile, Eyeglasses, House, Wrench, EnvelopeSimple } from "@phosphor-icons/react";
-import { Button, Field, Input, Sheet } from "@/components/ui";
+import { Button, ErrorState, Field, Input, Select, Sheet } from "@/components/ui";
 import { useCountUp } from "@/components/ui";
-import { browserAuth, demoLogin, hasSupabaseBrowser } from "@/lib/auth-client";
+import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
 import { CITIES } from "@/lib/cities";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
@@ -180,6 +180,18 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
   }
 
   async function demo(r: RoleKey) {
+    // Production (Supabase): server signs into the seeded account. Local demo:
+    // role cookie. Company/alcaldía one-click exists locally only by design.
+    if (hasSupabaseBrowser()) {
+      if (r !== "customer" && r !== "pro") {
+        setError(strings.demoNote);
+        return;
+      }
+      const ok = await demoLoginServer(r);
+      if (ok) router.push(roleHome(r));
+      else setError(strings.errorGeneric);
+      return;
+    }
     const ok = await demoLogin(r, r === "city_operator" ? opCity : undefined);
     if (ok) router.push(roleHome(r));
     else setError(strings.errorGeneric);
@@ -191,16 +203,16 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl font-extrabold">{mode === "login" ? strings.loginTitle : strings.signUp}</h1>
-        <div className="seg" role="group" aria-label={strings.langLabel}>
+        <div className="flex gap-1" role="group" aria-label={strings.langLabel}>
           {(["es", "en"] as Lang[]).map((l) => (
-            <button key={l} type="button" className={lang === l ? "on" : ""} onClick={() => pickLang(l)}>
+            <Button key={l} variant={lang === l ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => pickLang(l)}>
               {l.toUpperCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
       <p className="mb-4 text-sm text-muted">{mode === "login" ? strings.loginSub : strings.whoSub}</p>
-      {error && <p className="err mb-3" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
 
       {/* Step 1 — role */}
       {!role && (
@@ -227,7 +239,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       {/* Step 2 — method */}
       {role && !method && !hasSession && (
         <section aria-label={strings.howTitle}>
-          <button type="button" className="link mb-2 text-sm" onClick={() => setRole(null)}>← {strings.whoTitle}</button>
+          <Button variant="ghost" className="mb-2 text-sm" onPress={() => setRole(null)}>← {strings.whoTitle}</Button>
           <h2 className="mb-1 font-bold">{strings.howTitle}</h2>
           <p className="mb-2 text-sm text-muted">{strings.howSub}</p>
           <div className="grid gap-2">
@@ -260,7 +272,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       {/* Phone method */}
       {role && method === "phone" && !sent && (
         <section aria-label={strings.withPhone}>
-          <button type="button" className="link mb-2 text-sm" onClick={() => setMethod(null)}>← {strings.howTitle}</button>
+          <Button variant="ghost" className="mb-2 text-sm" onPress={() => setMethod(null)}>← {strings.howTitle}</Button>
           <Field label={strings.emailLabel}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@correo.com" inputMode="email" />
           </Field>
@@ -284,7 +296,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
             {cooldown > 0 ? `${strings.resendIn} ${cd}s` : strings.resendLink}
           </Button>
           <div className="mt-2">
-            <button type="button" className="link text-sm" onClick={() => checkSession()}>{lang === "es" ? "Ya hice clic — continuar" : "I clicked the link — continue"}</button>
+            <Button variant="ghost" className="text-sm" onPress={() => checkSession()}>{lang === "es" ? "Ya hice clic — continuar" : "I clicked the link — continue"}</Button>
           </div>
         </section>
       )}
@@ -311,7 +323,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
         <section aria-label={strings.nextTitle} className="pop-in rounded-card border border-verified bg-surface p-5 text-center shadow-soft">
           <h2 className="font-display text-xl font-bold">{strings.nextTitle}</h2>
           <p className="mt-1 text-sm text-muted">{nextLabel(role, strings).href === "/pro/apply" ? strings.needVerify : ""}</p>
-          <Link href={nextLabel(role, strings).href} className="btn-glow btn-sheen mt-3 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
+          <Link href={nextLabel(role, strings).href} className="fx-glow fx-sheen mt-3 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
             {nextLabel(role, strings).cta}
           </Link>
         </section>
@@ -328,12 +340,12 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
                   {r === "customer" ? strings.roleCustomer : r === "pro" ? strings.rolePro : strings.roleCompany}
                 </Button>
               ))}
-              <label className="lbl" htmlFor="demo-city">{strings.cityTitle}</label>
-              <select id="demo-city" value={opCity} onChange={(e) => setOpCity(e.target.value)} className="w-full rounded-input border border-line bg-surface px-3 py-2.5">
-                {CITIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>{c.name}, {c.country}</option>
-                ))}
-              </select>
+              <Select
+                label={strings.cityTitle}
+                items={CITIES.map((c) => ({ id: c.slug, label: `${c.name}, ${c.country}` }))}
+                selectedKey={opCity}
+                onSelectionChange={(k) => setOpCity(String(k))}
+              />
               <Button variant="secondary" onPress={() => demo("city_operator")}>{strings.roleCity}</Button>
               <p className="text-xs text-muted">{strings.demoNote}</p>
             </div>

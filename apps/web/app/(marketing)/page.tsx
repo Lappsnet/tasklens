@@ -121,7 +121,7 @@ export default async function LandingPage() {
         <Reveal>
           <h2 className="font-display text-3xl font-extrabold lg:text-5xl">{t.ctaT}</h2>
           <div className="mt-6 flex justify-center gap-3 flex-wrap">
-            <MagneticButton className="btn-glow btn-sheen rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
+            <MagneticButton className="fx-glow fx-sheen rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
               <Link href="/scan">{t.scan}</Link>
             </MagneticButton>
             <Link href="#demo" className="rounded-btn border border-ink bg-surface px-6 py-3 font-bold">

@@ -129,7 +129,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
 
       <div className="mt-8 rounded-card grad-pan bg-[linear-gradient(135deg,#16263f,#0f1b2d_45%,#3a1c07)] p-6 text-center text-white">
         <p className="font-display text-2xl font-extrabold">Mira el problema. Resuélvelo hoy.</p>
-        <Link href={cta.href} className="btn-glow btn-sheen mt-4 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
+        <Link href={cta.href} className="fx-glow fx-sheen mt-4 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
           {cta.label}
         </Link>
       </div>

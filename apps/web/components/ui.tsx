@@ -98,7 +98,7 @@ export function Button({ variant = "primary", size = "md", loading, className, c
     secondary: "bg-surface text-ink border border-ink hover:bg-ink hover:text-bg",
     ghost: "bg-transparent text-ink underline px-2 py-1",
     danger: "bg-[#B42318] text-white hover:brightness-110",
-    accent: "btn-glow btn-sheen text-[var(--signal-ink)] bg-[linear-gradient(180deg,#ff8a3d,var(--signal)_60%,#c24e08)]",
+    accent: "fx-glow fx-sheen text-[var(--signal-ink)] bg-[linear-gradient(180deg,#ff8a3d,var(--signal)_60%,#c24e08)]",
   };
   return (
     <RACButton
@@ -112,7 +112,7 @@ export function Button({ variant = "primary", size = "md", loading, className, c
       className={cn(base, sizes, variants[variant], className)}
     >
       {children}
-      {loading && <span aria-hidden="true" className="absolute inset-0 btn-sweep" />}
+      {loading && <span aria-hidden="true" className="absolute inset-0 fx-sweep" />}
     </RACButton>
   );
 }

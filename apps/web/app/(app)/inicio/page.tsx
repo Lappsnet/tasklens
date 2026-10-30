@@ -61,7 +61,7 @@ export default function InicioPage() {
       <section className="rounded-card grad-pan p-5 text-white bg-[linear-gradient(135deg,#16263f,#0f1b2d_45%,#3a1c07)] shadow-lifted">
         <h1 className="font-display text-2xl font-extrabold">{strings.homeTitle}</h1>
         <p className="mt-1 text-sm text-white/80">{strings.homeLead}</p>
-        <Link href="/scan" className="btn-glow btn-sheen mt-4 inline-flex items-center gap-2 rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
+        <Link href="/scan" className="fx-glow fx-sheen mt-4 inline-flex items-center gap-2 rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
           <Scan size={20} weight="bold" aria-hidden="true" />
           {strings.startScan}
         </Link>

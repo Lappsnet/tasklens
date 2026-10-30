@@ -79,11 +79,11 @@ export default function KitShowcase() {
       <div className="mb-6 flex items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-extrabold">/dev/kit — U1 primitives</h1>
         <div className="flex items-center gap-2">
-          <div className="seg" role="group" aria-label="theme">
+          <div className="flex gap-1" role="group" aria-label="theme">
             {(["light", "dark"] as Theme[]).map((t) => (
-              <button key={t} type="button" className={theme === t ? "on" : ""} onClick={() => setAll(t)}>
+              <Button key={t} variant={theme === t ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => setAll(t)}>
                 {t}
-              </button>
+              </Button>
             ))}
           </div>
           <ThemeToggle />
@@ -229,7 +229,7 @@ export default function KitShowcase() {
         </p>
         <Marquee>
           {["Fontanería", "Electricidad", "Albañilería", "Limpieza"].map((c) => (
-            <span key={c} className="chip whitespace-nowrap">{c}</span>
+            <Badge key={c} status={c} className="normal-case" />
           ))}
         </Marquee>
       </Section>

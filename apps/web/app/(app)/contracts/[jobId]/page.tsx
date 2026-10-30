@@ -1,10 +1,9 @@
 "use client";
 
 import { use, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { FlowNav } from "@/components/ui";
+import { Badge, Button, Card, DrawCheck, EmptyState, ErrorState, Field, FlowNav, Input, Skeleton } from "@/components/ui";
 
 interface Contract {
   id: string;
@@ -155,70 +154,79 @@ export default function ContractPage({ params }: { params: Promise<{ jobId: stri
 
   return (
     <main>
-      <h1>{strings.contractTitle}</h1>
-      {error && <p className="err" role="alert">{error}</p>}
-      {!contract && !error && <div className="card skel" />}
+      <h1 className="font-display text-2xl font-extrabold">{strings.contractTitle}</h1>
+      {error && <ErrorState message={error} onRetry={load} />}
+      {!contract && !error && <Skeleton className="h-48" />}
       {contract && (
         <>
-          <section className="card highlight">
-            <div className="muted small">{contract.title} · <span className="pill">{contract.status}</span></div>
-            <div className="price">${contract.price_usd}</div>
-            <p className="muted small" style={{ whiteSpace: "pre-line" }}>{summary}</p>
+          <section className="sticky top-14 z-10 rounded-card border border-signal bg-surface p-4 shadow-lifted" aria-label={strings.signTitle}>
+            <div className="text-xs text-muted">{contract.title} · <Badge status={contract.status} /></div>
+            <div className="font-display text-3xl font-extrabold">${contract.price_usd}</div>
+            <p className="mt-1 text-sm text-muted" style={{ whiteSpace: "pre-line" }}>{summary}</p>
           </section>
-          <section className="card">
-            <p className="muted small" style={{ whiteSpace: "pre-line" }}>{body}</p>
-          </section>
+          <Card>
+            <p className="text-sm text-muted" style={{ whiteSpace: "pre-line" }}>{body}</p>
+          </Card>
 
           {contract.status !== "fully_signed" ? (
-            <section className="card">
-              <h2>{strings.signTitle}</h2>
-              <div className="row">
+            <Card>
+              <h2 className="mb-2 font-bold">{strings.signTitle}</h2>
+              <div className="mb-2 flex gap-2" role="group" aria-label="role">
                 {(["customer", "pro"] as const).map((r) => (
-                  <button key={r} type="button" className={`btn ${role === r ? "" : "btn-secondary"}`} onClick={() => setRole(r)}>{r}</button>
+                  <Button key={r} variant={role === r ? "primary" : "secondary"} onPress={() => setRole(r)}>{r}</Button>
                 ))}
               </div>
-              <label className="lbl" htmlFor="sname">{strings.signerName}</label>
-              <input id="sname" value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }} />
-              <label className="lbl" htmlFor="semail">{strings.emailLabel}</label>
-              <input id="semail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }} />
-              <button type="button" className="btn btn-secondary" disabled={busy || !email} onClick={requestCode}>{strings.sendCode}</button>
-              {codeSent && <p className="muted" role="status">{strings.demoCode}: <strong>{codeSent}</strong></p>}
-              <label className="lbl" htmlFor="sdraw">{strings.drawLabel}</label>
-              <canvas
-                id="sdraw"
-                ref={canvasRef}
-                width={320}
-                height={120}
-                style={{ border: "1px solid #ccc", borderRadius: 10, touchAction: "none", width: "100%" }}
-                onMouseDown={startDraw}
-                onMouseMove={moveDraw}
-                onMouseUp={() => (drawing.current = false)}
-                onTouchStart={startDraw}
-                onTouchMove={moveDraw}
-                onTouchEnd={() => (drawing.current = false)}
-              />
-              <label className="lbl" htmlFor="scode">{strings.codeLabel}</label>
-              <input id="scode" value={code} onChange={(e) => setCode(e.target.value)} style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }} />
-              <button type="button" className="btn big" disabled={busy || !name || !code} onClick={sign}>{busy ? "…" : strings.signButton}</button>
-            </section>
+              <Field label={strings.signerName}>
+                <Input id="sname" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+              </Field>
+              <Field label={strings.emailLabel}>
+                <Input id="semail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" maxLength={200} />
+              </Field>
+              <Button variant="secondary" loading={busy} isDisabled={!email} onPress={requestCode} className="mt-2">
+                {strings.sendCode}
+              </Button>
+              {codeSent && <p className="mt-1 text-sm text-muted" role="status">{strings.demoCode}: <strong className="font-mono">{codeSent}</strong></p>}
+              <Field label={strings.drawLabel}>
+                <canvas
+                  id="sdraw"
+                  ref={canvasRef}
+                  width={320}
+                  height={120}
+                  className="w-full touch-none rounded-input border border-blueprint bg-surface"
+                  onMouseDown={startDraw}
+                  onMouseMove={moveDraw}
+                  onMouseUp={() => (drawing.current = false)}
+                  onTouchStart={startDraw}
+                  onTouchMove={moveDraw}
+                  onTouchEnd={() => (drawing.current = false)}
+                />
+              </Field>
+              <Field label={strings.codeLabel}>
+                <Input id="scode" value={code} onChange={(e) => setCode(e.target.value)} maxLength={20} />
+              </Field>
+              <Button size="lg" variant="accent" loading={busy} isDisabled={!name || !code} onPress={sign}>
+                {strings.signButton}
+              </Button>
+            </Card>
           ) : (
-            <section className="card">
-              <p className="muted">✓ {strings.signedBoth}</p>
-              <button type="button" className="btn btn-secondary" onClick={downloadPdf}>{strings.downloadPdf}</button>
-              {pdf && <p className="muted small">SHA-256: {pdf.slice(0, 32)}…</p>}
-              <div className="row">
-                <Link className="btn" href={`/book/${contract.job_id}`}>{strings.continueBooking}</Link>
+            <Card>
+              <p className="flex items-center gap-2 font-bold text-verified"><DrawCheck size={28} /> {strings.signedBoth}</p>
+              <Button variant="secondary" onPress={downloadPdf} className="mt-2">{strings.downloadPdf}</Button>
+              {pdf && <p className="mt-1 font-mono text-xs text-muted">SHA-256: {pdf.slice(0, 32)}…</p>}
+              <div className="mt-2">
+                <a className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg shadow-soft hover:brightness-125" href={`/book/${contract.job_id}`}>{strings.continueBooking}</a>
               </div>
-            </section>
+            </Card>
           )}
 
           {changes.length > 0 && (
-            <section className="card">
-              <h2>{strings.changeOrders}</h2>
-              <ul>{changes.map((c) => <li key={c.id}>{c.scope_delta} · +${c.price_delta_usd} · {c.status}</li>)}</ul>
-            </section>
+            <Card>
+              <h2 className="font-bold">{strings.changeOrders}</h2>
+              <ul className="mt-1 space-y-1 text-sm">{changes.map((c) => <li key={c.id}>{c.scope_delta} · +${c.price_delta_usd} · {c.status}</li>)}</ul>
+            </Card>
           )}
-          <p className="muted small">{strings.aiTemplateNote}</p>
+          <p className="mt-2 text-xs text-muted">{strings.aiTemplateNote}</p>
+          {changes.length === 0 && contract.status === "draft" && <EmptyState title={strings.changeOrders} hint={strings.aiTemplateNote} />}
           <FlowNav backHref={`/jobs/${jobId}`} backLabel={strings.back} />
         </>
       )}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { FlowNav } from "@/components/ui";
+import { Button, Card, DateField, EmptyState, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 interface DayJob {
   jobId: string;
@@ -101,76 +101,86 @@ export default function ProCalendarPage() {
 
   return (
     <main>
-      <h1>{strings.calTitle}</h1>
-      <p className="muted">{strings.calSub}</p>
-      {error && <p className="err" role="alert">{error}</p>}
+      <h1 className="font-display text-2xl font-extrabold">{strings.calTitle}</h1>
+      <p className="text-sm text-muted">{strings.calSub}</p>
+      {error && <ErrorState message={error} onRetry={() => { setError(""); loadPlan(day); }} />}
 
-      <section className="card">
-        <div className="row">
+      <Card>
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {Array.from({ length: 7 }, (_, i) => dayISO(i)).map((d) => (
-            <button key={d} type="button" className={`btn ${d === day ? "" : "btn-secondary"}`} onClick={() => loadPlan(d)}>
+            <Button key={d} variant={d === day ? "primary" : "secondary"} onPress={() => loadPlan(d)}>
               {d.slice(5)}
-            </button>
+            </Button>
           ))}
         </div>
-      </section>
-
-      <section className="card highlight">
-        <div className="muted small">{day} · {jobs.length} jobs</div>
-        <p>{briefing || "…"}</p>
-        <div className="row">
-          <button type="button" className="btn btn-secondary" onClick={speak}>🔊 {strings.speakBrief}</button>
-          <button type="button" className="btn btn-secondary" disabled={busy} onClick={blockDay}>{strings.blockDay}</button>
+        <div className="mt-2">
+          <DateField
+            label={strings.dayJobs}
+            value={undefined}
+            onChange={(v) => {
+              if (v) {
+                const iso = `${v.year}-${String(v.month).padStart(2, "0")}-${String(v.day).padStart(2, "0")}`;
+                loadPlan(iso);
+              }
+            }}
+          />
         </div>
-      </section>
+      </Card>
+
+      <Card className="!border-signal">
+        <div className="text-xs text-muted">{day} · {jobs.length} jobs</div>
+        {briefing ? <p className="mt-1">{briefing}</p> : <Skeleton className="h-10" />}
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button variant="secondary" onPress={speak}>🔊 {strings.speakBrief}</Button>
+          <Button variant="secondary" loading={busy} onPress={blockDay}>{strings.blockDay}</Button>
+        </div>
+      </Card>
 
       {jobs.length > 0 && (
-        <section className="card">
-          <h2>{strings.dayJobs}</h2>
-          <ul>{jobs.map((j) => <li key={j.jobId}>{j.slot.slice(11, 16)} — {j.title}</li>)}</ul>
-        </section>
+        <Card>
+          <h2 className="font-bold">{strings.dayJobs}</h2>
+          <ul className="mt-1 space-y-1 text-sm">{jobs.map((j) => <li key={j.jobId}>{j.slot.slice(11, 16)} — {j.title}</li>)}</ul>
+        </Card>
+      )}
+      {jobs.length === 0 && briefing !== "" && (
+        <EmptyState title={strings.dayJobs} hint={strings.queueEmpty} />
       )}
 
       {blocks.length > 0 && (
-        <section className="card">
-          <h2>{strings.blocks}</h2>
-          <ul>
+        <Card>
+          <h2 className="font-bold">{strings.blocks}</h2>
+          <ul className="mt-1 space-y-1 text-sm">
             {blocks.map((b) => (
               <li key={b.id}>
                 {b.starts_at.slice(0, 10)} · {b.kind} {b.note}
-                <button
-                  type="button"
-                  className="link"
-                  onClick={async () => {
-                    await fetch(`/api/calendar/blocks?id=${encodeURIComponent(b.id)}`, { method: "DELETE" });
-                    await loadBlocks();
-                  }}
-                >
+                <Button variant="ghost" className="ml-2 px-1 py-0 text-sm" aria-label="remove" onPress={async () => {
+                  await fetch(`/api/calendar/blocks?id=${encodeURIComponent(b.id)}`, { method: "DELETE" });
+                  await loadBlocks();
+                }}>
                   ×
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
-        </section>
+        </Card>
       )}
 
-      <section className="card">
-        <h2>ICS</h2>
-        <div className="row">
-          <button type="button" className="btn btn-secondary" onClick={mintFeed}>{strings.newFeed}</button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={async () => {
+      <Card>
+        <h2 className="font-bold">ICS</h2>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button variant="secondary" onPress={mintFeed}>{strings.newFeed}</Button>
+          <Button
+            variant="secondary"
+            onPress={async () => {
               await fetch("/api/calendar/feed", { method: "DELETE" });
               setFeedUrl("");
             }}
           >
             {strings.revokeFeed}
-          </button>
+          </Button>
         </div>
-        {feedUrl && <p className="muted small" style={{ wordBreak: "break-all" }}>{feedUrl}</p>}
-      </section>
+        {feedUrl && <p className="mt-1 break-all text-xs text-muted">{feedUrl}</p>}
+      </Card>
       <FlowNav backHref="/pro" backLabel={strings.back} />
     </main>
   );

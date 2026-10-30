@@ -54,11 +54,11 @@ export default function AjustesPage() {
       <h1 className="font-display text-2xl font-extrabold">{strings.ajustesTitle}</h1>
       <Card>
         <h2 className="mb-2 font-bold">{strings.settingsLang}</h2>
-        <div className="seg" role="group" aria-label={strings.settingsLang}>
+        <div className="flex gap-1" role="group" aria-label={strings.settingsLang}>
           {(["es", "en"] as Lang[]).map((l) => (
-            <button key={l} type="button" className={lang === l ? "on" : ""} onClick={() => pickLang(l)}>
+            <Button key={l} variant={lang === l ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => pickLang(l)}>
               {l.toUpperCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </Card>

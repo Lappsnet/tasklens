@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { useEffect } from "react";
-import { FlowNav } from "@/components/ui";
+import { Button, Card, ErrorState, Field, FlowNav, Input, Select } from "@/components/ui";
 
 const TRADES = ["plumbing", "electrical", "appliance", "drywall_paint", "assembly", "cleaning"] as const;
 
@@ -62,37 +61,43 @@ export default function ApplyPage() {
   return (
     <main>
       <h1>{strings.applyTitle}</h1>
-      <p className="muted">{strings.applySub}</p>
+      <p className="text-sm text-muted">{strings.applySub}</p>
       {done ? (
-        <p className="card highlight" role="status">✓ {strings.applyDone}</p>
+        <Card className="border-signal shadow-lifted"><p role="status" className="font-bold text-verified">✓ {strings.applyDone}</p></Card>
       ) : (
-        <section className="card">
-          <label className="lbl">{strings.proName}</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
-          <label className="lbl">{strings.emailLabel}</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} maxLength={200} inputMode="email" placeholder="tu@correo.com" />
-          <label className="lbl">{strings.tradeLabel}</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            {TRADES.map((c) => (
-              <option key={c} value={c}>{c.replace("_", " ")}</option>
-            ))}
-          </select>
-          <label className="lbl">{strings.zoneLabel}</label>
-          <input value={zone} onChange={(e) => setZone(e.target.value)} placeholder={strings.zonePh} maxLength={120} />
-          <label className="lbl">{strings.phoneLabel}</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={strings.phonePh} maxLength={30} inputMode="tel" />
-          <label className="lbl">{strings.rateLabel}</label>
-          <input value={rate} onChange={(e) => setRate(e.target.value)} inputMode="numeric" maxLength={3} />
-          <label className="lbl">{strings.idPhotoLabel}</label>
-          <p className="muted small">{strings.idPhotoHint}</p>
-          <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
-          {error && <p className="err" role="alert">{error}</p>}
-          <button type="button" className="btn big" disabled={busy} onClick={submit}>
+        <Card>
+          <Field label={strings.proName}>
+            <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+          </Field>
+          <Field label={strings.emailLabel}>
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} maxLength={200} inputMode="email" placeholder="tu@correo.com" />
+          </Field>
+          <Select
+            label={strings.tradeLabel}
+            selectedKey={category}
+            onSelectionChange={(k) => setCategory(String(k))}
+            items={TRADES.map((c) => ({ id: c, label: c.replace("_", " ") }))}
+          />
+          <Field label={strings.zoneLabel}>
+            <Input value={zone} onChange={(e) => setZone(e.target.value)} placeholder={strings.zonePh} maxLength={120} />
+          </Field>
+          <Field label={strings.phoneLabel}>
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={strings.phonePh} maxLength={30} inputMode="tel" />
+          </Field>
+          <Field label={strings.rateLabel}>
+            <Input value={rate} onChange={(e) => setRate(e.target.value)} inputMode="numeric" maxLength={3} />
+          </Field>
+          <Field label={strings.idPhotoLabel}>
+            <p className="text-sm text-muted">{strings.idPhotoHint}</p>
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+          </Field>
+          {error && <ErrorState message={error} />}
+          <Button size="lg" disabled={busy} onPress={submit} className="mt-2">
             {busy ? "…" : strings.applySubmit}
-          </button>
-        </section>
+          </Button>
+        </Card>
       )}
-      <Link className="btn btn-secondary" href="/login">{strings.existingPro}</Link>
+      <a className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href="/login">{strings.existingPro}</a>
       <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );

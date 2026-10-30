@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, EmptyState, FlowNav, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, Field, FlowNav, Input, Skeleton } from "@/components/ui";
 
 interface JobRow {
   id: string;
@@ -73,19 +73,20 @@ export default function ProPage() {
       </Card>
 
       <Card>
-        <div className="flex gap-2">
-          <input
-            aria-label={strings.openJob}
-            placeholder={strings.lookupPh}
-            value={lookup}
-            onChange={(e) => setLookup(e.target.value)}
-            className="flex-1 border border-neutral-300 rounded-btn px-3 py-2"
-          />
-          <Button disabled={!lookup.trim()} onClick={() => router.push(`/pro/jobs/${lookup.trim()}`)}>{strings.go}</Button>
-        </div>
+        <Field label={strings.openJob}>
+          <div className="flex gap-2">
+            <Input
+              aria-label={strings.openJob}
+              placeholder={strings.lookupPh}
+              value={lookup}
+              onChange={(e) => setLookup(e.target.value)}
+            />
+            <Button isDisabled={!lookup.trim()} onPress={() => router.push(`/pro/jobs/${lookup.trim()}`)}>{strings.go}</Button>
+          </div>
+        </Field>
       </Card>
 
-      {error && <p className="err" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
       {!jobs && <Skeleton className="h-24" />}
       {jobs?.map((j) => (
         <Link key={j.id} href={`/pro/jobs/${j.id}`} className="block no-underline">

@@ -1,11 +1,10 @@
 "use client";
 
 import { use, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
-import { toast, FlowNav } from "@/components/ui";
+import { toast, Badge, Button, Card, ErrorState, Field, FlowNav, Input, Skeleton } from "@/components/ui";
 
 const NEXT_STEP: Record<string, { to: string; label: keyof ReturnType<typeof t> } | null> = {
   booked: { to: "en_route", label: "startRoute" },
@@ -25,6 +24,8 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
   const [verdict, setVerdict] = useState<string>("");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const beforeRef = useRef<HTMLInputElement>(null);
+  const afterRef = useRef<HTMLInputElement>(null);
   const strings = t(lang);
   const { job, events, live, error: feedError, reload } = useJobFeed(jobId);
 
@@ -305,117 +306,119 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
 
   return (
     <main>
-      <div className="row">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1>{strings.jobMode}</h1>
-        <span className="pill">{live ? strings.liveBadge : strings.pollBadge}</span>
+        <Badge status={live ? "live" : "polling"} />
       </div>
-      {(error || feedError) && <p className="err" role="alert">{error || feedError}</p>}
-      {!job && !feedError && <div className="card skel" />}
+      {(error || feedError) && <ErrorState message={error || feedError || ""} />}
+      {!job && !feedError && <Skeleton className="h-48" />}
 
       {job && (
         <>
-          <section className="card highlight">
-            <div className="muted small">job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}</div>
-            <div className="price">{job.status.replace("_", " ")}</div>
-            {currentStep && <p className="muted">▶ {currentStep}</p>}
-            <div className="row">
+          <Card className="border-signal shadow-lifted">
+            <div className="text-sm text-muted">job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}</div>
+            <div className="font-display text-3xl font-extrabold">{job.status.replace("_", " ")}</div>
+            {currentStep && <p className="text-sm text-muted">▶ {currentStep}</p>}
+            <div className="flex items-center gap-3 flex-wrap">
               {step && (
-                <button type="button" className="btn big" style={{ flex: 1 }} disabled={busy} onClick={() => advance(step.to)}>
+                <Button size="lg" className="flex-1" disabled={busy} onPress={() => advance(step.to)}>
                   {busy ? "…" : String(strings[step.label])}
-                </button>
+                </Button>
               )}
               {currentStep && (
-                <button type="button" className="btn btn-secondary" onClick={speakStep} aria-label={strings.speakStep}>
+                <Button variant="secondary" onPress={speakStep} aria-label={strings.speakStep}>
                   🔊
-                </button>
+                </Button>
               )}
             </div>
-          </section>
+          </Card>
 
-          <section className="card">
-            <div className="row">
-              <button type="button" className="btn btn-secondary" onClick={toggleRecord}>
+          <Card>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button variant="secondary" onPress={toggleRecord}>
                 {recording ? `● ${strings.stop}` : `🎙 ${strings.voiceNote}`}
-              </button>
-              <label className="btn btn-secondary filebtn">
+              </Button>
+              <Button variant="secondary" onPress={() => beforeRef.current?.click()}>
                 📷 {strings.beforePhotos}
-                <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple hidden onChange={(e) => onPhotos(e.target.files)} />
-              </label>
+              </Button>
+              <input ref={beforeRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple hidden onChange={(e) => onPhotos(e.target.files)} />
             </div>
-          </section>
+          </Card>
 
           {(job.status === "in_progress" || job.status === "pending_verify" || job.status === "en_route") && (
-            <section className="card highlight">
+            <Card className="border-signal shadow-lifted">
               <h2>{strings.copilotTitle}</h2>
-              <p className="muted small">{strings.copilotSub}</p>
-              <div className="row">
-                <input
-                  value={copilotQ}
-                  onChange={(e) => setCopilotQ(e.target.value)}
-                  placeholder={strings.askPh}
-                  maxLength={500}
-                  aria-label={strings.askPh}
-                  style={{ flex: 1 }}
-                />
-                <button type="button" className="btn" disabled={asking || !copilotQ.trim()} onClick={() => askCopilot(copilotQ)}>
+              <p className="text-sm text-muted">{strings.copilotSub}</p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <Field label={strings.askPh} className="min-w-40 flex-1">
+                  <Input
+                    value={copilotQ}
+                    onChange={(e) => setCopilotQ(e.target.value)}
+                    placeholder={strings.askPh}
+                    maxLength={500}
+                    aria-label={strings.askPh}
+                  />
+                </Field>
+                <Button disabled={asking || !copilotQ.trim()} onPress={() => askCopilot(copilotQ)} className="self-end">
                   {asking ? "…" : strings.askButton}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={askByVoice} aria-label={strings.askVoice}>
+                </Button>
+                <Button variant="secondary" onPress={askByVoice} aria-label={strings.askVoice} className="self-end">
                   {recording ? `● ${strings.stop}` : `🎙 ${strings.askVoice}`}
-                </button>
+                </Button>
               </div>
               {copilotA && (
                 <div role="status">
                   <p>“{copilotA.answer}”</p>
-                  {copilotA.safety_note && <p className="warn">⚠ {copilotA.safety_note}</p>}
-                  <div className="row">
-                    <button type="button" className="btn btn-secondary" onClick={() => speak(copilotA.answer)}>
+                  {copilotA.safety_note && <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">⚠ {copilotA.safety_note}</p>}
+                  <div className="flex items-center gap-3 flex-wrap mt-2">
+                    <Button variant="secondary" onPress={() => speak(copilotA.answer)}>
                       🔊 {strings.speakAnswer}
-                    </button>
-                    <span className="pill">{strings.advisoryBadge}{copilotMock ? " · mock" : ""}</span>
+                    </Button>
+                    <Badge status={strings.advisoryBadge} />
+                    {copilotMock && <Badge status="mock" />}
                   </div>
                 </div>
               )}
-            </section>
+            </Card>
           )}
 
           {(job.status === "in_progress" || job.status === "pending_verify" || job.status === "en_route") && (
-            <section className="card">
+            <Card>
               <h2>{strings.hazardTitle}</h2>
-              <p className="muted small">{strings.hazardSub}</p>
-              <div className="row">
-                <input
-                  value={frameNote}
-                  onChange={(e) => setFrameNote(e.target.value)}
-                  placeholder={strings.framePh}
-                  maxLength={500}
-                  aria-label={strings.framePh}
-                  style={{ flex: 1 }}
-                />
-                <button type="button" className="btn btn-secondary" onClick={() => checkHazards(frameNote)}>
+              <p className="text-sm text-muted">{strings.hazardSub}</p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <Field label={strings.framePh} className="min-w-40 flex-1">
+                  <Input
+                    value={frameNote}
+                    onChange={(e) => setFrameNote(e.target.value)}
+                    placeholder={strings.framePh}
+                    maxLength={500}
+                    aria-label={strings.framePh}
+                  />
+                </Field>
+                <Button variant="secondary" onPress={() => checkHazards(frameNote)} className="self-end">
                   {strings.checkFrame}
-                </button>
+                </Button>
               </div>
-              <div className="row">
-                <button type="button" className="btn btn-secondary" onClick={() => setWatchOn((v) => !v)} aria-pressed={watchOn}>
+              <div className="flex items-center gap-3 flex-wrap mt-2">
+                <Button variant="secondary" onPress={() => setWatchOn((v) => !v)} aria-pressed={watchOn}>
                   {watchOn ? strings.hazardOn : strings.hazardOff}
-                </button>
+                </Button>
               </div>
               {hazard && (
                 hazard.safe
-                  ? <p className="muted" role="status">✓ {strings.hazardSafe}</p>
-                  : <p className="warn" role="alert">⚠ {hazard.warning} <span className="pill">{strings.advisoryBadge}</span></p>
+                  ? <p className="text-sm text-muted" role="status">✓ {strings.hazardSafe}</p>
+                  : <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">⚠ {hazard.warning} <Badge status={strings.advisoryBadge} /></p>
               )}
-            </section>
+            </Card>
           )}
 
           {(job.status === "in_progress" || job.status === "pending_verify") && (
-            <section className="card highlight">
-              <label className="lbl" htmlFor="after-input">📸 {strings.afterPhotos}</label>
-              <p className="muted small">{strings.submitVerify}</p>
-              <label className="btn big filebtn">
-                {strings.submitVerify}
+            <Card className="border-signal shadow-lifted">
+              <Field label={`📸 ${strings.afterPhotos}`}>
+                <p className="text-sm text-muted">{strings.submitVerify}</p>
                 <input
+                  ref={afterRef}
                   id="after-input"
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -425,49 +428,52 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
                   disabled={busy}
                   onChange={(e) => onAfterPhotos(e.target.files)}
                 />
-              </label>
-              {verdict && <p className="muted" role="status">{verdict}</p>}
-            </section>
+              </Field>
+              <Button size="lg" disabled={busy} onPress={() => afterRef.current?.click()} className="mt-2">
+                {strings.submitVerify}
+              </Button>
+              {verdict && <p className="text-sm text-muted" role="status">{verdict}</p>}
+            </Card>
           )}
 
-          <section className="card">
+          <Card>
             <h2>{strings.logTitle}</h2>
             {steps.length > 0 && (
-              <ol className="steps">
-                {steps.map((s) => (
+              <ol className="mt-1 space-y-1.5">
+                {steps.map((s, i) => (
                   <li key={s}>
-                    <label>
+                    <label className="flex items-center gap-2">
                       <input type="checkbox" checked={doneSteps.has(s)} onChange={(e) => tickStep(s, e.target.checked)} />{" "}
                       {doneSteps.has(s) ? <s>{s}</s> : s}
                     </label>
                     {!doneSteps.has(s) && (
-                      <label className="btn btn-secondary filebtn" style={{ marginLeft: 8 }}>
+                      <Button variant="secondary" className="ml-2 mt-1 px-3 py-1.5 text-sm" onPress={() => document.getElementById(`ev-${i}`)?.click()}>
                         📷 {strings.listo}
-                        <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={(e) => saveEvidence(s, e.target.files)} />
-                      </label>
+                      </Button>
                     )}
+                    <input id={`ev-${i}`} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={(e) => saveEvidence(s, e.target.files)} />
                   </li>
                 ))}
               </ol>
             )}
-            <ol className="steps">
+            <ol className="mt-3 space-y-1.5">
               {events.map((e) => (
                 <li key={e.id}>
                   <strong>{eventLabel(e.kind)}</strong>
                   {e.kind === "note" && typeof e.payload === "object" && e.payload !== null && "text" in e.payload ? (
-                    <div className="muted">“{(e.payload as { text: string }).text}”</div>
+                    <div className="text-sm text-muted">“{(e.payload as { text: string }).text}”</div>
                   ) : null}
                   {typeof e.kind === "string" && e.kind.startsWith("photo_") ? (
-                    <div className="muted small">{JSON.stringify(e.payload)}</div>
+                    <div className="text-sm text-muted">{JSON.stringify(e.payload)}</div>
                   ) : null}
-                  <div className="muted small">{new Date(e.createdAt).toLocaleTimeString()}</div>
+                  <div className="text-sm text-muted">{new Date(e.createdAt).toLocaleTimeString()}</div>
                 </li>
               ))}
-              {events.length === 0 && <li className="muted">—</li>}
+              {events.length === 0 && <li className="text-sm text-muted">—</li>}
             </ol>
-          </section>
+          </Card>
 
-          <Link className="btn btn-secondary" href={`/jobs/${jobId}`}>{strings.watchTitle} →</Link>
+          <a className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href={`/jobs/${jobId}`}>{strings.watchTitle} →</a>
           <FlowNav backHref="/pro" backLabel={strings.back} continueHref={`/jobs/${jobId}`} continueLabel={strings.watchTitle} />
         </>
       )}

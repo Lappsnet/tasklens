@@ -3,7 +3,7 @@
 /* U4 Equipo: team roster + add members by pro id. */
 
 import { useEffect, useState } from "react";
-import { Avatar, Button, Card, EmptyState, Field, Input, Select } from "@/components/ui";
+import { Avatar, Button, Card, EmptyState, ErrorState, Field, Input, Select } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 
@@ -101,7 +101,7 @@ export default function EquipoPage() {
           ))}
         </div>
       )}
-      {error && <p className="err mb-3" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
       {members.length === 0 && <EmptyState title={strings.teamTitle} hint={strings.teamEmpty} />}
       <div className="flex flex-col gap-2">
         {members.map((m) => (

@@ -66,8 +66,8 @@ describe("P0-5 assetlinks (TWA handshake)", () => {
 });
 
 describe("P0-5 privacy + terms coverage", () => {
-  const privacy = readFileSync(join(ROOT, "app/privacy/page.tsx"), "utf8").toLowerCase();
-  const terms = readFileSync(join(ROOT, "app/terms/page.tsx"), "utf8").toLowerCase();
+  const privacy = readFileSync(join(ROOT, "app/(marketing)/privacy/page.tsx"), "utf8").toLowerCase();
+  const terms = readFileSync(join(ROOT, "app/(marketing)/terms/page.tsx"), "utf8").toLowerCase();
 
   it("privacy covers camera, microphone, location, photos, PayPal, retention, deletion (ES+EN)", () => {
     for (const kw of ["cámara", "camera", "micrófono", "microphone", "ubicación", "location", "fotos", "photos", "paypal", "conserv", "retention", "elimin", "deletion"]) {

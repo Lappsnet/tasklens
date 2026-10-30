@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check } from "@phosphor-icons/react";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, Card, ErrorState, Field, Input } from "@/components/ui";
 import { browserAuth, hasSupabaseBrowser } from "@/lib/auth-client";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
@@ -112,26 +112,26 @@ export default function ConnectGlassesPage() {
     <div>
       <h1 className="font-display text-3xl font-extrabold">{strings.gTitle}</h1>
       <p className="mt-2 text-sm text-muted">{strings.gBody}</p>
-      {error && <p className="err mt-3" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
 
       {authed === false && !sent && (
-        <section className="card mt-4" aria-label={strings.withPhone}>
+        <Card aria-label={strings.withPhone}>
           <Field label={strings.emailLabel}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@correo.com" inputMode="email" />
           </Field>
           <Button size="lg" variant="accent" loading={busy} onPress={sendLink} className="mt-2">
             {strings.sendLink}
           </Button>
-        </section>
+        </Card>
       )}
       {sent && authed === false && (
-        <section className="card mt-4 text-center" aria-label={strings.linkSentTitle}>
+        <Card className="text-center" aria-label={strings.linkSentTitle}>
           <p className="font-bold">{strings.linkSentTitle}</p>
           <p className="mt-1 text-sm text-muted">{strings.linkSentBody}</p>
-          <button type="button" className="link mt-2 text-sm" onClick={() => window.location.reload()}>
+          <Button variant="ghost" className="mt-2 text-sm" onPress={() => window.location.reload()}>
             {lang === "es" ? "Ya hice clic — continuar" : "I clicked the link — continue"}
-          </button>
-        </section>
+          </Button>
+        </Card>
       )}
 
       {authed && !pairing && (
@@ -141,14 +141,14 @@ export default function ConnectGlassesPage() {
       )}
 
       {authed && pairing && (
-        <section className="card highlight mt-4 text-center" aria-label={strings.gPair}>
+        <Card className="border-signal text-center shadow-lifted" aria-label={strings.gPair}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {pairing.qrDataUrl && <img src={pairing.qrDataUrl} alt={pairing.code} className="mx-auto rounded-btn" width={220} height={220} />}
           <div className="mt-2 font-mono text-4xl font-bold tracking-[0.3em]">{pairing.code}</div>
           <p className="mt-1 text-xs text-muted">{strings.gCodeValid}</p>
           <div className="mt-2 flex justify-center gap-2">
             <Button variant="secondary" onPress={copy}>{copied ? `✓ ${strings.shareCopied}` : strings.copyCode}</Button>
-            <a href={pairing.deepLink} className="rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg">
+            <a href={pairing.deepLink} className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg">
               {lang === "es" ? "Abrir app compañera" : "Open companion app"}
             </a>
           </div>
@@ -160,12 +160,12 @@ export default function ConnectGlassesPage() {
               </li>
             ))}
           </ol>
-        </section>
+        </Card>
       )}
 
-      <Link href="/scan" className="btn btn-secondary mt-4 inline-block w-full text-center">
+      <a href="/scan" className="mt-4 inline-block w-full rounded-btn border border-ink bg-surface px-4 py-2.5 text-center text-sm font-semibold hover:bg-ink hover:text-bg">
         {strings.gFallback}
-      </Link>
+      </a>
     </div>
   );
 }

@@ -38,11 +38,11 @@ function Logo() {
 
 function LangToggle({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
   return (
-    <div className="seg" role="group" aria-label="language">
+    <div className="flex gap-1" role="group" aria-label="language">
       {(["es", "en"] as Lang[]).map((l) => (
-        <button key={l} type="button" className={lang === l ? "on" : ""} onClick={() => onChange(l)}>
+        <Button key={l} variant={lang === l ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => onChange(l)}>
           {l.toUpperCase()}
-        </button>
+        </Button>
       ))}
     </div>
   );

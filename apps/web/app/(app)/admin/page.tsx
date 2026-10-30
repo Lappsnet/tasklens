@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
-import { FlowNav } from "@/components/ui";
+import { Button, ErrorState, FlowNav } from "@/components/ui";
 
 export default function AdminPage() {
   const [lang] = useState<Lang>("en");
@@ -45,20 +45,20 @@ export default function AdminPage() {
   return (
     <main>
       <h1>{strings.adminTitle}</h1>
-      <p className="muted">{strings.adminSub} ({strings.roleLabel}: {role || "—"})</p>
+      <p className="text-sm text-muted">{strings.adminSub} ({strings.roleLabel}: {role || "—"})</p>
       {role !== "admin" && (
-        <p className="warn" role="alert">
+        <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">
           {strings.adminOnly} <Link href="/login">/login</Link>
         </p>
       )}
-      <button type="button" className="btn big" disabled={busy || role !== "admin"} onClick={reset}>
+      <Button size="lg" disabled={busy || role !== "admin"} onPress={reset}>
         {busy ? "…" : strings.resetDemo}
-      </button>
+      </Button>
       {role === "admin" && (
         <p><Link href="/admin/pros">{strings.queueTitle} →</Link></p>
       )}
-      {result && <p className="muted" role="status">{result}</p>}
-      {error && <p className="err" role="alert">{error}</p>}
+      {result && <p className="text-sm text-muted" role="status">{result}</p>}
+      {error && <ErrorState message={error} />}
       <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );

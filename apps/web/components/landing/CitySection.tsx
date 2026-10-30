@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { Buildings } from "@phosphor-icons/react";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, ErrorState, Field, Input } from "@/components/ui";
 
 function DotMap() {
   const dots: [number, number][] = [
@@ -108,7 +108,7 @@ export default function CitySection({ t }: {
                 <Field label={t.emailLabel}>
                   <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" maxLength={200} className="border-white/20 bg-white/5 text-white placeholder:text-white/40" />
                 </Field>
-                {error && <p className="err" role="alert">Revisa los campos / Check the fields.</p>}
+                {error && <ErrorState message="Revisa los campos / Check the fields." />}
                 <Button variant="accent" loading={busy} onPress={submit}>
                   {t.accessTitle}
                 </Button>

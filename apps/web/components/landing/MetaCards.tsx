@@ -3,6 +3,7 @@
 /* U5 Meta AI cards, each with a micro demo (waveform / render shimmer /
    mask draw / scan tick / glasses beam). */
 
+import { Skeleton } from "@/components/ui";
 import { Eyeglasses, Microphone, PaintBrush, Scan, SquaresFour } from "@phosphor-icons/react";
 
 function Micro({ kind }: { kind: string }) {
@@ -19,12 +20,12 @@ function Micro({ kind }: { kind: string }) {
   if (kind === "mask") {
     return (
       <div className="relative h-10 overflow-hidden rounded bg-ink" aria-hidden="true">
-        <div className="damagebox" style={{ left: "30%", top: "20%", width: "40%", height: "55%" }} />
+        <div className="absolute rounded-md border-[3px] border-[#ff4d4f] shadow-[0_0_0_1px_rgba(255,255,255,0.8)]" style={{ left: "30%", top: "20%", width: "40%", height: "55%" }} />
       </div>
     );
   }
   if (kind === "render") {
-    return <div className="skel h-10 rounded" aria-hidden="true" />;
+    return <Skeleton className="h-10 rounded" aria-hidden="true" />;
   }
   if (kind === "glasses") {
     return (

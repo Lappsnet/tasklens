@@ -5,11 +5,11 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { BottomSheet, FlowNav } from "@/components/ui";
+import { Badge, BottomSheet, Button, Card, FlowNav, Select, Skeleton } from "@/components/ui";
 
 const ProMap = dynamic(() => import("@/components/map"), {
   ssr: false,
-  loading: () => <div className="card skel" />,
+  loading: () => <Skeleton className="h-28" />,
 });
 
 interface Pro {
@@ -151,13 +151,13 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
     return (
       <main>
         <h1>✓ {strings.held}</h1>
-        <p><span className="pill">{strings.testBadge}</span></p>
-        <section className="card highlight">
-          <div className="price">${receipt.amountUsd} held</div>
-          <p className="muted small">job {receipt.jobId}</p>
-          <p className="muted small">{receipt.slot} · payment {receipt.payment.piId} ({receipt.payment.status})</p>
-        </section>
-        <p className="muted small">{strings.confirmNote}</p>
+        <p><Badge status={strings.testBadge} /></p>
+        <Card className="border-signal shadow-lifted">
+          <div className="font-display text-3xl font-extrabold">${receipt.amountUsd} held</div>
+          <p className="text-sm text-muted">job {receipt.jobId}</p>
+          <p className="text-sm text-muted">{receipt.slot} · payment {receipt.payment.piId} ({receipt.payment.status})</p>
+        </Card>
+        <p className="text-sm text-muted">{strings.confirmNote}</p>
         <FlowNav backHref={`/quote/${scanId}`} backLabel={strings.back} continueHref={`/jobs/${receipt.jobId}`} continueLabel={strings.watchTitle} />
       </main>
     );
@@ -169,16 +169,16 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
       <p className="text-slate2">{strings.matchSub}</p>
 
       {error && (
-        <p className="err" role="alert">
+        <p role="alert" className="rounded-btn border border-[#fecdca] bg-[#fef3f2] px-3 py-2.5 text-[#b42318]">
           {error}{" "}
-          <button type="button" className="link" onClick={() => window.location.reload()}>{strings.retry}</button>
+          <button type="button" className="font-semibold underline" onClick={() => window.location.reload()}>{strings.retry}</button>
         </p>
       )}
 
       {!pros && !error && (
         <>
-          <div className="card skel" />
-          <div className="card skel" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
         </>
       )}
 
@@ -189,46 +189,45 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
         })} />
       )}
 
-      {pros?.length === 0 && <p className="warn">{strings.noPros}</p>}
+      {pros?.length === 0 && <p role="status" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">{strings.noPros}</p>}
 
       {pros && pros.length > 0 && (
         <>
-          <div role="radiogroup" aria-label={strings.matchTitle}>
+          <div role="radiogroup" aria-label={strings.matchTitle} className="stagger">
             {pros.map((p) => (
-              <label key={p.pro_id} className={`card pro ${selected === p.pro_id ? "highlight" : ""}`}>
-                <input
-                  type="radio"
-                  name="pro"
-                  checked={selected === p.pro_id}
-                  onChange={() => pick(p.pro_id)}
-                />
+              <button
+                key={p.pro_id}
+                type="button"
+                role="radio"
+                aria-checked={selected === p.pro_id}
+                onClick={() => pick(p.pro_id)}
+                className={`w-full rounded-card border bg-surface p-4 text-left shadow-soft transition-shadow hover:shadow-lifted ${selected === p.pro_id ? "border-signal shadow-lifted pop-in" : "border-line"}`}
+              >
                 <div>
                   <strong>{p.reason}</strong>
-                  <div className="muted small">
+                  <div className="text-sm text-muted">
                     {strings.eta(p.eta_days)} · ${p.quote_usd}
                   </div>
-                  <label className="lbl" style={{ marginTop: 8 }} htmlFor={`slot-${p.pro_id}`}>
-                    {strings.slotLabel}
-                  </label>
-                  <select
-                    id={`slot-${p.pro_id}`}
-                    value={selected === p.pro_id ? slot : p.slots[0] ?? ""}
-                    disabled={selected !== p.pro_id}
-                    onChange={(e) => setSlot(e.target.value)}
-                  >
-                    {p.slots.map((s) => (
-                      <option key={s} value={s}>{suggested.has(s) ? `★ ${s}` : s}</option>
-                    ))}
-                  </select>
+                  {selected === p.pro_id && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Select
+                        label={strings.slotLabel}
+                        aria-label={strings.slotLabel}
+                        selectedKey={slot || (p.slots[0] ?? "")}
+                        onSelectionChange={(k) => setSlot(String(k))}
+                        items={p.slots.map((s) => ({ id: s, label: suggested.has(s) ? `★ ${s}` : s }))}
+                      />
+                    </div>
+                  )}
                 </div>
-              </label>
+              </button>
             ))}
           </div>
 
-          <p className="muted small">{strings.confirmNote}</p>
-          <button type="button" className="btn big" disabled={busy || !selected || !slot} onClick={confirm}>
-            {busy ? "…" : strings.confirm}
-          </button>
+          <p className="text-sm text-muted">{strings.confirmNote}</p>
+          <Button size="lg" variant="accent" loading={busy} isDisabled={!selected || !slot} onPress={confirm}>
+            {strings.confirm}
+          </Button>
           {pendingOrder && (
             <BottomSheet>
               <PayPalCheckout order={pendingOrder} busy={busy} onApprove={approvePayPal} />
@@ -276,18 +275,18 @@ function PayPalCheckout({
   }, [sdkReady, order.orderId, onApprove]);
 
   return (
-    <section className="card highlight">
-      <div className="muted small">
+    <Card className="border-signal shadow-lifted">
+      <div className="text-sm text-muted">
         {order.sandbox ?? true ? "Prueba / Sandbox — no real charge" : "PayPal"} · ${order.amountUsd} · order {order.orderId.slice(0, 12)}…
       </div>
       <div id="paypal-buttons" />
       {!sdkReady && (
-        <button type="button" className="btn big" disabled={busy} onClick={onApprove}>
+        <Button size="lg" disabled={busy} onPress={onApprove}>
           {busy ? "…" : "Approve hold (demo)"}
-        </button>
+        </Button>
       )}
       <FundLink jobId={order.jobId} />
-    </section>
+    </Card>
   );
 }
 
@@ -313,9 +312,9 @@ function FundLink({ jobId }: { jobId: string }) {
     );
   }
   return (
-    <button type="button" className="btn btn-secondary mt-2" onClick={create}>
+    <Button variant="secondary" className="mt-2" onPress={create}>
       {strings.askRelative}
-    </button>
+    </Button>
   );
 }
 

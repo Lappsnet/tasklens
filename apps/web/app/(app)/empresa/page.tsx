@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Avatar, Badge, Button, Card, EmptyState, Field, Input, Skeleton } from "@/components/ui";
+import { Avatar, Badge, Button, Card, EmptyState, ErrorState, Field, Input, Skeleton } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 
@@ -133,7 +133,7 @@ export default function EmpresaPage() {
     <div>
       <h1 className="font-display text-2xl font-extrabold">{strings.empresaTitle}</h1>
       <p className="mb-3 text-sm text-muted">{strings.empresaSub}</p>
-      {error && <p className="err mb-3" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
 
       {companies === null && <Skeleton className="h-24" />}
       {companies !== null && companies.length === 0 && (

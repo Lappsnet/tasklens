@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, FlowNav, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 interface Phase {
   id: string;
@@ -85,7 +85,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   return (
     <main>
       <h1 className="font-display text-2xl font-bold">{title || strings.projectTitle}</h1>
-      {error && <p className="err" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
       {!phases && <Skeleton className="h-48" />}
       {phases && (
         <>
@@ -119,11 +119,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <Card>
             <h2 className="font-bold">{strings.finishTitle}</h2>
             <div className="flex gap-2 flex-wrap mt-2">
-              {(["moderno", "rustico", "minimalista"] as const).map((s) => (
-                <label key={s} className="btn btn-secondary filebtn !mt-0">
+              {(["moderno", "rustico", "minimalista"] as const).map((s, i) => (
+                <Button key={s} variant="secondary" className="mt-0 px-3 py-1.5 text-sm" onPress={() => document.getElementById(`finish-${i}`)?.click()}>
                   {s}
-                  <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => render(s, e.target.files)} />
-                </label>
+                </Button>
+              ))}
+              {(["moderno", "rustico", "minimalista"] as const).map((s, i) => (
+                <input key={s} id={`finish-${i}`} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => render(s, e.target.files)} />
               ))}
             </div>
             <Button variant="accent" className="mt-3" disabled={busy} onClick={bookCrew}>{busy ? "…" : strings.bookCrew}</Button>

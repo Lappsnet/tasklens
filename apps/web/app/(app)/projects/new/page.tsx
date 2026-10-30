@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { FlowNav } from "@/components/ui";
+import { Button, Card, ErrorState, Field, FlowNav, Textarea } from "@/components/ui";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -86,33 +86,35 @@ export default function NewProjectPage() {
     <main>
       <h1 className="font-display text-2xl font-bold">{strings.projectTitle}</h1>
       <p className="text-slate2">{strings.projectSub}</p>
-      {error && <p className="err" role="alert">{error}</p>}
-      <section className="card">
-        <label className="lbl" htmlFor="walk">{strings.walkthrough}</label>
-        <input
-          id="walk"
-          type="file"
-          accept="video/mp4,video/webm"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) {
-              if (f.size > 50 * 1024 * 1024) setError(strings.errorPhotos);
-              else {
-                setVideo(f);
-                if (videoRef.current) videoRef.current.src = URL.createObjectURL(f);
+      {error && <ErrorState message={error} />}
+      <Card>
+        <Field label={strings.walkthrough}>
+          <input
+            id="walk"
+            type="file"
+            accept="video/mp4,video/webm"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                if (f.size > 50 * 1024 * 1024) setError(strings.errorPhotos);
+                else {
+                  setVideo(f);
+                  if (videoRef.current) videoRef.current.src = URL.createObjectURL(f);
+                }
               }
-            }
-          }}
-        />
+            }}
+          />
+        </Field>
         <video ref={videoRef} controls playsInline className="w-full rounded-card mt-2" />
-      </section>
-      <section className="card">
-        <label className="lbl" htmlFor="pwant">{strings.wantLabel}</label>
-        <textarea id="pwant" rows={2} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder={strings.wantPh} maxLength={2000} />
-      </section>
-      <button type="button" className="btn big !bg-accent" disabled={busy || !video} onClick={submit}>
+      </Card>
+      <Card>
+        <Field label={strings.wantLabel}>
+          <Textarea id="pwant" rows={2} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder={strings.wantPh} maxLength={2000} />
+        </Field>
+      </Card>
+      <Button size="lg" variant="accent" disabled={busy || !video} onPress={submit} className="mt-2">
         {busy ? "…" : strings.makePlan}
-      </button>
+      </Button>
       <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );

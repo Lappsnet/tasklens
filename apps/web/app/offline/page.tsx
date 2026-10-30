@@ -11,7 +11,7 @@ export default function OfflinePage() {
         No hay conexión a internet. Tus datos están a salvo; vuelve a intentarlo cuando tengas
         señal. / No internet connection. Your data is safe; try again when you are back online.
       </p>
-      <Link className="btn btn-accent mt-4" href="/">
+      <Link href="/" className="mt-4 inline-flex items-center justify-center gap-2 rounded-btn bg-[linear-gradient(180deg,#ff8a3d,var(--signal)_60%,#c24e08)] px-4 py-2.5 text-sm font-semibold text-[var(--signal-ink)] shadow-soft">
         Reintentar / Retry
       </Link>
     </main>

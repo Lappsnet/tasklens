@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
 import type { AiSpec } from "@tasklens/ai";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
@@ -94,7 +93,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
       <main>
         <h1 className="font-display text-2xl font-bold">{strings.quoteTitle}</h1>
         <ErrorState message={error} onRetry={load} />
-        <Link className="btn btn-secondary mt-3 inline-block" href="/scan">{strings.retake}</Link>
+        <a className="mt-3 inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href="/scan">{strings.retake}</a>
       </main>
     );
   }
@@ -125,12 +124,12 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
       </p>
 
       {photo ? (
-        <div className="photoview mask-in">
+        <div className="mask-in relative mb-3 overflow-hidden rounded-card border border-line">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={showPreview && preview ? preview : photo} alt="problem photo with AI damage highlight" />
+          <img src={showPreview && preview ? preview : photo} alt="problem photo with AI damage highlight" className="block w-full" />
           {!showPreview && box && (
             <div
-              className="damagebox"
+              className="pointer-events-none absolute rounded-md border-[3px] border-[#ff4d4f] shadow-[0_0_0_1px_rgba(255,255,255,0.8)]"
               style={{ left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${box.w * 100}%`, height: `${box.h * 100}%` }}
               aria-label="AI damage highlight"
             />
@@ -151,7 +150,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
         {showPreview && !preview && <p className="text-slate2 text-xs mt-1">{strings.previewNeedsKey}</p>}
       </Card>
 
-      {spec.confidence < 0.5 && <p className="warn" role="alert">{strings.lowQ}</p>}
+      {spec.confidence < 0.5 && <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">{strings.lowQ}</p>}
 
       {spec.safety_flags.length > 0 && (
         <Card className="!border-accent !bg-orange-50">
@@ -162,12 +161,12 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
 
       <Card>
         <h2 className="font-bold mb-2">{strings.steps}</h2>
-        <ol className="steps">{spec.steps.map((s) => <li key={s}>{s}</li>)}</ol>
+        <ol className="mt-1 space-y-1.5">{spec.steps.map((s) => <li key={s}>{s}</li>)}</ol>
       </Card>
 
       <Card>
         <h2 className="font-bold mb-2">{strings.materials}</h2>
-        <div className="chips">{spec.materials.map((m) => <span key={m} className="chip">{m}</span>)}</div>
+        <div className="flex flex-wrap gap-2">{spec.materials.map((m) => <Badge key={m} status={m} />)}</div>
       </Card>
 
       {spec.questions_for_customer.length > 0 && (

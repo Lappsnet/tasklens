@@ -1,11 +1,10 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
-import { Badge, Button, Card, DrawCheck, EmptyState, FlowNav, Skeleton, Stepper, Timeline } from "@/components/ui";
+import { Badge, Button, Card, DrawCheck, EmptyState, Field, FlowNav, Input, Skeleton, Stepper, Textarea, Timeline } from "@/components/ui";
 
 /** Customer live view: status stepper + live timeline + rating. */
 function StepTick({ payload }: { payload: { step: string; done: boolean } }) {
@@ -49,24 +48,24 @@ function Share({ strings }: { strings: ReturnType<typeof t> }) {
   }
   return (
     <div className="flex gap-2 flex-wrap items-center">
-      <a className="btn btn-secondary" href={`https://wa.me/?text=${text}`} target="_blank" rel="noopener noreferrer">
+      <a className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href={`https://wa.me/?text=${text}`} target="_blank" rel="noopener noreferrer">
         {strings.shareWhatsApp}
       </a>
-      <a className="btn btn-secondary" href={`https://www.facebook.com/sharer/sharer.php?u=${enc}`} target="_blank" rel="noopener noreferrer">
+      <a className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href={`https://www.facebook.com/sharer/sharer.php?u=${enc}`} target="_blank" rel="noopener noreferrer">
         {strings.shareFacebook}
       </a>
       {canNative ? (
-        <button type="button" className="btn btn-secondary" onClick={native}>
+        <Button variant="secondary" onPress={native}>
           {strings.shareInstagram} / …
-        </button>
+        </Button>
       ) : (
-        <button type="button" className="btn btn-secondary" onClick={copy} title={strings.shareIgNote}>
+        <Button variant="secondary" onPress={copy} aria-label={strings.shareIgNote}>
           {strings.shareInstagram}
-        </button>
+        </Button>
       )}
-      <button type="button" className="btn btn-secondary" onClick={copy}>
+      <Button variant="secondary" onPress={copy}>
         {copied ? `✓ ${strings.shareCopied}` : strings.shareCopy}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -148,7 +147,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
     <main>
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="font-display text-2xl font-bold">{strings.watchTitle}</h1>
-        <span className="pill">{live ? strings.liveBadge : strings.pollBadge}</span>
+        <Badge status={live ? "live" : "polling"} />
       </div>
       {!job && <Skeleton className="h-48" />}
       {job && (
@@ -169,7 +168,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
             )}
           </Card>
           {verified && (verified.payload as { verdict?: string }).verdict === "review" && (
-            <p className="warn" role="alert">{strings.needsFix}</p>
+            <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">{strings.needsFix}</p>
           )}
           <Card>
             <h2 className="font-bold mb-2">{strings.logTitle}</h2>
@@ -190,15 +189,15 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
                   <div key={e.id} className="text-sm text-slate2">
                     <div>❓ {p.question}</div>
                     <div>🤖 {p.answer}</div>
-                    {p.safety_note && <div className="warn">⚠ {p.safety_note}</div>}
+                    {p.safety_note && <div className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">⚠ {p.safety_note}</div>}
                   </div>
                 );
               })}
               {events.filter((e) => e.kind === "hazard").map((e) => {
                 const p = e.payload as { warning?: string; hazards?: string[] };
                 return (
-                  <div key={e.id} className="warn text-sm" role="alert">
-                    ⚠ {p.warning} <span className="pill">{strings.advisoryBadge}</span>
+                  <div key={e.id} role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm text-warning">
+                    ⚠ {p.warning} <Badge status={strings.advisoryBadge} />
                   </div>
                 );
               })}
@@ -206,7 +205,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
                 const p = e.payload as { step?: string; photoDataUrl?: string };
                 return (
                   <div key={e.id} className="text-sm text-slate2">
-                    <div>📷 ✓ {p.step} <span className="pill">{strings.evidenceSaved}</span></div>
+                    <div>📷 ✓ {p.step} <Badge status={strings.evidenceSaved} /></div>
                     {p.photoDataUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={p.photoDataUrl} alt={p.step ?? "step evidence"} style={{ maxWidth: "100%", borderRadius: 8, marginTop: 4 }} />
@@ -227,7 +226,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
                   </button>
                 ))}
               </div>
-              <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder={strings.rateHint} rows={2} maxLength={1000} />
+              <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder={strings.rateHint} rows={2} maxLength={1000} />
               <Button variant="accent" onClick={submitRating}>{strings.rateSubmit}</Button>
             </Card>
           )}
@@ -238,13 +237,10 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
             <h2 className="font-bold mb-2">{strings.dispute}</h2>
             {disputes.length === 0 && (
               <div className="flex gap-2">
-                <input
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder={strings.disputeReason}
-                  className="flex-1 border border-neutral-300 rounded-btn px-3 py-2"
-                />
-                <Button onClick={openDispute}>{strings.openDispute}</Button>
+                <Field label={strings.disputeReason} className="flex-1">
+                  <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={strings.disputeReason} />
+                </Field>
+                <Button onPress={openDispute} className="self-end">{strings.openDispute}</Button>
               </div>
             )}
             {disputes.map((d) => (
@@ -277,9 +273,9 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
           <Share strings={strings} />
           <p className="text-slate2 text-xs mt-2">{strings.shareIgNote}</p>
         </Card>
-          <Link className="btn btn-secondary" href={`/quote/${(job as unknown as { scan_id?: string }).scan_id ?? ""}`}>
+          <a className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href={`/quote/${(job as unknown as { scan_id?: string }).scan_id ?? ""}`}>
             ← {strings.quoteTitle}
-          </Link>
+          </a>
           <FlowNav backHref="/" backLabel={strings.back} />
         </>
       )}

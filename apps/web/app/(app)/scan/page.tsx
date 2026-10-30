@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Button, CameraFrame, Card, ErrorState, FlowNav, Skeleton } from "@/components/ui";
+import { Badge, Button, CameraFrame, Card, ErrorState, Field, FlowNav, IconButton, Input, Skeleton, Textarea } from "@/components/ui";
 
 const ACCEPT = "image/jpeg,image/png,image/webp";
 const MAX_FILE = 10 * 1024 * 1024;
@@ -20,6 +20,8 @@ export default function ScanPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [stepMsg, setStepMsg] = useState(0);
   const [error, setError] = useState("");
+  const [flash, setFlash] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [noCamera, setNoCamera] = useState(false);
@@ -94,6 +96,14 @@ export default function ScanPage() {
       setError(strings.errorPhotos);
       return;
     }
+    // Capture flash + haptic: the photo shrinks into its card below.
+    setFlash(true);
+    try {
+      navigator.vibrate?.(15);
+    } catch {
+      /* ignore */
+    }
+    setTimeout(() => setFlash(false), 250);
     const c = document.createElement("canvas");
     c.width = video.videoWidth;
     c.height = video.videoHeight;
@@ -255,11 +265,11 @@ export default function ScanPage() {
     <main>
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="font-display text-3xl font-bold">{strings.scanTitle}</h1>
-        <div className="seg" role="group" aria-label={strings.langLabel}>
+        <div className="flex gap-1" role="group" aria-label={strings.langLabel}>
           {(["en", "es"] as Lang[]).map((l) => (
-            <button key={l} type="button" className={l === lang ? "on" : ""} onClick={() => pickLang(l)}>
+            <Button key={l} variant={l === lang ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => pickLang(l)}>
               {l.toUpperCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -271,6 +281,7 @@ export default function ScanPage() {
         ) : (
           <div className="aspect-[3/4] flex items-center justify-center text-white/70 text-sm p-6 text-center">{strings.noCamera}</div>
         )}
+        {flash && <div className="absolute inset-0 z-10 bg-white mask-in" aria-hidden="true" />}
         <button
           type="button"
           aria-label={strings.shutter}
@@ -280,25 +291,23 @@ export default function ScanPage() {
       </CameraFrame>
 
       <Card>
-        <span className="lbl">{strings.photoLabel}</span>
-        <p className="text-slate2 text-sm">{strings.photoHint}</p>
+        <span className="font-bold">{strings.photoLabel}</span>
+        <p className="text-muted text-sm">{strings.photoHint}</p>
         <div className="flex gap-2 flex-wrap mt-2">
-          <label className="btn btn-secondary filebtn !mt-0">
-            {strings.takePhoto}
-            <input type="file" accept={ACCEPT} capture="environment" multiple hidden onChange={(e) => onFiles(e.target.files)} />
-          </label>
-          <Button variant="secondary" onClick={useDemoPhoto}>{strings.demoPhoto}</Button>
+          <input ref={fileRef} type="file" accept={ACCEPT} capture="environment" multiple hidden onChange={(e) => onFiles(e.target.files)} />
+          <Button variant="secondary" onPress={() => fileRef.current?.click()}>{strings.takePhoto}</Button>
+          <Button variant="secondary" onPress={useDemoPhoto}>{strings.demoPhoto}</Button>
         </div>
         {previews.length > 0 && (
-          <div className="thumbs stagger">
+          <div className="stagger mt-3 flex flex-wrap gap-2">
             {previews.map((u, i) => (
-              <div key={u} className="thumb pop-in">
+              <div key={u} className="pop-in relative h-24 w-24 overflow-hidden rounded-[10px] border border-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={u} alt={`scan photo ${i + 1}`} />
-                {i === 0 && <span className="badge">{strings.mainPhoto}</span>}
-                <button type="button" aria-label={`${strings.removePhoto} ${i + 1}`} onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}>
+                <img src={u} alt={`scan photo ${i + 1}`} className="h-full w-full object-cover" />
+                {i === 0 && <Badge status="main" className="absolute bottom-0.5 left-0.5 !px-1.5 !py-0.5 !text-[0.7rem]" />}
+                <IconButton label={`${strings.removePhoto} ${i + 1}`} onPress={() => setPhotos((p) => p.filter((_, j) => j !== i))} className="absolute right-0.5 top-0.5 !h-6 !w-6 rounded-full border-0 bg-black/70 text-white">
                   ×
-                </button>
+                </IconButton>
               </div>
             ))}
           </div>
@@ -306,14 +315,15 @@ export default function ScanPage() {
       </Card>
 
       <Card>
-        <label className="lbl" htmlFor="transcript">{strings.transcriptLabel}</label>
-        <textarea id="transcript" rows={3} placeholder={strings.transcriptPh} value={transcript} onChange={(e) => setTranscript(e.target.value)} maxLength={2000} />
-        <canvas ref={waveRef} width={300} height={40} className="w-full h-10 rounded bg-neutral-100" hidden={!recording} />
+        <Field label={strings.transcriptLabel}>
+          <Textarea id="transcript" rows={3} placeholder={strings.transcriptPh} value={transcript} onChange={(e) => setTranscript(e.target.value)} maxLength={2000} />
+        </Field>
+        <canvas ref={waveRef} width={300} height={40} className="w-full h-10 rounded bg-ink/5 mt-2" hidden={!recording} />
         <div className="flex gap-2 items-center mt-2">
-          <Button variant={recording ? "accent" : "secondary"} onClick={toggleRecord}>
+          <Button variant={recording ? "accent" : "secondary"} onPress={toggleRecord}>
             {recording ? `● ${strings.stop}` : `🎙 ${strings.holdTalk}`}
           </Button>
-          {transcribing && <span className="text-slate2 text-sm">{strings.transcribing}</span>}
+          {transcribing && <span className="text-muted text-sm">{strings.transcribing}</span>}
         </div>
       </Card>
 
@@ -325,11 +335,15 @@ export default function ScanPage() {
         ) : strings.submit}
       </Button>
       {working && (
-        <ol className="steps mt-3 stagger">
-          {steps.map((s, i) => (
-            <li key={s} className={i <= stepMsg ? "" : "muted"}>{i < stepMsg ? `✓ ${s}` : i === stepMsg ? `… ${s}` : s}</li>
-          ))}
-        </ol>
+        <Card>
+          <ol className="space-y-1.5 font-mono text-xs">
+            {steps.map((s, i) => (
+              <li key={s} className={i <= stepMsg ? "text-ink font-semibold" : "text-muted"}>
+                {i < stepMsg ? `✓ ${s}` : i === stepMsg ? <span className="ticker" key={stepMsg}><span>… {s}</span></span> : `○ ${s}`}
+              </li>
+            ))}
+          </ol>
+        </Card>
       )}
       {phase === "idle" && photos.length === 0 && !error && <Skeleton className="hidden" />}
       <FlowNav backHref="/" backLabel={strings.back} />

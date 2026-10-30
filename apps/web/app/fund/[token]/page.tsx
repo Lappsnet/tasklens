@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Button, Card, EmptyState, ErrorState, FlowNav, Skeleton } from "@/components/ui";
+import { Button, Card, EmptyState, ErrorState, Field, FlowNav, Input, Skeleton } from "@/components/ui";
 
 interface FundInfo {
   jobId: string;
@@ -67,8 +67,9 @@ export default function FundPage({ params }: { params: Promise<{ token: string }
         <p className="text-slate2 text-sm">{strings.fundNote}</p>
       </Card>
       <Card>
-        <label className="lbl" htmlFor="femail">{strings.emailLabel}</label>
-        <input id="femail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={{ width: "100%", border: "1px solid #ccc", borderRadius: 10, padding: 10, font: "inherit" }} />
+        <Field label={strings.emailLabel}>
+          <Input id="femail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+        </Field>
         <Button variant="accent" className="mt-3" disabled={busy || !email} onClick={pay}>
           {busy ? "…" : `${strings.fundPay} $${info.amountUsd}`}
         </Button>

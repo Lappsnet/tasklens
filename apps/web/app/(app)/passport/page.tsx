@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { FlowNav } from "@/components/ui";
+import { Badge, Button, Card, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 interface Entry {
   id: string;
@@ -68,60 +67,58 @@ export default function PassportPage() {
   return (
     <main>
       <h1>{strings.passportTitle}</h1>
-      <p className="muted">{strings.passportSub}</p>
-      {error && <p className="err" role="alert">{error}</p>}
-      {!entries.length && !error && <div className="card skel" />}
+      <p className="text-sm text-muted">{strings.passportSub}</p>
+      {error && <ErrorState message={error} />}
+      {!entries.length && !error && <Skeleton className="h-48" />}
 
       {entries.map((e) => (
-        <section key={e.id} className="card">
-          <div className="row">
+        <Card key={e.id}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <strong>{e.title}</strong>
-            <span className="pill">{e.category}</span>
+            <Badge status={e.category} />
           </div>
-          <p className="muted small">{e.ai_summary}</p>
-          <p className="muted small">{strings.warranty}: {daysLeft(e.warranty_until)}</p>
-          <div className="row">
-            <Link className="btn btn-secondary" href={`/jobs/${e.job_id}`}>{strings.watchTitle} →</Link>
-            <button type="button" className="btn btn-secondary" onClick={() => rebook(e.id)}>{strings.rebook}</button>
+          <p className="text-sm text-muted">{e.ai_summary}</p>
+          <p className="text-sm text-muted">{strings.warranty}: {daysLeft(e.warranty_until)}</p>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <a className="inline-flex items-center justify-center gap-2 rounded-btn border border-ink bg-surface px-4 py-2.5 text-sm font-semibold hover:bg-ink hover:text-bg" href={`/jobs/${e.job_id}`}>{strings.watchTitle} →</a>
+            <Button variant="secondary" onPress={() => rebook(e.id)}>{strings.rebook}</Button>
           </div>
-        </section>
+        </Card>
       ))}
 
       {reminders.length > 0 && (
-        <section className="card">
+        <Card>
           <h2>{strings.reminders}</h2>
           <ul>{reminders.map((r) => <li key={r.id}>{r.title} — {r.due_on}</li>)}</ul>
-        </section>
+        </Card>
       )}
 
-      <section className="card">
-        <div className="row">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={async () => {
+      <Card>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <Button
+            variant="secondary"
+            onPress={async () => {
               const res = await fetch("/api/passport/share", { method: "POST" });
               const json = (await res.json()) as { url?: string };
               if (res.ok && json.url) setShare(json.url);
             }}
           >
             {strings.sharePassport}
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={async () => {
+          </Button>
+          <Button
+            variant="secondary"
+            onPress={async () => {
               const res = await fetch("/api/passport/export", { method: "POST" });
               const json = (await res.json()) as { sha256?: string };
               if (res.ok && json.sha256) setPdf(json.sha256);
             }}
           >
             {strings.exportPdf}
-          </button>
+          </Button>
         </div>
-        {share && <p className="muted small" style={{ wordBreak: "break-all" }}>{share}</p>}
-        {pdf && <p className="muted small">SHA-256: {pdf.slice(0, 32)}…</p>}
-      </section>
+        {share && <p className="text-sm text-muted" style={{ wordBreak: "break-all" }}>{share}</p>}
+        {pdf && <p className="text-sm text-muted">SHA-256: {pdf.slice(0, 32)}…</p>}
+      </Card>
       <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
