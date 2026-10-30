@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui";
+import QueryProvider from "@/components/app/QueryProvider";
 import "./styles/tokens.css";
 import "./globals.css";
 
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${display.variable} ${body.variable} ${mono.variable} min-h-screen bg-bg font-body text-ink antialiased`}
       >
+        <QueryProvider>{children}</QueryProvider>
         <Toaster />
         <Script src="/sw-register.js" strategy="afterInteractive" />
       </body>
