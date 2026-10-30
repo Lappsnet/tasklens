@@ -201,6 +201,10 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: var(--radi
 .marquee-auto:hover .marquee-track { animation-play-state: paused; }
 @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
+/* Nav hover tint (color-mix so it works with CSS-var themes). */
+.hover-tint { transition: background-color 0.2s ease; }
+.hover-tint:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
 /* Cursor-follow spotlight (blueprint SpotlightCard, desktop only). */
 .spotlight { position: relative; }
 @media (pointer: fine) {

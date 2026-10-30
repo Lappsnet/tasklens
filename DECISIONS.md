@@ -2,6 +2,15 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — U2 header, footer, global nav
+
+- `motion` 14.8.0 installed (spec named v12; v14 keeps the `motion/react` API).
+- Mega-menu feature links point at live routes or real landing anchors; U6 deep
+  pages will replace the anchors. Social links are text placeholders (no URLs to
+  invent). Company role renders in menus/badges; `015_companies` + dispatch UI
+  land with U4. Bell opens role quick-links (no notification feed yet — covered
+  by the pending email-provider decision).
+
 ## 2026-10-29 — U1 Foundation (tokens, fonts, RAC primitives, Blueprint, FlowNav)
 
 - Stack change per owner decision (AGENTS.md §4): NO shadcn/ui, lucide, Inter.

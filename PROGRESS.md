@@ -41,6 +41,12 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   Back/Continue across the loop. web 75/75, ai 37/37, typecheck + build green,
   audit unchanged. Screenshots 375/768/1440 light+dark PENDING (no browser here —
   owner step: real phone + desktop, commit to docs/screens/ui-v2/).
+- U2 header/footer/nav DONE: motion 14.8.0 scroll-condensing SiteHeader (logo mark,
+  mega-menu dialog with 11 features + demo tile, mobile full-screen sheet, signed-in
+  bell + role user menu with sign-out), SiteFooter (4 cols, ES/EN, Meta line),
+  route-aware SiteChrome (marketing only; app keeps interim container to U4),
+  landing anchor ids, nav config tests. web 79/79, build green. Company role UI
+  mapped, data model (015) lands with U4.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

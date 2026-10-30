@@ -152,7 +152,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-8">
+      <section className="py-8" id="como-funciona">
         <h2 className="font-display text-2xl font-bold">{t.how}</h2>
         <div className="grid grid-cols-4 gap-2 mt-4 text-center stagger">
           {[["👁", t.s1], ["🎙", t.s2], ["📝", t.s3], ["✓", t.s4]].map(([icon, label]) => (
@@ -164,13 +164,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-8">
+      <section className="py-8" id="profesionales">
         <h2 className="font-display text-2xl font-bold">{t.prosT}</h2>
         <p className="text-slate2 mt-2">{t.pros}</p>
         <Link href="/pro/apply" className="inline-block mt-4 border border-ink rounded-btn px-6 py-3 font-bold">{t.join}</Link>
       </section>
 
-      <section className="py-8">
+      <section className="py-8" id="confianza">
         <h2 className="font-display text-2xl font-bold">{t.trustT}</h2>
         <p className="text-slate2 mt-2">{t.trust}</p>
       </section>
@@ -182,14 +182,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-8">
+      <section className="py-8" id="funciones">
         <h2 className="font-display text-2xl font-bold">{t.metaT}</h2>
         <ul className="mt-3 space-y-2 text-sm text-slate2">
           {[t.meta1, t.meta2, t.meta3, t.meta4, t.meta5].map((m) => <li key={m}>• {m}</li>)}
         </ul>
       </section>
 
-      <section className="py-8">
+      <section className="py-8" id="faq">
         <h2 className="font-display text-2xl font-bold">{t.faqT}</h2>
         <div className="mt-3 space-y-3">
           {[[t.q1, t.a1], [t.q2, t.a2], [t.q3, t.a3], [t.q4, t.a4], [t.q5, t.a5]].map(([q, a]) => (
