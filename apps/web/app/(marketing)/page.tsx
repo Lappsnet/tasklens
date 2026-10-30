@@ -17,7 +17,6 @@ import MetaCards from "@/components/landing/MetaCards";
 import ProblemCards from "@/components/landing/ProblemCards";
 import RaceSection from "@/components/landing/RaceSection";
 import { Reveal } from "@/components/landing/motion";
-import SmoothScroll from "@/components/landing/SmoothScroll";
 import RoleTabs from "@/components/landing/RoleTabs";
 import Theater from "@/components/landing/Theater";
 import TrustGrid from "@/components/landing/TrustGrid";
@@ -29,9 +28,7 @@ export default async function LandingPage() {
   const t = landingContent(lang);
 
   return (
-    <>
-      <SmoothScroll />
-      <main className="font-body text-ink">
+    <main className="font-body text-ink">
       <HeroLens t={t} scanHref="/scan" demoHref="#demo" />
 
       <Reveal className="py-10">
@@ -134,6 +131,5 @@ export default async function LandingPage() {
         </Reveal>
       </section>
     </main>
-    </>
   );
 }
