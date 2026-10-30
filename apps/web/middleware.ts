@@ -56,9 +56,13 @@ export async function middleware(req: NextRequest) {
   res.headers.set("Content-Security-Policy", csp());
   res.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
   // U3: refresh the Supabase cookie session so magic-link users stay signed in.
+  // F2.1: skip Link prefetches, which must never pay for a session round-trip.
+  // (The matcher below already excludes static assets; navigations + /api/*
+  // always refresh.)
+  const isPrefetch = req.headers.get("next-router-prefetch") === "1";
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (url && anon) {
+  if (url && anon && !isPrefetch) {
     const sb = createServerClient(url, anon, {
       cookies: {
         getAll() {
@@ -78,4 +82,9 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
-export const config = { matcher: "/:path*" };
+export const config = {
+  // F2.1: middleware runs on pages + API only — never on static assets, fonts,
+  // icons, images, the SW or the manifest. Each skipped asset saves a Supabase
+  // session round-trip in dev (and latency in prod).
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|fonts/|icons/|images/|sw.js|manifest.webmanifest|.*\\.(?:png|jpg|jpeg|webp|avif|svg|woff2)$).*)"],
+};
