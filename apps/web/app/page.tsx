@@ -1,15 +1,13 @@
-"use client";
-
 /* U5 landing, rebuilt: dark hero with The Lens, problem cards, scroll race,
    horizontal steps, feature theater, demo block, role tabs, alcaldías,
-   trust, Meta AI cards, FAQ, final CTA. ES primary, EN complete. */
+   trust, Meta AI cards, FAQ, final CTA. ES primary, EN complete.
+   Server Component (F1.5): language comes from the tasklens:lang cookie so
+   there is no ES-first flash; interactive sections are client islands. */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { cookies } from "next/headers";
 import { MagneticButton } from "@/components/blueprint";
 import { landingContent } from "@/content/landing.es";
-import type { Lang } from "@/lib/i18n";
-import { initialLang } from "@/lib/lang";
 import CitySection from "@/components/landing/CitySection";
 import DemoVideo from "@/components/landing/DemoVideo";
 import FaqList from "@/components/landing/FaqList";
@@ -24,13 +22,9 @@ import RoleTabs from "@/components/landing/RoleTabs";
 import Theater from "@/components/landing/Theater";
 import TrustGrid from "@/components/landing/TrustGrid";
 
-export default function LandingPage() {
-  const [lang, setLang] = useState<Lang>("es");
-
-  useEffect(() => {
-    const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
-    setLang(saved === "en" ? "en" : "es");
-  }, []);
+export default async function LandingPage() {
+  const cookie = (await cookies()).get("tasklens:lang")?.value;
+  const lang = cookie === "en" ? "en" : "es";
 
   const t = landingContent(lang);
 
