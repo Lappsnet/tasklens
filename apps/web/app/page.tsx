@@ -38,9 +38,7 @@ export default function LandingPage() {
     <>
       <SmoothScroll />
       <main className="font-body text-ink">
-      <div className="full-bleed">
-        <HeroLens t={t} scanHref="/scan" demoHref="#demo" />
-      </div>
+      <HeroLens t={t} scanHref="/scan" demoHref="#demo" />
 
       <Reveal className="py-10">
         <h2 className="font-display text-2xl font-bold lg:text-3xl">{t.p1t}</h2>
