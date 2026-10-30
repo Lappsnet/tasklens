@@ -62,6 +62,11 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - U6 deep pages DONE: /funciones/[slug] ×11 (hero, problem→solution, steps,
   Meta tech, FAQs, CTA), FeatureVisual placeholders, menu+theater linked.
   web 92/92 pending build.
+- F0 DONE: 8-file U7 partial conversion was RED (`Button title` prop type error in
+  jobs page, from the stashed diff) → stashed (2 entries: 8 files + 1 untracked
+  test), continuing from f9af291. Clean tree: typecheck 3/3, ai 37/37, web 92/92,
+  `next build` green. `apps/web/.next` deleted (was 1.1 GB). Commits: a41906e
+  (gradle wrapper 9.7.1), 498b191 (AGENTS.md stack + FIX_PROMPT).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
