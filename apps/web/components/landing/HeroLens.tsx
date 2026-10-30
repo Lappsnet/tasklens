@@ -10,7 +10,7 @@ import gsap from "gsap";
 import { MagneticButton } from "@/components/blueprint";
 import { Marquee } from "@/components/blueprint";
 import type { LandingContent } from "@/content/landing.es";
-import { reducedMotion, registerGsap, useLenis } from "./motion";
+import { reducedMotion, registerGsap } from "./motion";
 
 function SinkDrawing({ ai }: { ai?: boolean }) {
   const stroke = ai ? "#FF7A2E" : "#5B9BE6";
@@ -39,7 +39,6 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
   const stageRef = useRef<HTMLDivElement>(null);
   const aiRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  useLenis(true);
 
   useEffect(() => {
     if (reducedMotion()) return;

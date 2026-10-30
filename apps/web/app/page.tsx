@@ -18,14 +18,14 @@ import HowSteps from "@/components/landing/HowSteps";
 import MetaCards from "@/components/landing/MetaCards";
 import ProblemCards from "@/components/landing/ProblemCards";
 import RaceSection from "@/components/landing/RaceSection";
-import { Reveal, useLenis } from "@/components/landing/motion";
+import { Reveal } from "@/components/landing/motion";
+import SmoothScroll from "@/components/landing/SmoothScroll";
 import RoleTabs from "@/components/landing/RoleTabs";
 import Theater from "@/components/landing/Theater";
 import TrustGrid from "@/components/landing/TrustGrid";
 
 export default function LandingPage() {
   const [lang, setLang] = useState<Lang>("es");
-  useLenis(true);
 
   useEffect(() => {
     const saved = initialLang() ?? window.localStorage.getItem("tasklens:lang");
@@ -35,7 +35,9 @@ export default function LandingPage() {
   const t = landingContent(lang);
 
   return (
-    <main className="font-body text-ink">
+    <>
+      <SmoothScroll />
+      <main className="font-body text-ink">
       <div className="full-bleed">
         <HeroLens t={t} scanHref="/scan" demoHref="#demo" />
       </div>
@@ -140,5 +142,6 @@ export default function LandingPage() {
         </Reveal>
       </section>
     </main>
+    </>
   );
 }

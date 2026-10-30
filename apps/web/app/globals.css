@@ -7,7 +7,12 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
-  scroll-behavior: smooth;
+  /* No scroll-behavior: smooth — Lenis drives scrolling (F1.2). */
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 
 body {
