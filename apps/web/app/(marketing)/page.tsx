@@ -6,20 +6,24 @@
 
 import Link from "next/link";
 import { cookies } from "next/headers";
+import dynamic from "next/dynamic";
 import { MagneticButton } from "@/components/blueprint";
 import { landingContent } from "@/content/landing.es";
 import CitySection from "@/components/landing/CitySection";
 import DemoVideo from "@/components/landing/DemoVideo";
 import FaqList from "@/components/landing/FaqList";
 import HeroLens from "@/components/landing/HeroLens";
-import HowSteps from "@/components/landing/HowSteps";
 import MetaCards from "@/components/landing/MetaCards";
 import ProblemCards from "@/components/landing/ProblemCards";
-import RaceSection from "@/components/landing/RaceSection";
 import { Reveal } from "@/components/landing/motion";
 import RoleTabs from "@/components/landing/RoleTabs";
-import Theater from "@/components/landing/Theater";
 import TrustGrid from "@/components/landing/TrustGrid";
+
+// F2.4: below-fold GSAP sections ship as separate client-only chunks so they
+// never block the initial render. HeroLens stays direct (LCP).
+const HowSteps = dynamic(() => import("@/components/landing/HowSteps"), { ssr: false });
+const RaceSection = dynamic(() => import("@/components/landing/RaceSection"), { ssr: false });
+const Theater = dynamic(() => import("@/components/landing/Theater"), { ssr: false });
 
 export default async function LandingPage() {
   const cookie = (await cookies()).get("tasklens:lang")?.value;
