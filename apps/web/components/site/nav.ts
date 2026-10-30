@@ -45,17 +45,17 @@ export interface FeatureLink {
 export function featureLinks(lang: Lang): FeatureLink[] {
   const s = t(lang);
   return [
-    { slug: "escaneo", href: "/scan", icon: Scan, name: s.featScan, desc: s.featScanD },
-    { slug: "cotizacion", href: "/scan", icon: Receipt, name: s.featQuote, desc: s.featQuoteD },
-    { slug: "contratos", href: "/#faq", icon: FileText, name: s.featContracts, desc: s.featContractsD },
-    { slug: "calendario", href: "/pro/calendar", icon: CalendarCheck, name: s.featCalendar, desc: s.featCalendarD },
-    { slug: "pago", href: "/#confianza", icon: ShieldCheck, name: s.featEscrow, desc: s.featEscrowD },
-    { slug: "pasaporte", href: "/passport", icon: House, name: s.featPassport, desc: s.featPassportD },
-    { slug: "planificador", href: "/projects/new", icon: MapTrifold, name: s.featPlanner, desc: s.featPlannerD },
-    { slug: "extranjero", href: "/#faq", icon: Globe, name: s.featAbroad, desc: s.featAbroadD },
-    { slug: "mediacion", href: "/#faq", icon: Scales, name: s.featMediation, desc: s.featMediationD },
-    { slug: "copiloto", href: "/pro", icon: Headset, name: s.featCopilot, desc: s.featCopilotD },
-    { slug: "alcaldias", href: "/city", icon: Buildings, name: s.featCities, desc: s.featCitiesD },
+    { slug: "escaneo", href: "/funciones/escaneo", icon: Scan, name: s.featScan, desc: s.featScanD },
+    { slug: "contratos", href: "/funciones/contratos", icon: FileText, name: s.featContracts, desc: s.featContractsD },
+    { slug: "calendario", href: "/funciones/calendario", icon: CalendarCheck, name: s.featCalendar, desc: s.featCalendarD },
+    { slug: "pago", href: "/funciones/pago", icon: ShieldCheck, name: s.featEscrow, desc: s.featEscrowD },
+    { slug: "pasaporte", href: "/funciones/pasaporte", icon: House, name: s.featPassport, desc: s.featPassportD },
+    { slug: "planificador", href: "/funciones/planificador", icon: MapTrifold, name: s.featPlanner, desc: s.featPlannerD },
+    { slug: "extranjero", href: "/funciones/extranjero", icon: Globe, name: s.featAbroad, desc: s.featAbroadD },
+    { slug: "mediacion", href: "/funciones/mediacion", icon: Scales, name: s.featMediation, desc: s.featMediationD },
+    { slug: "copiloto", href: "/funciones/copiloto", icon: Headset, name: s.featCopilot, desc: s.featCopilotD },
+    { slug: "verificacion", href: "/funciones/verificacion", icon: Receipt, name: s.featVerify, desc: s.featVerifyD },
+    { slug: "alcaldias", href: "/funciones/alcaldias", icon: Buildings, name: s.featCities, desc: s.featCitiesD },
   ];
 }
 

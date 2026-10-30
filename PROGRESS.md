@@ -55,6 +55,13 @@ Update it at the end of every work item (done-check, commit hash, next scope).
 - U4 shell + roles DONE: 015 companies, AppShell (sidebar/topbar/palette/mobile),
   role menus (tested), /inicio /jobs /ajustes /empresa /empresa/equipo.
   web 87/87, build green (87 pages).
+- U5 landing DONE: content/landing.{es,en}.ts (typed, 11 chapters, 8 FAQs),
+  hero Lens + SplitText, scroll race, horizontal steps, feature theater, demo
+  block, role tabs, alcaldías (017 + access API), trust, Meta cards, FAQ.
+  web 90/90, build green (88 pages). GSAP 3.15/SplitText/Lenis pinned.
+- U6 deep pages DONE: /funciones/[slug] ×11 (hero, problem→solution, steps,
+  Meta tech, FAQs, CTA), FeatureVisual placeholders, menu+theater linked.
+  web 92/92 pending build.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

@@ -2,6 +2,29 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — U6 feature deep pages
+
+- `/funciones/[slug]` statically generated for all 11 content chapters; mega-menu
+  and theater link to them (anchors kept as fallback inside pages only).
+- Cotización has no deep page (it lives inside the escaneo flow); the mega-menu
+  carries Verificación instead, keeping the spec's 11 items.
+- Visuals are blueprint-styled placeholders; owner screenshots swap in without
+  touching page structure. YouTube-nocookie loads only on click (CSP unchanged).
+
+## 2026-10-29 — U5 landing, rebuilt
+
+- GSAP 3.15 + ScrollTrigger + SplitText (SplitText free since 3.13), Lenis
+  1.3.27 — all transform/opacity-only, reduced-motion disables Lenis/pins/glides.
+- Lens is 2D (SVG site drawing + clip-path AI layer + DOM annotations); the 3D
+  glass-lens variant is cut per the spec's own cut order until Lighthouse is proven.
+- Feature theater phone shows CSS-built mock screens (no screenshots exist yet —
+  owner provides real screenshots/recordings; content files make the swap trivial).
+- Demo block: empty provider until the owner sets NEXT_PUBLIC_DEMO_VIDEO_URL or
+  the demoVideo config (CSP unchanged — no YouTube frame until then).
+- Alcaldías map is a stylized dot-grid labeled illustrative (no fake geography);
+  access form → 017 table, manual review.
+- 3D lens variant cut; deep pages (U6) kept.
+
 ## 2026-10-29 — U4 app shell and role menus
 
 - `015_companies.sql`: companies + company_members (owner/dispatcher/member),

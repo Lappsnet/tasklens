@@ -4,6 +4,7 @@
    on the left; the mockup cross-fades per active chapter. */
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { Annotation, Viewfinder } from "@/components/blueprint";
 import type { FeatureChapter } from "@/content/landing.es";
@@ -81,7 +82,9 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
           {chapters.map((c, i) => (
             <article key={c.slug} data-chapter data-index={i} className={`rounded-card border p-4 transition-colors ${active === i ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface/60"}`}>
               <div className="font-mono text-[11px] uppercase tracking-widest text-muted">{String(i + 1).padStart(2, "0")} · {c.slug}</div>
-              <h3 className="mt-1 font-display text-xl font-extrabold">{c.name}</h3>
+              <Link href={`/funciones/${c.slug}`} className="mt-1 block font-display text-xl font-extrabold underline-offset-4 hover:underline">
+                {c.name} →
+              </Link>
               <p className="text-sm text-muted">{c.promise}</p>
               <ul className="mt-2 space-y-1">
                 {c.how.map((h) => (

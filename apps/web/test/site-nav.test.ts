@@ -3,7 +3,7 @@ import { featureLinks, roleHome, roleLabel, roleLinks } from "../components/site
 
 const LIVE = new Set([
   "/scan", "/pro", "/pro/calendar", "/pro/apply", "/passport", "/projects/new",
-  "/city", "/admin", "/admin/pros", "/", "/login",
+  "/city", "/admin", "/admin/pros", "/", "/login", "/funciones",
 ]);
 
 describe("U2 site nav config", () => {
@@ -13,7 +13,8 @@ describe("U2 site nav config", () => {
       expect(feats.length).toBeGreaterThanOrEqual(11);
       for (const f of feats) {
         const path = f.href.split("#")[0] || "/";
-        expect(LIVE.has(path), `${f.slug} -> ${f.href}`).toBe(true);
+        const ok = LIVE.has(path) || path.startsWith("/funciones/");
+        expect(ok, `${f.slug} -> ${f.href}`).toBe(true);
         expect(f.name.length).toBeGreaterThan(0);
         expect(f.desc.length).toBeGreaterThan(0);
       }
