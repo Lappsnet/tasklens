@@ -174,6 +174,8 @@ const dict = {
     blocks: "Blocked time",
     newFeed: "New ICS link",
     revokeFeed: "Revoke link",
+    back: "Back",
+    continue: "Continue",
     // P1 pro onboarding + admin queue
     applyTitle: "Join as a pro",
     applySub: "Jobs without middlemen, clear scope with photos, guaranteed escrow. An admin verifies your ID before approval.",
@@ -394,6 +396,8 @@ const dict = {
     blocks: "Tiempo bloqueado",
     newFeed: "Nuevo enlace ICS",
     revokeFeed: "Revocar enlace",
+    back: "Atrás",
+    continue: "Continuar",
     // P1 pro onboarding + admin queue
     applyTitle: "Únete como profesional",
     applySub: "Trabajos sin intermediarios, alcance claro con fotos, garantía bloqueada. Un administrador verifica tu ID antes de aprobar.",

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
-import { toast } from "@/components/ui";
+import { toast, FlowNav } from "@/components/ui";
 
 const NEXT_STEP: Record<string, { to: string; label: keyof ReturnType<typeof t> } | null> = {
   booked: { to: "en_route", label: "startRoute" },
@@ -468,6 +468,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
           </section>
 
           <Link className="btn btn-secondary" href={`/jobs/${jobId}`}>{strings.watchTitle} →</Link>
+          <FlowNav backHref="/pro" backLabel={strings.back} continueHref={`/jobs/${jobId}`} continueLabel={strings.watchTitle} />
         </>
       )}
     </main>

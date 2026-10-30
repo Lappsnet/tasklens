@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { AiSpec } from "@tasklens/ai";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, EmptyState, ErrorState, PriceRange, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, FlowNav, PriceRange, Skeleton } from "@/components/ui";
 
 interface QuotePayload {
   scanId: string;
@@ -179,10 +179,7 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
 
       {spec.questions_for_customer.length === 0 && <EmptyState title={strings.questions} hint={strings.noQuestions} />}
 
-      <div className="flex gap-2 flex-wrap mt-2">
-        <Link className="btn btn-glow btn-sheen flex-1 text-center !bg-accent" href={`/book/${scanId}`}>{strings.book}</Link>
-        <Link className="btn btn-secondary" href="/scan">{strings.retake}</Link>
-      </div>
+      <FlowNav backHref="/scan" backLabel={strings.back} continueHref={`/book/${scanId}`} continueLabel={strings.book} />
     </main>
   );
 }

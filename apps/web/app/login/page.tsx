@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
 import { CITIES } from "@/lib/cities";
 import { t, type Lang } from "@/lib/i18n";
+import { FlowNav } from "@/components/ui";
 
 type DemoRole = "customer" | "pro" | "admin" | "city_operator";
 
@@ -106,6 +107,7 @@ export default function LoginPage() {
         </section>
       )}
       {error && <p className="err" role="alert">{error}</p>}
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

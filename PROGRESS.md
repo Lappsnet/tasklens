@@ -33,6 +33,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   PriceRange, event Toasts; scan viewfinder + shutter + beam, quote stagger +
   pop price card, landing hero mesh + floating card + marquee. Reduced-motion
   respected throughout. web 75/75, ai 37/37, build green.
+- U1 Foundation DONE: tokens.css (light/dark) + Tailwind mapped to vars, self-hosted
+  Cabinet/General/JetBrains, RAC primitives (Button+loading/Input/Textarea/Select/
+  Combobox/DatePicker/Tabs/Menu/Dialog/Sheet/Tooltip/Toast/Badge/Avatar/Skeleton/
+  EmptyState/ErrorState), Blueprint signatures (Grid/Viewfinder/Annotation/Dimension/
+  Seal/Beam/Magnetic/Spotlight/CountUp/Marquee), /dev/kit (404 in prod), FlowNav
+  Back/Continue across the loop. web 75/75, ai 37/37, typecheck + build green,
+  audit unchanged. Screenshots 375/768/1440 light+dark PENDING (no browser here —
+  owner step: real phone + desktop, commit to docs/screens/ui-v2/).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

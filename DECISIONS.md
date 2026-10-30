@@ -2,6 +2,30 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-10-29 — U1 Foundation (tokens, fonts, RAC primitives, Blueprint, FlowNav)
+
+- Stack change per owner decision (AGENTS.md §4): NO shadcn/ui, lucide, Inter.
+  Primitives on React Aria Components 1.22.1 (Apache-2.0), icons
+  @phosphor-icons/react 2.1.10 (MIT), date logic @internationalized/date 3.12.4
+  (Apache-2.0). GSAP/Motion/Lenis deferred to the blocks that use them (U5/U7).
+- Fonts self-hosted in `public/fonts` (woff2, latin subsets): Cabinet Grotesk
+  700/800 + General Sans 400/500/600 (Fontshare — free for personal AND
+  commercial use), JetBrains Mono 400/600 (SIL OFL 1.1). `next/font/local`,
+  preload display 800 + body 400/600.
+- Dark mode via `data-theme` on `<html>` (system default, localStorage,
+  no-FOUC init script); Tailwind colors mapped to vars so themed screens adapt.
+  Legacy `.card/.btn` classes repointed at tokens; removed in U7 per-screen.
+- Root `max-w-md` wrapper removed per spec (marketing 1280 / app 1200 +
+  sidebar land in U2/U4; desktop is temporarily full-width on old screens).
+- FlowNav (Back/Continue) wired across the core loop: scan, quote→book,
+  book receipt→live job, jobs, pro + job mode, contracts, projects, fund,
+  passport, city, admin, login, apply, calendar. i18n `back`/`continue` ES/EN.
+- RAC Button keeps the old `onClick`/`disabled` API (mapped to onPress/
+  isDisabled) so call sites didn't churn; `accent` variant retained (signal
+  orange is the brand action color).
+- Screenshots 375/768/1440 light+dark NOT done — no browser in this env;
+  owner step with a real phone + desktop (see PROGRESS).
+
 ## 2026-10-29 — Visual Motion Pass (CSS-first, zero new deps)
 
 - Foundation (`globals.css`): warm gradient paper, shadow/glow tokens, keyframe

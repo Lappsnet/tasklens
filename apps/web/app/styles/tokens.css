@@ -1,0 +1,47 @@
+/* TaskLens "Blueprint" design tokens (U1). Light default; dark via [data-theme="dark"].
+   Tailwind reads these (see tailwind.config.js). Spacing scale: 4/8/12/16/24/32/48/64/96/128.
+   Motion: durations 120/200/320/600 ms; easings --ease-out and --ease-spring. */
+
+:root {
+  --bg: #F6F3EE;
+  --surface: #FFFFFF;
+  --ink: #0F1B2D;
+  --muted: #5B6B7F;
+  --line: rgba(15, 27, 45, 0.08);
+  --blueprint: #1F4E8C;
+  --signal: #F26A1B;
+  --signal-ink: #FFFFFF;
+  --verified: #0E9F6E;
+  --warning: #C2410C;
+  --grid-line: rgba(31, 78, 140, 0.12);
+  --shadow-soft: 0 1px 2px rgba(15, 27, 45, 0.06), 0 2px 8px rgba(15, 27, 45, 0.06);
+  --shadow-lifted: 0 2px 4px rgba(15, 27, 45, 0.06), 0 16px 40px -12px rgba(15, 27, 45, 0.25);
+  --radius-input: 6px;
+  --radius-btn: 10px;
+  --radius-card: 16px;
+  --radius-sheet: 28px;
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 600ms;
+  --ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0A1220;
+  --surface: #111C2E;
+  --ink: #EAF0F7;
+  --muted: #8FA3BA;
+  --line: rgba(127, 167, 214, 0.12);
+  --blueprint: #5B9BE6;
+  --signal: #FF7A2E;
+  --signal-ink: #160B02;
+  --verified: #2BD39A;
+  --warning: #FB923C;
+  --grid-line: rgba(91, 155, 230, 0.14);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lifted: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

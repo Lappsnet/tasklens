@@ -4,6 +4,7 @@ import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { FlowNav } from "@/components/ui";
 
 interface Contract {
   id: string;
@@ -218,6 +219,7 @@ export default function ContractPage({ params }: { params: Promise<{ jobId: stri
             </section>
           )}
           <p className="muted small">{strings.aiTemplateNote}</p>
+          <FlowNav backHref={`/jobs/${jobId}`} backLabel={strings.back} />
         </>
       )}
     </main>

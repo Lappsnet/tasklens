@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { BottomSheet } from "@/components/ui";
+import { BottomSheet, FlowNav } from "@/components/ui";
 
 const ProMap = dynamic(() => import("@/components/map"), {
   ssr: false,
@@ -158,10 +158,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           <p className="muted small">{receipt.slot} · payment {receipt.payment.piId} ({receipt.payment.status})</p>
         </section>
         <p className="muted small">{strings.confirmNote}</p>
-        <div className="row">
-          <Link className="btn btn-secondary" href={`/quote/${scanId}`}>← {strings.quoteTitle}</Link>
-          <Link className="btn" href="/scan">{strings.retake}</Link>
-        </div>
+        <FlowNav backHref={`/quote/${scanId}`} backLabel={strings.back} continueHref={`/jobs/${receipt.jobId}`} continueLabel={strings.watchTitle} />
       </main>
     );
   }
@@ -239,6 +236,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           )}
         </>
       )}
+      <FlowNav backHref={`/quote/${scanId}`} backLabel={strings.back} />
     </main>
   );
 }

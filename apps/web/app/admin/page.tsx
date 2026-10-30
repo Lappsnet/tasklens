@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
+import { FlowNav } from "@/components/ui";
 
 export default function AdminPage() {
   const [lang] = useState<Lang>("en");
@@ -58,6 +59,7 @@ export default function AdminPage() {
       )}
       {result && <p className="muted" role="status">{result}</p>}
       {error && <p className="err" role="alert">{error}</p>}
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

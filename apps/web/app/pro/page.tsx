@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, EmptyState, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, FlowNav, Skeleton } from "@/components/ui";
 
 interface JobRow {
   id: string;
@@ -99,6 +99,7 @@ export default function ProPage() {
         </Link>
       ))}
       {jobs && jobs.length === 0 && <EmptyState title={strings.proTitle} hint={strings.proSub} />}
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

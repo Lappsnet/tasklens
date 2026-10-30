@@ -5,7 +5,7 @@ import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
-import { Badge, Button, Card, DrawCheck, EmptyState, Skeleton, Stepper, Timeline } from "@/components/ui";
+import { Badge, Button, Card, DrawCheck, EmptyState, FlowNav, Skeleton, Stepper, Timeline } from "@/components/ui";
 
 /** Customer live view: status stepper + live timeline + rating. */
 function StepTick({ payload }: { payload: { step: string; done: boolean } }) {
@@ -280,6 +280,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
           <Link className="btn btn-secondary" href={`/quote/${(job as unknown as { scan_id?: string }).scan_id ?? ""}`}>
             ← {strings.quoteTitle}
           </Link>
+          <FlowNav backHref="/" backLabel={strings.back} />
         </>
       )}
     </main>

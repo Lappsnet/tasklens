@@ -5,6 +5,7 @@ import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { useEffect } from "react";
+import { FlowNav } from "@/components/ui";
 
 const TRADES = ["plumbing", "electrical", "appliance", "drywall_paint", "assembly", "cleaning"] as const;
 
@@ -92,6 +93,7 @@ export default function ApplyPage() {
         </section>
       )}
       <Link className="btn btn-secondary" href="/login">{strings.existingPro}</Link>
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

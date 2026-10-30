@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { FlowNav } from "@/components/ui";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -112,6 +113,7 @@ export default function NewProjectPage() {
       <button type="button" className="btn big !bg-accent" disabled={busy || !video} onClick={submit}>
         {busy ? "…" : strings.makePlan}
       </button>
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

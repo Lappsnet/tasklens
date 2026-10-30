@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { FlowNav } from "@/components/ui";
 
 interface DayJob {
   jobId: string;
@@ -170,6 +171,7 @@ export default function ProCalendarPage() {
         </div>
         {feedUrl && <p className="muted small" style={{ wordBreak: "break-all" }}>{feedUrl}</p>}
       </section>
+      <FlowNav backHref="/pro" backLabel={strings.back} />
     </main>
   );
 }

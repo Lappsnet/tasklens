@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { FlowNav } from "@/components/ui";
 
 interface AppItem {
   id: string;
@@ -117,6 +118,7 @@ export default function AdminProsPage() {
           )}
         </section>
       ))}
+      <FlowNav backHref="/admin" backLabel={strings.back} />
     </main>
   );
 }

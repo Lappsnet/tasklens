@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Button, CameraFrame, Card, ErrorState, Skeleton } from "@/components/ui";
+import { Button, CameraFrame, Card, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 const ACCEPT = "image/jpeg,image/png,image/webp";
 const MAX_FILE = 10 * 1024 * 1024;
@@ -332,6 +332,7 @@ export default function ScanPage() {
         </ol>
       )}
       {phase === "idle" && photos.length === 0 && !error && <Skeleton className="hidden" />}
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

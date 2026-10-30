@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { CITIES, findCity, nearestCity } from "@/lib/cities";
-import { Button, Card, EmptyState, ErrorState, Skeleton, Badge } from "@/components/ui";
+import { Button, Card, EmptyState, ErrorState, FlowNav, Skeleton, Badge } from "@/components/ui";
 
 interface Report {
   id: string;
@@ -177,6 +177,7 @@ export default function CityPage() {
           )}
         </Card>
       ))}
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

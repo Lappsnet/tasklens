@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { FlowNav } from "@/components/ui";
 
 interface Entry {
   id: string;
@@ -121,6 +122,7 @@ export default function PassportPage() {
         {share && <p className="muted small" style={{ wordBreak: "break-all" }}>{share}</p>}
         {pdf && <p className="muted small">SHA-256: {pdf.slice(0, 32)}…</p>}
       </section>
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, FlowNav, Skeleton } from "@/components/ui";
 
 interface Phase {
   id: string;
@@ -129,6 +129,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <Button variant="accent" className="mt-3" disabled={busy} onClick={bookCrew}>{busy ? "…" : strings.bookCrew}</Button>
             {crew && <p className="text-xs text-slate2 mt-2 break-all">{crew.slice(0, 200)}…</p>}
           </Card>
+          <FlowNav backHref="/" backLabel={strings.back} />
         </>
       )}
     </main>

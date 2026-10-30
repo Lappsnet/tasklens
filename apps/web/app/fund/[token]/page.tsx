@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Button, Card, EmptyState, ErrorState, Skeleton } from "@/components/ui";
+import { Button, Card, EmptyState, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 interface FundInfo {
   jobId: string;
@@ -73,6 +73,7 @@ export default function FundPage({ params }: { params: Promise<{ token: string }
           {busy ? "…" : `${strings.fundPay} $${info.amountUsd}`}
         </Button>
       </Card>
+      <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );
 }
