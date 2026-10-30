@@ -63,9 +63,11 @@ export default function AppShell({ children, me: initialMe }: { children: React.
   const strings = t(lang);
 
   // F2.5: job list via React Query (cached + deduped across mounts).
+  // Only roles that may read /api/jobs fetch it (company/city_operator get 403).
+  const canReadJobs = me !== null && ["customer", "pro", "admin"].includes(me.role);
   const { data: recentJobs = [] } = useQuery({
     queryKey: ["jobs", me ? "in" : "out"],
-    enabled: me !== null,
+    enabled: canReadJobs,
     staleTime: 30_000,
     queryFn: async () => {
       const jr = await fetch("/api/jobs");

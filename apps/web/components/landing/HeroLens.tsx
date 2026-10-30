@@ -7,6 +7,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
 import { MagneticButton } from "@/components/blueprint";
 import { Marquee } from "@/components/blueprint";
 import type { LandingContent } from "@/content/landing.es";
