@@ -67,7 +67,17 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   test), continuing from f9af291. Clean tree: typecheck 3/3, ai 37/37, web 92/92,
   `next build` green. `apps/web/.next` deleted (was 1.1 GB). Commits: a41906e
   (gradle wrapper 9.7.1), 498b191 (AGENTS.md stack + FIX_PROMPT).
-- F2 DONE (F2.1 narrow middleware matcher + no session refresh on prefetches;
+- F3 DONE: `pnpm e2e:screens` captures /, /login, /scan, /inicio, /pro, /empresa,
+  /city × 375/768/1440 × light/dark into docs/screens/ui-v2/ (42/42 pass:
+  no h-scroll, headings visible, zero console/page errors). Captures run
+  against local dev (P0-1 boot guard refuses keyless `next start`; keyed prod
+  run is owner-blocked). Bugs the run caught and fixed: missing SplitText
+  import in HeroLens (hero animation was dead), /api/jobs 403 for AppShell
+  roles (gated React Query to customer/pro/admin) + company dispatch pool
+  added to GET /api/jobs (scoped to unassigned quoted/booked, id-lookup
+  stays forbidden). Rare flake (2/~130 captures): transient hydration attr
+  warning in dev streaming; never reproduced on retry.
+- F2 DONE: F2.1 narrow middleware matcher + no session refresh on prefetches;
   F2.2 Turbopack dev (`serverExternalPackages` verified via /api/match); F2.3
   optimizePackageImports; F2.4 below-fold GSAP sections as dynamic chunks
   (RaceSection/Theater/HowSteps/TrustGrid), map already dynamic-only; F2.5 SSR
