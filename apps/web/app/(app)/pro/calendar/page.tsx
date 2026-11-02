@@ -101,7 +101,7 @@ export default function ProCalendarPage() {
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-extrabold">{strings.calTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.calTitle}</h1>
       <p className="text-sm text-muted">{strings.calSub}</p>
       {error && <ErrorState message={error} onRetry={() => { setError(""); loadPlan(day); }} />}
 

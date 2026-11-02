@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { Badge, BottomSheet, Button, Card, FlowNav, Select, Skeleton } from "@/components/ui";
+import { StampSeal } from "@/components/blueprint";
 
 const ProMap = dynamic(() => import("@/components/map"), {
   ssr: false,
@@ -150,14 +151,15 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
   if (receipt) {
     return (
       <main>
-        <h1>✓ {strings.held}</h1>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">✓ {strings.held}</h1>
         <p><Badge status={strings.testBadge} /></p>
-        <Card className="border-signal shadow-lifted">
-          <div className="font-display text-3xl font-extrabold">${receipt.amountUsd} held</div>
+        <Card className="border-signal shadow-lifted pop-in mt-4">
+          <StampSeal text={strings.held} />
+          <div className="mt-3 font-display text-3xl font-extrabold tabular-nums">${receipt.amountUsd} held</div>
           <p className="text-sm text-muted">job {receipt.jobId}</p>
           <p className="text-sm text-muted">{receipt.slot} · payment {receipt.payment.piId} ({receipt.payment.status})</p>
         </Card>
-        <p className="text-sm text-muted">{strings.confirmNote}</p>
+        <p className="mt-3 max-w-[60ch] text-[15px] text-muted">{strings.confirmNote}</p>
         <FlowNav backHref={`/quote/${scanId}`} backLabel={strings.back} continueHref={`/jobs/${receipt.jobId}`} continueLabel={strings.watchTitle} />
       </main>
     );
@@ -165,8 +167,8 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-bold">{strings.matchTitle}</h1>
-      <p className="text-slate2">{strings.matchSub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.matchTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-slate2">{strings.matchSub}</p>
 
       {error && (
         <p role="alert" className="rounded-btn border border-[#fecdca] bg-[#fef3f2] px-3 py-2.5 text-[#b42318]">
@@ -183,18 +185,18 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
       )}
 
       {pros && pros.length > 0 && (
-        <ProMap points={pros.map((p) => {
-          const c = coords.find((x) => x.pro_id === p.pro_id);
-          return { id: p.pro_id, lat: c?.lat, lng: c?.lng, label: c?.name ?? p.pro_id };
-        })} />
-      )}
-
-      {pros?.length === 0 && <p role="status" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">{strings.noPros}</p>}
-
-      {pros && pros.length > 0 && (
-        <>
-          <div role="radiogroup" aria-label={strings.matchTitle} className="stagger">
-            {pros.map((p) => (
+        <div className="mt-4 grid items-start gap-4 lg:grid-cols-[5fr_7fr]">
+          <div className="lg:sticky lg:top-24">
+            <ProMap points={pros.map((p) => {
+              const c = coords.find((x) => x.pro_id === p.pro_id);
+              return { id: p.pro_id, lat: c?.lat, lng: c?.lng, label: c?.name ?? p.pro_id };
+            })} />
+          </div>
+          <div role="radiogroup" aria-label={strings.matchTitle} className="stagger space-y-3">
+            {pros.map((p) => {
+              const c = coords.find((x) => x.pro_id === p.pro_id);
+              const rating = c?.rating ?? 4.8;
+              return (
               <button
                 key={p.pro_id}
                 type="button"
@@ -203,28 +205,47 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
                 onClick={() => pick(p.pro_id)}
                 className={`w-full rounded-card border bg-surface p-4 text-left shadow-soft transition-shadow hover:shadow-lifted ${selected === p.pro_id ? "border-signal shadow-lifted pop-in" : "border-line"}`}
               >
-                <div>
-                  <strong>{p.reason}</strong>
-                  <div className="text-sm text-muted">
-                    {strings.eta(p.eta_days)} · ${p.quote_usd}
-                  </div>
-                  {selected === p.pro_id && (
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Select
-                        label={strings.slotLabel}
-                        aria-label={strings.slotLabel}
-                        selectedKey={slot || (p.slots[0] ?? "")}
-                        onSelectionChange={(k) => setSlot(String(k))}
-                        items={p.slots.map((s) => ({ id: s, label: suggested.has(s) ? `★ ${s}` : s }))}
-                      />
+                <div className="flex items-start gap-3">
+                  <span
+                    role="img"
+                    aria-label={`rating ${rating}`}
+                    className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold"
+                    style={{ background: `conic-gradient(var(--verified) ${(rating / 5) * 100}%, var(--line) 0)` }}
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface font-display text-sm font-extrabold">
+                      {(c?.name ?? p.pro_id).slice(0, 1).toUpperCase()}
+                    </span>
+                  </span>
+                  <div className="min-w-0">
+                    <strong className="block truncate">{c?.name ?? p.reason}</strong>
+                    <span className="font-mono text-xs font-semibold text-[var(--verified)] tabular-nums">★ {rating.toFixed(1)}</span>
+                    <div className="text-sm text-muted">
+                      {strings.eta(p.eta_days)} · <span className="font-mono font-bold text-ink tabular-nums">${p.quote_usd}</span>
                     </div>
-                  )}
+                    <p className="mt-1 text-sm text-muted">{p.reason}</p>
+                  </div>
                 </div>
+                {selected === p.pro_id && (
+                  <div onClick={(e) => e.stopPropagation()} className="mt-3">
+                    <Select
+                      label={strings.slotLabel}
+                      aria-label={strings.slotLabel}
+                      selectedKey={slot || (p.slots[0] ?? "")}
+                      onSelectionChange={(k) => setSlot(String(k))}
+                      items={p.slots.map((s) => ({ id: s, label: suggested.has(s) ? `★ ${s}` : s }))}
+                    />
+                  </div>
+                )}
               </button>
-            ))}
+              );
+            })}
           </div>
+        </div>
+      )}
 
-          <p className="text-sm text-muted">{strings.confirmNote}</p>
+      {pros && pros.length > 0 && (
+        <>
+          <p className="mt-4 max-w-[60ch] text-[15px] text-muted">{strings.confirmNote}</p>
           <Button size="lg" variant="accent" loading={busy} isDisabled={!selected || !slot} onPress={confirm}>
             {strings.confirm}
           </Button>

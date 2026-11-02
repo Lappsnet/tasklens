@@ -6,6 +6,63 @@ import { initialLang } from "@/lib/lang";
 import { eventLabel, useJobFeed } from "@/lib/use-job";
 import { Badge, Button, Card, DrawCheck, EmptyState, Field, FlowNav, Input, Skeleton, Stepper, Textarea, Timeline } from "@/components/ui";
 
+/** V7: payment card — held at booking, released on pass. */
+function JobPaymentCard({ job, heldLabel, releasedLabel }: {
+  job: { status: string; price_usd: number; payment?: { status?: string } | null };
+  heldLabel: string;
+  releasedLabel: string;
+}) {
+  const released = job.status === "completed";
+  return (
+    <Card className={released ? "!border-verified" : "!border-signal"}>
+      <div className="flex items-center justify-between gap-3">
+        <strong>{released ? releasedLabel : heldLabel}</strong>
+        <span className="font-mono text-xl font-extrabold tabular-nums">${job.price_usd}</span>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10">
+        <div className={`h-full rounded-full ${released ? "bg-[var(--verified)]" : "bg-[var(--signal)]"}`} style={{ width: released ? "100%" : "60%" }} />
+      </div>
+      <p className="mt-1.5 font-mono text-xs text-muted">{job.payment?.status ?? (released ? "released" : "held")}</p>
+    </Card>
+  );
+}
+
+/** V7: before/after slider from step-evidence photos (first vs last). */
+function JobBeforeAfter({ events }: { events: { kind: string; payload: unknown }[] }) {
+  const [pos, setPos] = useState(50);
+  const photos = events
+    .filter((e) => e.kind === "step_evidence" && typeof e.payload === "object" && e.payload !== null && "photoDataUrl" in e.payload)
+    .map((e) => (e.payload as { photoDataUrl: string }).photoDataUrl)
+    .filter(Boolean);
+  if (photos.length < 2) return null;
+  const before = photos[0];
+  const after = photos[photos.length - 1];
+  return (
+    <Card>
+      <div className="relative aspect-[4/3] select-none overflow-hidden rounded-card bg-bg">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={after} alt="after photo" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={before} alt="before photo" className="absolute inset-0 h-full w-full object-cover" />
+        </div>
+        <div className="absolute inset-y-0 border-l-2 border-white shadow-[0_0_12px_rgba(0,0,0,0.6)]" style={{ left: `${pos}%` }} aria-hidden="true">
+          <span className="absolute top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white font-bold text-ink shadow-lifted">↔</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={pos}
+          onChange={(e) => setPos(Number(e.target.value))}
+          className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+          aria-label="Before / after comparison"
+        />
+      </div>
+    </Card>
+  );
+}
+
 /** Customer live view: status stepper + live timeline + rating. */
 function StepTick({ payload }: { payload: { step: string; done: boolean } }) {
   return (
@@ -146,7 +203,7 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
   return (
     <main>
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className="font-display text-2xl font-bold">{strings.watchTitle}</h1>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.watchTitle}</h1>
         <Badge status={live ? "live" : "polling"} />
       </div>
       {!job && <Skeleton className="h-48" />}
@@ -167,6 +224,8 @@ export default function WatchPage({ params }: { params: Promise<{ jobId: string 
               <p className="text-slate2 text-sm mt-1">{strings.held} · {job.payment?.status ?? "requires_capture"}</p>
             )}
           </Card>
+          <JobPaymentCard job={job} heldLabel={strings.held} releasedLabel={strings.passed} />
+          <JobBeforeAfter events={events} />
           {verified && (verified.payload as { verdict?: string }).verdict === "review" && (
             <p role="alert" className="rounded-btn border border-warning/40 bg-warning/10 px-3 py-2.5 text-warning">{strings.needsFix}</p>
           )}

@@ -84,7 +84,7 @@ export default function NewProjectPage() {
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-bold">{strings.projectTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.projectTitle}</h1>
       <p className="text-slate2">{strings.projectSub}</p>
       {error && <ErrorState message={error} />}
       <Card>

@@ -51,7 +51,7 @@ export default function AjustesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-extrabold">{strings.ajustesTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.ajustesTitle}</h1>
       <Card>
         <h2 className="mb-2 font-bold">{strings.settingsLang}</h2>
         <div className="flex gap-1" role="group" aria-label={strings.settingsLang}>

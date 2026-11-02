@@ -84,7 +84,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-bold">{title || strings.projectTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{title || strings.projectTitle}</h1>
       {error && <ErrorState message={error} />}
       {!phases && <Skeleton className="h-48" />}
       {phases && (

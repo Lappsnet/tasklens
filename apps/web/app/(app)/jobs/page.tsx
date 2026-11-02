@@ -35,7 +35,7 @@ export default function JobsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-extrabold">{strings.myJobs}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.myJobs}</h1>
       {!jobs && <Skeleton className="h-24" />}
       {jobs && jobs.length === 0 && <EmptyState title={strings.myJobs} hint={strings.noJobsYet} />}
       <div className="stagger">

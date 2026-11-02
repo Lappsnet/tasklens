@@ -154,7 +154,7 @@ export default function ContractPage({ params }: { params: Promise<{ jobId: stri
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-extrabold">{strings.contractTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.contractTitle}</h1>
       {error && <ErrorState message={error} onRetry={load} />}
       {!contract && !error && <Skeleton className="h-48" />}
       {contract && (

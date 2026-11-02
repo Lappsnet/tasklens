@@ -60,8 +60,8 @@ export default function ApplyPage() {
 
   return (
     <main>
-      <h1>{strings.applyTitle}</h1>
-      <p className="text-sm text-muted">{strings.applySub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.applyTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-muted">{strings.applySub}</p>
       {done ? (
         <Card className="border-signal shadow-lifted"><p role="status" className="font-bold text-verified">✓ {strings.applyDone}</p></Card>
       ) : (

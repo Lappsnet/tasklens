@@ -118,24 +118,29 @@ export default function ScanPage() {
   }
 
   function useDemoPhoto() {
-    const c = document.createElement("canvas");
-    c.width = 640;
-    c.height = 480;
-    const g = c.getContext("2d");
-    if (!g) return;
-    g.fillStyle = "#e8e0d0"; g.fillRect(0, 0, 640, 480);
-    g.fillStyle = "#8a5a33"; g.fillRect(120, 300, 400, 180);
-    g.fillStyle = "#5b3a1e"; g.fillRect(120, 300, 400, 14);
-    g.fillStyle = "#9aa3a8";
-    g.fillRect(290, 40, 26, 180); g.fillRect(290, 220, 120, 26); g.fillRect(384, 150, 26, 96);
-    g.beginPath(); g.arc(303, 246, 34, 0, Math.PI); g.fill();
-    g.fillStyle = "#2f9e44"; g.beginPath(); g.arc(320, 130, 10, 0, 7); g.fill();
-    g.fillStyle = "#1c7ed6";
-    g.beginPath(); g.ellipse(303, 300, 9, 13, 0, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(303, 330, 42, 12, 0, 0, 7); g.fill();
-    c.toBlob((b) => {
-      if (b) setPhotos((p) => [...p, new File([b], "demo-leak.png", { type: "image/png" })].slice(0, 3));
-    }, "image/png");
+    void useExamplePhoto("grifo-cocina-danado");
+  }
+
+  /** V7: real showcase photos as example chips (demo examples, same job pool). */
+  const EXAMPLES = [
+    { id: "tomacorriente-derretido", src: "/images/showcase/tomacorriente-derretido.webp" },
+    { id: "grifo-cocina-danado", src: "/images/showcase/grifo-cocina-danado.webp" },
+    { id: "puerta-chapa-danada", src: "/images/showcase/puerta-chapa-danada.webp" },
+  ] as const;
+
+  async function useExamplePhoto(id: string) {
+    const found = EXAMPLES.find((e) => e.id === id);
+    if (!found) return;
+    setError("");
+    try {
+      const res = await fetch(found.src);
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const file = new File([blob], `${found.id}.webp`, { type: "image/webp" });
+      setPhotos((p) => [...p, file].slice(0, 3));
+    } catch {
+      setError(strings.errorPhotos);
+    }
   }
 
   function drawWave() {
@@ -264,7 +269,7 @@ export default function ScanPage() {
   return (
     <main>
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className="font-display text-3xl font-bold">{strings.scanTitle}</h1>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.scanTitle}</h1>
         <div className="flex gap-1" role="group" aria-label={strings.langLabel}>
           {(["en", "es"] as Lang[]).map((l) => (
             <Button key={l} variant={l === lang ? "primary" : "secondary"} className="px-3 py-1.5 text-sm" onPress={() => pickLang(l)}>
@@ -296,7 +301,21 @@ export default function ScanPage() {
         <div className="flex gap-2 flex-wrap mt-2">
           <input ref={fileRef} type="file" accept={ACCEPT} capture="environment" multiple hidden onChange={(e) => onFiles(e.target.files)} />
           <Button variant="secondary" onPress={() => fileRef.current?.click()}>{strings.takePhoto}</Button>
-          <Button variant="secondary" onPress={useDemoPhoto}>{strings.demoPhoto}</Button>
+        </div>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-muted">{strings.demoPhoto}</p>
+        <div className="mt-2 flex gap-2">
+          {EXAMPLES.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              onClick={() => void useExamplePhoto(e.id)}
+              className="relative h-20 w-20 overflow-hidden rounded-[10px] border border-line outline-none transition hover:border-ink/40 focus-visible:ring-2 focus-visible:ring-signal"
+              aria-label={`${strings.demoPhoto}: ${e.id}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={e.src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            </button>
+          ))}
         </div>
         {previews.length > 0 && (
           <div className="stagger mt-3 flex flex-wrap gap-2">

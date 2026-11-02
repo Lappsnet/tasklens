@@ -66,8 +66,8 @@ export default function PassportPage() {
 
   return (
     <main>
-      <h1>{strings.passportTitle}</h1>
-      <p className="text-sm text-muted">{strings.passportSub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.passportTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-muted">{strings.passportSub}</p>
       {error && <ErrorState message={error} />}
       {!entries.length && !error && <Skeleton className="h-48" />}
 

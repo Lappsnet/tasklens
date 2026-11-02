@@ -307,7 +307,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
   return (
     <main>
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1>{strings.jobMode}</h1>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.jobMode}</h1>
         <Badge status={live ? "live" : "polling"} />
       </div>
       {(error || feedError) && <ErrorState message={error || feedError || ""} />}
@@ -318,10 +318,10 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
           <Card className="border-signal shadow-lifted">
             <div className="text-sm text-muted">job {job.id.slice(0, 8)}… · ${job.price_usd} · {job.slot ?? "—"}</div>
             <div className="font-display text-3xl font-extrabold">{job.status.replace("_", " ")}</div>
-            {currentStep && <p className="text-sm text-muted">▶ {currentStep}</p>}
-            <div className="flex items-center gap-3 flex-wrap">
+            {currentStep && <p className="mt-2 font-display text-[32px] font-bold leading-tight">▶ {currentStep}</p>}
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
               {step && (
-                <Button size="lg" className="flex-1" disabled={busy} onPress={() => advance(step.to)}>
+                <Button size="lg" className="min-h-16 flex-1 text-lg" disabled={busy} onPress={() => advance(step.to)}>
                   {busy ? "…" : String(strings[step.label])}
                 </Button>
               )}
