@@ -34,7 +34,7 @@ export function ThemeToggle() {
   }
   return (
     <IconButton label={theme === "light" ? "Dark mode" : "Light mode"} onPress={toggle}>
-      {theme === "light" ? <Moon aria-hidden="true" size={20} /> : <Sun aria-hidden="true" size={20} />}
+      {theme === "light" ? <Moon aria-hidden="true" size={20} weight="fill" /> : <Sun aria-hidden="true" size={20} weight="fill" />}
     </IconButton>
   );
 }

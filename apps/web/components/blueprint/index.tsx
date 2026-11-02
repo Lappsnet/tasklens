@@ -99,6 +99,39 @@ export function StampSeal({ text = "VERIFICADO" }: { text?: string }) {
   );
 }
 
+/** Professional feature icon: Phosphor duotone in a blueprint tile.
+    Use for features, trust, steps — NOT bare 16px regular icons.
+    Single import point so a future 3D/custom set swaps in one place. */
+export function FeatureIcon({
+  icon: Icon,
+  tone = "blueprint",
+  size = 24,
+  className,
+  label,
+}: {
+  icon: import("@phosphor-icons/react").Icon;
+  tone?: "blueprint" | "signal" | "verified";
+  size?: number;
+  className?: string;
+  label?: string;
+}) {
+  const tones: Record<string, string> = {
+    blueprint: "bg-[var(--blueprint)]/10 text-[var(--blueprint)] border-[var(--blueprint)]/25",
+    signal: "bg-[var(--signal)]/10 text-[var(--signal)] border-[var(--signal)]/30",
+    verified: "bg-[var(--verified)]/10 text-[var(--verified)] border-[var(--verified)]/30",
+  };
+  return (
+    <span
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : "true"}
+      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-card border shadow-soft ${tones[tone]} ${className ?? ""}`}
+    >
+      <Icon size={size} weight="duotone" aria-hidden="true" />
+    </span>
+  );
+}
+
 /** Standalone scan beam (for custom camera layouts). */
 export function ScanBeam() {
   return <div className="scan-beam" aria-hidden="true" />;
@@ -191,8 +224,14 @@ export function Marquee({ children, className }: { children: React.ReactNode; cl
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
   return (
-    <div className={`marquee-auto overflow-hidden ${className ?? ""}`}>
-      <div className={reduced ? "flex gap-2 flex-wrap" : "marquee-track flex gap-2 w-max"}>
+    <div
+      className={`marquee-auto overflow-hidden ${className ?? ""}`}
+      style={{
+        maskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
+      }}
+    >
+      <div className={reduced ? "flex gap-2 flex-wrap" : "marquee-track flex w-max items-center gap-3 pr-3"}>
         {children}
         {!reduced && children}
       </div>

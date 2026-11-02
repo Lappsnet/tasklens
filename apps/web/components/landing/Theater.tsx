@@ -6,7 +6,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
-import { Annotation, Viewfinder } from "@/components/blueprint";
 import type { FeatureChapter } from "@/content/landing.es";
 import { reducedMotion, registerGsap, Reveal } from "./motion";
 
@@ -16,15 +15,10 @@ function MockScreen({ chapter, active }: { chapter: FeatureChapter; active: bool
       className={`absolute inset-0 flex flex-col p-3 transition-opacity duration-300 ${active ? "opacity-100" : "pointer-events-none opacity-0"}`}
       aria-hidden={!active}
     >
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{chapter.slug}</div>
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{chapter.name}</div>
       <div className="mt-1 font-display text-base font-extrabold leading-tight">{chapter.name}</div>
       <div className="mt-0.5 text-[11px] text-muted">{chapter.promise}</div>
-      <Viewfinder className="mt-2 border border-line" animate={false}>
-        <div className="relative aspect-[4/3] bg-bg">
-          <div className="absolute left-[30%] top-[25%] h-8 w-16 rounded bg-[var(--signal)]/70" aria-hidden="true" />
-          <Annotation x={58} y={34} label="$120–220" />
-        </div>
-      </Viewfinder>
+      {/* V0: no placeholder phone frame until V3 real screenshots land. */}
       <ul className="mt-2 space-y-1">
         {chapter.how.map((h) => (
           <li key={h} className="flex gap-1.5 text-[11px]">
@@ -83,7 +77,7 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
         <div ref={listRef} className="space-y-8">
           {chapters.map((c, i) => (
             <article key={c.slug} data-chapter data-index={i} className={`rounded-card border p-4 transition-colors ${active === i ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface/60"}`}>
-              <div className="font-mono text-[11px] uppercase tracking-widest text-muted">{String(i + 1).padStart(2, "0")} · {c.slug}</div>
+              <div className="font-mono text-[11px] uppercase tracking-widest text-muted">{String(i + 1).padStart(2, "0")}</div>
               <Link href={`/funciones/${c.slug}`} className="mt-1 block font-display text-xl font-extrabold underline-offset-4 hover:underline">
                 {c.name} →
               </Link>

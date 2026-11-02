@@ -15,7 +15,7 @@ const ICONS: Record<string, typeof Eyeglasses> = {
   check: ShieldCheck,
 };
 
-export default function HowSteps({ steps, scanHref }: { steps: { icon: string; label: string; text: string }[]; scanHref: string }) {
+export default function HowSteps({ steps, scanHref, tryNow }: { steps: { icon: string; label: string; text: string }[]; scanHref: string; tryNow: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +59,7 @@ export default function HowSteps({ steps, scanHref }: { steps: { icon: string; l
               <p className="mt-1 text-sm text-muted">{s.text}</p>
               {i === 0 && (
                 <Link href={scanHref} className="mt-3 inline-block rounded-btn bg-ink px-4 py-2 text-sm font-bold text-bg">
-                  Probar ahora
+                  {tryNow}
                 </Link>
               )}
             </article>

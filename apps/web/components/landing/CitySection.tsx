@@ -96,17 +96,17 @@ export default function CitySection({ t }: {
             <>
               <h3 className="font-display text-xl font-bold">{t.accessCta}</h3>
               <div className="mt-3 space-y-3">
-                <Field label={t.muniPh}>
-                  <Input value={muni} onChange={(e) => setMuni(e.target.value)} maxLength={120} className="border-white/20 bg-white/5 text-white placeholder:text-white/40" />
+                <Field label={t.muniPh} tone="dark">
+                  <Input value={muni} onChange={(e) => setMuni(e.target.value)} maxLength={120} placeholder={t.muniPh} className="border-white/15 bg-white/5 text-white placeholder:text-white/40" />
                 </Field>
-                <Field label={t.namePh}>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} className="border-white/20 bg-white/5 text-white placeholder:text-white/40" />
+                <Field label={t.namePh} tone="dark">
+                  <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} placeholder={t.namePh} className="border-white/15 bg-white/5 text-white placeholder:text-white/40" />
                 </Field>
-                <Field label={t.rolePh}>
-                  <Input value={role} onChange={(e) => setRole(e.target.value)} maxLength={120} className="border-white/20 bg-white/5 text-white placeholder:text-white/40" />
+                <Field label={t.rolePh} tone="dark">
+                  <Input value={role} onChange={(e) => setRole(e.target.value)} maxLength={120} placeholder={t.rolePh} className="border-white/15 bg-white/5 text-white placeholder:text-white/40" />
                 </Field>
-                <Field label={t.emailLabel}>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" maxLength={200} className="border-white/20 bg-white/5 text-white placeholder:text-white/40" />
+                <Field label={t.emailLabel} tone="dark">
+                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" maxLength={200} placeholder="nombre@municipio.gob.sv" className="border-white/15 bg-white/5 text-white placeholder:text-white/40" />
                 </Field>
                 {error && <ErrorState message="Revisa los campos / Check the fields." />}
                 <Button variant="accent" loading={busy} onPress={submit}>

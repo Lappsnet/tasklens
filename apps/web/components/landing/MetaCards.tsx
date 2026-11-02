@@ -3,7 +3,6 @@
 /* U5 Meta AI cards, each with a micro demo (waveform / render shimmer /
    mask draw / scan tick / glasses beam). */
 
-import { Skeleton } from "@/components/ui";
 import { Eyeglasses, Microphone, PaintBrush, Scan, SquaresFour } from "@phosphor-icons/react";
 
 function Micro({ kind }: { kind: string }) {
@@ -17,23 +16,8 @@ function Micro({ kind }: { kind: string }) {
       </div>
     );
   }
-  if (kind === "mask") {
-    return (
-      <div className="relative h-10 overflow-hidden rounded bg-ink" aria-hidden="true">
-        <div className="absolute rounded-md border-[3px] border-[#ff4d4f] shadow-[0_0_0_1px_rgba(255,255,255,0.8)]" style={{ left: "30%", top: "20%", width: "40%", height: "55%" }} />
-      </div>
-    );
-  }
-  if (kind === "render") {
-    return <Skeleton className="h-10 rounded" aria-hidden="true" />;
-  }
-  if (kind === "glasses") {
-    return (
-      <div className="relative h-10 overflow-hidden rounded bg-ink" aria-hidden="true">
-        <div className="scan-beam" style={{ animationDuration: "3s" }} />
-      </div>
-    );
-  }
+  // V0: no placeholder boxes — render/mask/glasses visuals land with V2 real photos.
+  if (kind === "mask" || kind === "render" || kind === "glasses") return null;
   return (
     <div className="flex h-10 items-center gap-2 font-mono text-xs text-verified" aria-hidden="true">
       <Scan size={18} aria-hidden="true" /> $120–220 · 1.5 h ✓

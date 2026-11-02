@@ -1,5 +1,10 @@
+import path from "node:path";
+
 /** @type {import('next').NextConfig} */
 const config = {
+  // Monorepo root is tasklens/ — ignore stray C:\Users\Jhonny\package-lock.json
+  // (Next infers the wrong workspace root otherwise and build fails page collection).
+  outputFileTracingRoot: path.join(process.cwd(), "../.."),
   // Keep @tasklens/ai as a real Node import (dist/): it reads prompt files
   // with fs + import.meta.url, which breaks when webpack bundles it.
   serverExternalPackages: ["@tasklens/ai"],

@@ -31,6 +31,15 @@ export interface LandingContent {
   scan: string;
   demo: string;
   lensNote: string;
+  trades: string[];
+  lensFinding: string;
+  lensTime: string;
+  lensMapLabel: string;
+  tryNow: string;
+  raceToday: string;
+  raceDay: string;
+  raceLens: string;
+  raceSeal: string;
   p1t: string;
   p1aT: string; p1a: string;
   p1bT: string; p1b: string;
@@ -103,6 +112,15 @@ export const landingEs: LandingContent = {
   scan: "Escanear un problema",
   demo: "Ver demo (2 min)",
   lensNote: "Vista IA: máscara, medidas y anotaciones",
+  trades: ["Fontanería", "Electricidad", "Albañilería", "Limpieza", "Ensamblaje", "Climatización", "Pintura", "Jardinería"],
+  lensFinding: "Sifón corroído",
+  lensTime: "1.5 h · fuga activa",
+  lensMapLabel: "BAÑO · PARED NORTE",
+  tryNow: "Probar ahora",
+  raceToday: "Hoy",
+  raceDay: "día",
+  raceLens: "minutos, no semanas",
+  raceSeal: "Verificado",
   p1t: "El problema hoy",
   p1aT: "Esperar", p1a: "Las solicitudes pasan por una oficina central o una sola empresa, y la visita tarda días o semanas.",
   p1bT: "Adivinar", p1b: "No sabes cuánto costará hasta que alguien venga a ver.",

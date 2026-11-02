@@ -8,11 +8,15 @@ import gsap from "gsap";
 import { StampSeal } from "@/components/blueprint";
 import { reducedMotion, registerGsap, Reveal } from "./motion";
 
-export default function RaceSection({ title, note, today, lens }: {
+export default function RaceSection({ title, note, today, lens, todayLabel, dayLabel, lensLabel, sealLabel }: {
   title: string;
   note: string;
   today: string[];
   lens: string[];
+  todayLabel: string;
+  dayLabel: string;
+  lensLabel: string;
+  sealLabel: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const todayBar = useRef<HTMLDivElement>(null);
@@ -47,8 +51,8 @@ export default function RaceSection({ title, note, today, lens }: {
       <div className="mt-4 space-y-4">
         <div className="rounded-card border border-line bg-surface p-4">
           <div className="flex items-baseline justify-between">
-            <strong className="text-sm">Hoy</strong>
-            <span className="font-mono text-xs text-muted">día {days}</span>
+            <strong className="text-sm">{todayLabel}</strong>
+            <span className="font-mono text-xs text-muted">{dayLabel} {days}</span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10">
             <div ref={todayBar} className="h-full w-full origin-left bg-muted" />
@@ -58,13 +62,13 @@ export default function RaceSection({ title, note, today, lens }: {
         <div className="rounded-card border border-signal bg-surface p-4 shadow-lifted">
           <div className="flex items-baseline justify-between">
             <strong className="text-sm">TaskLens</strong>
-            <span className="font-mono text-xs font-semibold text-signal">minutos, no semanas</span>
+            <span className="font-mono text-xs font-semibold text-signal">{lensLabel}</span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10">
             <div ref={lensBar} className="h-full w-full origin-left bg-signal" />
           </div>
           <p className="mt-2 text-xs text-muted">{lens.join(" → ")}</p>
-          <div className="mt-2"><StampSeal text="Verificado" /></div>
+          <div className="mt-2"><StampSeal text={sealLabel} /></div>
         </div>
       </div>
     </div>

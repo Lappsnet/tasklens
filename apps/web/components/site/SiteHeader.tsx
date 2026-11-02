@@ -9,8 +9,9 @@ import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { Bell, List, Play, X } from "@phosphor-icons/react";
 import { Avatar, Badge, Button, Dialog, DialogTrigger, IconButton, Menu } from "@/components/ui";
-import { MagneticButton } from "@/components/blueprint";
+import { FeatureIcon, MagneticButton } from "@/components/blueprint";
 import { ThemeToggle } from "@/components/theme";
+import Container from "./Container";
 import { browserAuth, demoLogout, hasSupabaseBrowser } from "@/lib/auth-client";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
@@ -103,7 +104,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
       animate={{ height: scrolled ? 60 : 76 }}
       style={{ height: 76 }}
     >
-      <div className="mx-auto flex h-full w-full max-w-[1280px] items-center justify-between gap-3 px-4">
+      <Container className="flex h-full items-center justify-between gap-3">
         <Logo />
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="primary">
@@ -120,7 +121,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
                     href={f.href}
                     className="flex items-start gap-3 rounded-btn p-2.5 outline-none hover-tint focus-visible:ring-2 focus-visible:ring-signal"
                   >
-                    <f.icon size={22} weight="duotone" className="mt-0.5 shrink-0 text-blueprint" aria-hidden="true" />
+                    <FeatureIcon icon={f.icon} tone="blueprint" size={22} label={f.name} />
                     <span>
                       <span className="block text-sm font-bold">{f.name}</span>
                       <span className="block text-xs text-muted">{f.desc}</span>
@@ -201,7 +202,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
             <List size={22} />
           </IconButton>
         </div>
-      </div>
+      </Container>
 
       <AnimatePresence>
         {mobileOpen && (

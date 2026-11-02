@@ -145,7 +145,8 @@ deploy, and report what works, what was cut, and latency numbers.
 The detailed, ordered plan is `PHASE2_PROMPT.md` (blocks P0-1 ... P0-6, then P1). Follow it.
 Summary below.
 Tracks, in priority order:
-Current priority (Oct 30): `FIX_PROMPT.md` F0-F4 FIRST (broken dark mode, slow dev, showcase).
+Current priority (Nov 1): `VISUAL_OVERHAUL_PROMPT.md` V0-V9 (visual polish of every page; V0 bugs first).
+Previous: `FIX_PROMPT.md` F0-F4 (broken dark mode, slow dev, showcase).
 Then: `UI_UX_PROMPT.md` blocks U1-U7 before any new feature.
 Roles shown in the UI: Cliente (`customer`), Profesional (`pro`), Empresa (`company`, new),
 Alcaldia (`city_operator`), Admin.

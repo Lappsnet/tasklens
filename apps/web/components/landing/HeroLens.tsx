@@ -13,7 +13,7 @@ import { Marquee } from "@/components/blueprint";
 import type { LandingContent } from "@/content/landing.es";
 import { reducedMotion, registerGsap } from "./motion";
 
-function SinkDrawing({ ai }: { ai?: boolean }) {
+function SinkDrawing({ ai, mapLabel }: { ai?: boolean; mapLabel: string }) {
   const stroke = ai ? "#FF7A2E" : "#5B9BE6";
   const faint = ai ? "rgba(255,122,46,0.35)" : "rgba(91,155,230,0.4)";
   return (
@@ -31,7 +31,7 @@ function SinkDrawing({ ai }: { ai?: boolean }) {
       ))}
       <path d="M150 230 H250 M150 226 V234 M250 226 V234" stroke={faint} strokeWidth="1" />
       <text x="200" y="224" textAnchor="middle" fill={stroke} fontSize="11" fontFamily="monospace">1.5 in</text>
-      <text x="34" y="46" fill={faint} fontSize="11" fontFamily="monospace">BAÑO · PARED NORTE</text>
+      <text x="34" y="46" fill={faint} fontSize="11" fontFamily="monospace">{mapLabel}</text>
     </svg>
   );
 }
@@ -96,7 +96,7 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
           backgroundSize: "8px 8px, 8px 8px, 40px 40px, 40px 40px",
         }}
       />
-      <div className="relative mx-auto grid w-full max-w-[1280px] gap-8 px-4 pb-10 pt-12 lg:grid-cols-2 lg:items-center lg:pt-16">
+      <div className="relative mx-auto grid w-full max-w-[1240px] gap-8 px-5 pb-10 pt-12 sm:px-8 lg:grid-cols-2 lg:items-center lg:px-12 lg:pt-16">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--signal)]">{t.heroKicker}</p>
           <h1 ref={titleRef} className="mt-3 font-display text-5xl font-extrabold leading-[1.02] tracking-tight lg:text-6xl">
@@ -118,7 +118,7 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
           aria-label={t.lensNote}
         >
           <div className="absolute inset-0 bg-[#0A1220] p-4">
-            <SinkDrawing />
+            <SinkDrawing mapLabel={t.lensMapLabel} />
           </div>
           <div
             ref={aiRef}
@@ -133,18 +133,18 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
                 backgroundSize: "20px 20px",
               }}
             />
-            <SinkDrawing ai />
+            <SinkDrawing ai mapLabel={t.lensMapLabel} />
             <div className="absolute left-[52%] top-[30%] flex items-center gap-0" aria-hidden="true">
               <span className="h-2 w-2 rounded-full bg-[var(--signal)] shadow-[0_0_10px_var(--signal)]" />
               <span className="h-px w-8 bg-[var(--signal)]" />
-              <span className="whitespace-nowrap rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white">Sifón corroído</span>
+              <span className="whitespace-nowrap rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white">{t.lensFinding}</span>
             </div>
             <div className="absolute left-[46%] top-[62%] flex items-center gap-0" aria-hidden="true">
               <span className="whitespace-nowrap rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white">$120–220</span>
               <span className="h-px w-8 bg-[var(--signal)]" />
               <span className="h-2 w-2 rounded-full bg-[var(--signal)] shadow-[0_0_10px_var(--signal)]" />
             </div>
-            <div className="absolute bottom-[10%] left-[30%] font-mono text-[11px] font-semibold text-[var(--signal)]" aria-hidden="true">1.5 h · fuga activa</div>
+            <div className="absolute bottom-[10%] left-[30%] font-mono text-[11px] font-semibold text-[var(--signal)]" aria-hidden="true">{t.lensTime}</div>
           </div>
           <div className="absolute left-3 top-3 flex items-center gap-2" aria-hidden="true">
             <span className="live-dot" />
@@ -153,9 +153,9 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
         </div>
       </div>
       <div className="relative border-t border-white/10 bg-white/[0.02] py-3">
-        <div className="mx-auto w-full max-w-[1280px] px-4">
+        <div className="mx-auto w-full max-w-[1240px] px-5 sm:px-8 lg:px-12">
           <Marquee>
-            {["Fontanería", "Electricidad", "Albañilería", "Limpieza", "Ensamblaje", "Climatización", "Pintura", "Jardinería"].map((c) => (
+            {t.trades.map((c) => (
               <span key={c} className="whitespace-nowrap rounded-full border border-white/15 px-4 py-1 font-mono text-xs uppercase tracking-widest text-white/70">{c}</span>
             ))}
           </Marquee>

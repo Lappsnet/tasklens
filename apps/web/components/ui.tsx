@@ -63,10 +63,8 @@ import {
   WarningCircle,
 } from "@phosphor-icons/react";
 
-export function cn(...parts: (string | false | null | undefined)[]): string {
-  return parts.filter(Boolean).join(" ");
-}
-
+export { cn } from "@/components/cn";
+import { cn } from "@/components/cn";
 /* RAC popover shell shared by Select / Combobox / Menu / DatePicker. */
 const popover =
   "min-w-[var(--trigger-width)] rounded-card border border-line bg-surface p-1 shadow-lifted outline-none data-[entering]:anim-pop";
@@ -157,13 +155,15 @@ export function Textarea({ className, ...rest }: RACTextAreaProps & { className?
 type FieldProps = RACTextFieldProps & {
   label?: string;
   error?: string;
+  tone?: "light" | "dark";
   children: React.ReactNode;
 };
 
-export function Field({ label, error, children, ...rest }: FieldProps) {
+export function Field({ label, error, tone = "light", children, ...rest }: FieldProps) {
+  const dark = tone === "dark";
   return (
     <RACTextField {...rest} className="flex flex-col gap-1.5">
-      {label && <Label className="text-sm font-semibold text-ink">{label}</Label>}
+      {label && <Label className={`text-sm font-semibold ${dark ? "text-white/80" : "text-ink"}`}>{label}</Label>}
       {children}
       {error ? <span className="text-sm text-[#B42318]">{error}</span> : <FieldError className="text-sm text-[#B42318]" />}
     </RACTextField>

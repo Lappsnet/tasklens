@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Globe } from "@phosphor-icons/react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import Container from "./Container";
 
 export default function SiteFooter() {
   const [lang, setLang] = useState<Lang>("es");
@@ -53,7 +54,7 @@ export default function SiteFooter() {
 
   return (
     <footer className="border-t border-line bg-surface">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
+      <Container className="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
         {cols.map((c) => (
           <nav key={c.title} aria-label={c.title}>
             <h2 className="font-mono text-xs font-semibold uppercase tracking-widest text-muted">{c.title}</h2>
@@ -68,16 +69,16 @@ export default function SiteFooter() {
             </ul>
           </nav>
         ))}
-      </div>
+      </Container>
       <div className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm text-muted">
+        <Container className="flex flex-wrap items-center justify-between gap-3 py-4 text-sm text-muted">
           <span className="font-display font-bold text-ink">TaskLens · 2026</span>
           <span>{s.footMadeWith}</span>
           <span className="inline-flex items-center gap-1.5">
             <Globe size={16} aria-hidden="true" />
             {s.footCountry} · {lang.toUpperCase()}
           </span>
-        </div>
+        </Container>
       </div>
     </footer>
   );

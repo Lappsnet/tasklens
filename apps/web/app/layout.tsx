@@ -36,8 +36,11 @@ const mono = localFont({
   display: "swap",
 });
 
-// System default theme, persisted override, no FOUC (runs before paint).
-const themeInit = `(function(){try{var t=localStorage.getItem("tasklens:theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.dataset.theme=t;}catch(e){}})();`;
+// Light-first default (Day 3 FIX batch): page background is drafting paper
+// (#F6F3EE), NOT pure white, and NOT dark navy. Dark is opt-in via toggle.
+// System-dark no longer forces dark on first paint — that was the
+// "showing dark blue and not white" report.
+const themeInit = `(function(){try{var t=localStorage.getItem("tasklens:theme");if(t!=="light"&&t!=="dark"){t="light";}document.documentElement.dataset.theme=t;}catch(e){}})();`;
 
 export const metadata: Metadata = {
   title: "TaskLens — Look, speak, book a pro",
@@ -53,7 +56,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#0F1B2D",
+  themeColor: "#F6F3EE",
   width: "device-width",
   initialScale: 1,
 };
