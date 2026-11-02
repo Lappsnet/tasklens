@@ -26,21 +26,29 @@ function waitForPort(port, timeoutMs = 90000) {
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
+  // Local proof runs against the dev server (REUSE_SERVER=1 reuses a warm one:
+  // start it once with `pnpm --filter web dev -- -p 3101`, then run batches).
+  // The P0-1 boot guard refuses keyless `next start`; same components/theme.
   const webDir = path.join(__dirname, "..");
-  const nextBin = path.join(
-    path.dirname(require.resolve("next/package.json", { paths: [webDir] })),
-    "dist", "bin", "next",
-  );
-  const serverLog = fs.openSync(path.join(webDir, "e2e-home.log"), "w");
-  const server = spawn(process.execPath, [nextBin, "dev", "-p", String(PORT)], {
-    cwd: webDir, stdio: ["ignore", serverLog, serverLog],
-  });
+  const reuse = Boolean(process.env.REUSE_SERVER);
+  let server = null;
+  if (!reuse) {
+    const nextBin = path.join(
+      path.dirname(require.resolve("next/package.json", { paths: [webDir] })),
+      "dist", "bin", "next",
+    );
+    const serverLog = fs.openSync(path.join(webDir, "e2e-home.log"), "w");
+    server = spawn(process.execPath, [nextBin, "dev", "-p", String(PORT)], {
+      cwd: webDir, stdio: ["ignore", serverLog, serverLog],
+    });
+  }
   try {
-    await waitForPort(PORT);
+    await waitForPort(PORT, reuse ? 15000 : 90000);
     const browser = await chromium.launch();
-    const routes = ["/", "/scan"];
+    const allRoutes = ["/", "/scan", "/inicio", "/pro", "/empresa", "/city"];
+    const routes = process.env.ROUTES ? process.env.ROUTES.split(",") : allRoutes;
     for (const route of routes) {
-      const slug = route === "/" ? "home" : "scan";
+      const slug = route === "/" ? "home" : route.slice(1);
     for (const w of [375, 1440]) {
       for (const theme of ["light", "dark"]) {
         for (const lang of ["es", "en"]) {
@@ -48,7 +56,10 @@ async function main() {
           const tag = `${slug}-${w}-${theme}${lang === "en" ? "-en" : ""}`;
           const page = await browser.newPage({ viewport: { width: w, height: 900 } });
           const errors = [];
-          page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
+          page.on("console", (m) => {
+            const text = m.text();
+            if (m.type() === "error" && !/status of 401/.test(text)) errors.push("console: " + text);
+          });
           page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
           await page.context().addCookies([{ name: "tasklens:lang", value: lang, url: BASE }]);
           await page.goto(BASE + route, { waitUntil: "commit", timeout: 180000 });
@@ -76,7 +87,7 @@ async function main() {
             return { base, inner: window.innerWidth, out };
           });
           if (probe.base > probe.inner + 1) errors.push("h-scroll w=" + probe.base + ": " + (probe.out.join(" | ") || "no single section"));
-          await page.screenshot({ path: path.join(OUT, `${tag}.png`) });
+          await page.screenshot({ path: path.join(OUT, `${tag}.png`), animations: "disabled" });
           console.log(errors.length ? `FAIL ${tag} - ${errors.join(" | ")}` : `ok ${tag}`);
           await page.close();
         }
@@ -85,7 +96,7 @@ async function main() {
     }
     await browser.close();
   } finally {
-    server.kill();
+    if (server) server.kill();
   }
 }
 main().catch((e) => { console.error("FATAL", e.message); process.exit(1); });

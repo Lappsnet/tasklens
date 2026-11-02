@@ -134,6 +134,19 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   projects/apply/ajustes. V9: typecheck + 93/93 + build green; e2e-home 12/12
   (home 8 + scan 4) ok. NOTE: V7 code partially rode in a2b3254 (restore commit
   staged it via add -A); remainder + PROGRESS here.
+- V6 DONE (Nov 1): shell 264px rail/72px (grouped sections, orange edge +
+  tinted active, 64px mobile bar w/ raised center); customer home is /inicio
+  (roleHome fixed); dashboards on demo-labelled seeded data: inicio hero +
+  spend AreaTrend; pro KPIs + Sparkline + route map + request cards +
+  BarCompare + trust ring; empresa KPIs + availability strip + revenue chart;
+  equipo DataTable + invite; city KPIs + demo triage table + contractor table;
+  admin health + pros photo drawer. Libs: charts.tsx (d3), DataTable (tanstack
+  v8 pinned — v9 types incompatible), demo-dash.ts. V9: typecheck + 93/93, build
+  green; e2e-home 28/28 ok (home 8 + scan 4 + inicio/pro/empresa/city 16).
+  Wash-out found+fixed: stuck .skel shimmer (pro page never resolved jobs on
+  401 — now setJobs([])) washed screenshots; captures now use
+  animations:"disabled" for determinism; chart gradient ids sanitized
+  (useId colons stripped).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

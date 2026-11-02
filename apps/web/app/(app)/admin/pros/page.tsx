@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, ErrorState, Field, FlowNav, Input } from "@/components/ui";
+import { Badge, Button, Card, Dialog, DialogTrigger, ErrorState, Field, FlowNav, Input } from "@/components/ui";
 
 interface AppItem {
   id: string;
@@ -28,6 +28,7 @@ export default function AdminProsPage() {
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [preview, setPreview] = useState<{ src: string; name: string } | null>(null);
   const strings = t(lang);
 
   useEffect(() => {
@@ -73,8 +74,8 @@ export default function AdminProsPage() {
 
   return (
     <main>
-      <h1>{strings.queueTitle}</h1>
-      <p className="text-sm text-muted">{strings.queueSub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.queueTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-muted">{strings.queueSub}</p>
       <p><Link href="/admin">← {strings.adminTitle}</Link></p>
       <div className="flex items-center gap-2 flex-wrap" role="tablist" aria-label={strings.queueTitle}>
         {(["pending", "approved", "rejected"] as Filter[]).map((f) => (
@@ -93,8 +94,15 @@ export default function AdminProsPage() {
           </div>
           <div className="text-sm text-muted">{a.phone} · ${a.rate_usd_hr}/h · {a.id.slice(0, 8)}</div>
           {a.idPhotoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={a.idPhotoUrl} alt={`ID — ${a.name}`} style={{ maxWidth: "100%", borderRadius: 8, marginTop: 8 }} />
+            <button
+              type="button"
+              onClick={() => setPreview({ src: a.idPhotoUrl as string, name: a.name })}
+              className="mt-2 block overflow-hidden rounded-card border border-line outline-none focus-visible:ring-2 focus-visible:ring-signal"
+              aria-label={`${strings.queueTitle} — ${a.name}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.idPhotoUrl} alt={`ID — ${a.name}`} style={{ maxWidth: "100%", borderRadius: 8 }} />
+            </button>
           )}
           {a.reject_reason && <p className="text-sm text-muted">✕ {a.reject_reason}</p>}
           {filter === "pending" && (
@@ -121,6 +129,15 @@ export default function AdminProsPage() {
         </Card>
       ))}
       <FlowNav backHref="/admin" backLabel={strings.back} />
+      <DialogTrigger isOpen={preview !== null} onOpenChange={(open) => { if (!open) setPreview(null); }}>
+        <span className="hidden" aria-hidden="true" />
+        <Dialog title={preview?.name ?? strings.queueTitle}>
+          {preview && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={preview.src} alt={`ID — ${preview.name}`} className="max-h-[70vh] w-full rounded-card object-contain" />
+          )}
+        </Dialog>
+      </DialogTrigger>
     </main>
   );
 }

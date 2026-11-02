@@ -142,8 +142,8 @@ export default function AppShell({ children, me: initialMe }: { children: React.
 
   return (
     <div className="min-h-screen lg:flex">
-      {/* Desktop sidebar */}
-      <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-surface transition-all duration-200 lg:flex ${collapsed ? "w-16" : "w-60"}`}>
+      {/* Desktop sidebar: 264 px, collapses to a 72 px rail. */}
+      <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-surface transition-all duration-200 lg:flex ${collapsed ? "w-[72px]" : "w-[264px]"}`}>
         <div className="flex h-[76px] items-center justify-between px-4">
           {!collapsed && (
             <Link href={roleHome(role)} className="flex items-center gap-2" aria-label="TaskLens">
@@ -161,24 +161,38 @@ export default function AppShell({ children, me: initialMe }: { children: React.
           </button>
         </div>
         <nav className="flex-1 overflow-auto px-2" aria-label="app">
-          <p className="px-2 pb-1 font-mono text-[11px] uppercase tracking-widest text-muted">{roleLabel(role, lang)}</p>
-          {menu.tabs.map((tab) => {
-            const active = isActive(tab.href);
-            return (
-              <Link
-                key={tab.href + tab.label}
-                href={tab.href}
-                aria-current={active ? "page" : undefined}
-                className={`relative mb-0.5 flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm font-semibold outline-none transition-colors ${active ? "text-ink" : "text-muted hover:text-ink hover-tint"}`}
-              >
-                {active && (
-                  <motion.span layoutId="nav-edge" className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-full bg-signal" transition={{ duration: 0.2 }} />
+          {(() => {
+            const groups = new Map<string, typeof menu.tabs>();
+            for (const tab of menu.tabs) {
+              if (!groups.has(tab.section)) groups.set(tab.section, []);
+              groups.get(tab.section)?.push(tab);
+            }
+            return Array.from(groups.entries()).map(([section, tabs]) => (
+              <div key={section} className="mb-1">
+                {!collapsed && (
+                  <p className="px-2 pb-1 pt-2 font-mono text-[11px] uppercase tracking-widest text-muted">{section}</p>
                 )}
-                <tab.icon size={22} weight={active ? "fill" : "regular"} aria-hidden="true" className={active ? "text-signal" : ""} />
-                {!collapsed && <span className="truncate">{tab.label}</span>}
-              </Link>
-            );
-          })}
+                {tabs.map((tab) => {
+                  const active = isActive(tab.href);
+                  return (
+                    <Link
+                      key={tab.href + tab.label}
+                      href={tab.href}
+                      aria-current={active ? "page" : undefined}
+                      title={collapsed ? tab.label : undefined}
+                      className={`relative mb-0.5 flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm font-semibold outline-none transition-colors ${active ? "bg-signal/10 text-ink" : "text-muted hover:text-ink hover-tint"}`}
+                    >
+                      {active && (
+                        <motion.span layoutId="nav-edge" className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-full bg-signal" transition={{ duration: 0.2 }} />
+                      )}
+                      <tab.icon size={22} weight={active ? "fill" : "regular"} aria-hidden="true" className={active ? "text-signal" : ""} />
+                      {!collapsed && <span className="truncate">{tab.label}</span>}
+                    </Link>
+                  );
+                })}
+              </div>
+            ));
+          })()}
         </nav>
         <div className="border-t border-line p-2">
           {!collapsed && me && (
@@ -258,7 +272,7 @@ export default function AppShell({ children, me: initialMe }: { children: React.
 
         {/* Mobile tab bar */}
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur-md lg:hidden" aria-label="mobile">
-          <div className="mx-auto flex w-full max-w-md items-end px-1 pb-[env(safe-area-inset-bottom)]">
+          <div className="mx-auto flex h-16 w-full max-w-md items-end px-1 pb-[env(safe-area-inset-bottom)]">
             {mobileTabs.slice(0, 2).map((tab) => (
               <div key={tab.href + tab.label} className="flex-1"><TabButton tab={tab} active={isActive(tab.href)} /></div>
             ))}

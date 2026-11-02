@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
 import { CITIES, findCity, nearestCity } from "@/lib/cities";
 import { Button, Card, EmptyState, ErrorState, FlowNav, Skeleton, Badge } from "@/components/ui";
+import { DataTable, type TableRow } from "@/components/data/DataTable";
+import { SHOWCASE_JOBS, CATEGORIES, STATUS_LABEL } from "@/content/showcase";
+import { demoContractors, demoKpis } from "@/lib/demo-dash";
 
 interface Report {
   id: string;
@@ -114,8 +118,46 @@ export default function CityPage() {
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-bold">{strings.cityTitle}</h1>
-      <p className="text-slate2 text-sm">{strings.citySub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.cityTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-slate2">{strings.citySub}</p>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">{lang === "es" ? "Abiertos" : "Open"}</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums">{items?.length ?? demoKpis.openReports}</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">SLA</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums text-warning">{demoKpis.overdueSla}</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">{lang === "es" ? "Resolución media" : "Avg resolve"}</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums">{demoKpis.avgResolveH}h</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">{lang === "es" ? "Resueltos/mes" : "Resolved/mo"}</p>
+          <p className="font-display text-3xl font-extrabold tabular-nums">{demoKpis.resolvedMonth}</p>
+        </Card>
+      </div>
+
+      <h2 className="mb-2 mt-6 font-display text-xl font-bold">
+        {lang === "es" ? "Cola de triage (ejemplos demo)" : "Triage queue (demo examples)"}{" "}
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted">Demo</span>
+      </h2>
+      <DataTable
+        columns={[
+          { key: "title", header: lang === "es" ? "Reporte" : "Report" },
+          { key: "category", header: lang === "es" ? "Categoría" : "Category" },
+          { key: "status", header: "SLA", chip: true },
+        ]}
+        data={SHOWCASE_JOBS.filter((j) => j.scope === "municipal").slice(0, 8).map((j) => ({
+          title: j.title[lang],
+          category: CATEGORIES[j.category][lang],
+          status: STATUS_LABEL[j.status][lang],
+        })) as TableRow[]}
+        empty={strings.noReports}
+      />
+
       <div className="mt-3 flex gap-2">
         <select
           aria-label="city"
@@ -178,6 +220,26 @@ export default function CityPage() {
         </Card>
       ))}
       <FlowNav backHref="/" backLabel={strings.back} />
+
+      <h2 className="mb-2 mt-6 font-display text-xl font-bold">
+        {lang === "es" ? "Contratistas" : "Contractors"}{" "}
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted">Demo</span>
+      </h2>
+      <DataTable
+        columns={[
+          { key: "name", header: lang === "es" ? "Contratista" : "Contractor" },
+          { key: "jobs", header: lang === "es" ? "Trabajos" : "Jobs", numeric: true },
+          { key: "rating", header: "★", numeric: true },
+          { key: "slaPct", header: "SLA %", numeric: true },
+        ]}
+        data={demoContractors as unknown as TableRow[]}
+        empty={strings.noReports}
+      />
+      <p className="mt-3 text-sm">
+        <Link href="/#confianza" className="font-bold underline">
+          {lang === "es" ? "Ver reportes públicos" : "View public reports"}
+        </Link>
+      </p>
     </main>
   );
 }

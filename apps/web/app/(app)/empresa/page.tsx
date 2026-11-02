@@ -5,8 +5,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Avatar, Badge, Button, Card, EmptyState, ErrorState, Field, Input, Skeleton } from "@/components/ui";
+import { AreaTrend } from "@/components/charts";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { demoRevenue, demoTeam } from "@/lib/demo-dash";
 
 interface Company {
   id: string;
@@ -131,8 +133,8 @@ export default function EmpresaPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-extrabold">{strings.empresaTitle}</h1>
-      <p className="mb-3 text-sm text-muted">{strings.empresaSub}</p>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.empresaTitle}</h1>
+      <p className="mb-3 mt-1 max-w-[60ch] text-[15px] text-muted">{strings.empresaSub}</p>
       {error && <ErrorState message={error} />}
 
       {companies === null && <Skeleton className="h-24" />}
@@ -166,6 +168,21 @@ export default function EmpresaPage() {
 
       {active && (
         <>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <Card>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted">{strings.teamTitle}</p>
+              <p className="font-display text-3xl font-extrabold tabular-nums">{members.length}</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted">{strings.dispatchTitle}</p>
+              <p className="font-display text-3xl font-extrabold tabular-nums">{queue.length}</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted">{strings.revenueTitle}</p>
+              <p className="font-display text-3xl font-extrabold tabular-nums">${revenue ?? 0}</p>
+            </Card>
+          </div>
+
           <h2 className="mb-2 mt-4 font-display text-lg font-bold">{strings.teamTitle}</h2>
           {members.length === 0 && <EmptyState title={strings.teamTitle} hint={strings.teamEmpty} />}
           <div className="flex flex-wrap gap-2">
@@ -176,6 +193,20 @@ export default function EmpresaPage() {
               </span>
             ))}
           </div>
+          <Card className="mt-3">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-bold">{lang === "es" ? "Disponibilidad (equipo demo)" : "Availability (demo team)"}</h3>
+              <span className="rounded-full bg-bg px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted">Demo</span>
+            </div>
+            <ol className="mt-2 space-y-1.5">
+              {demoTeam.map((m) => (
+                <li key={m.name} className="flex items-center justify-between gap-2 text-sm">
+                  <span><strong>{m.name}</strong> · <span className="text-muted">{m.trade}</span></span>
+                  <Badge status={m.status === "free" ? `✓ ${m.availability}` : m.status === "on_job" ? `◷ ${m.availability}` : `○ ${m.availability}`} />
+                </li>
+              ))}
+            </ol>
+          </Card>
           <Link href="/empresa/equipo" className="mt-2 inline-block text-sm font-bold underline">{strings.addMember}</Link>
 
           <h2 className="mb-2 mt-5 font-display text-lg font-bold" id="dispatch">{strings.dispatchTitle}</h2>
@@ -208,8 +239,14 @@ export default function EmpresaPage() {
 
           {revenue !== null && (
             <Card>
-              <h2 className="font-bold">{strings.revenueTitle}</h2>
-              <div className="font-display text-3xl font-extrabold">${revenue}</div>
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-bold">{strings.revenueTitle}</h2>
+                <span className="rounded-full bg-bg px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted">Demo</span>
+              </div>
+              <div className="font-display text-3xl font-extrabold tabular-nums">${revenue}</div>
+              <div className="mt-2">
+                <AreaTrend values={demoRevenue.values} label={strings.revenueTitle} format={(n) => `$${n}`} />
+              </div>
             </Card>
           )}
         </>

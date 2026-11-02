@@ -4,6 +4,7 @@ import { featureLinks, roleHome, roleLabel, roleLinks } from "../components/site
 const LIVE = new Set([
   "/scan", "/pro", "/pro/calendar", "/pro/apply", "/passport", "/projects/new",
   "/city", "/admin", "/admin/pros", "/", "/login", "/funciones",
+  "/inicio", "/jobs", "/empresa", "/empresa/equipo", "/ajustes",
 ]);
 
 describe("U2 site nav config", () => {
@@ -28,9 +29,9 @@ describe("U2 site nav config", () => {
   });
 
   it("role homes route each role to a live page", () => {
-    expect(roleHome("customer")).toBe("/");
+    expect(roleHome("customer")).toBe("/inicio");
     expect(roleHome("pro")).toBe("/pro");
-    expect(roleHome("company")).toBe("/pro");
+    expect(roleHome("company")).toBe("/empresa");
     expect(roleHome("city_operator")).toBe("/city");
     expect(roleHome("admin")).toBe("/admin");
     for (const r of ["customer", "pro", "company", "city_operator", "admin"]) {

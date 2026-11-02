@@ -76,8 +76,9 @@ export function roleLabel(role: string, lang: Lang): string {
 /** Home route per role (user menu + bell). */
 export function roleHome(role: string): string {
   switch (role) {
+    case "customer": return "/inicio";
     case "pro": return "/pro";
-    case "company": return "/pro";
+    case "company": return "/empresa";
     case "city_operator": return "/city";
     case "admin": return "/admin";
     default: return "/";
@@ -122,6 +123,7 @@ export interface AppTab {
   label: string;
   icon: Icon;
   mobile: boolean;
+  section: string;
 }
 
 export interface RoleMenu {
@@ -129,61 +131,68 @@ export interface RoleMenu {
   center: { href: string; label: string; icon: Icon } | null;
 }
 
-/** U4 role menus. Only live routes — every href must resolve. */
+/** U4 role menus (V6: grouped sections). Only live routes — every href must resolve. */
 export function roleMenu(role: string, lang: Lang): RoleMenu {
   const es = lang === "es";
+  const main = es ? "Principal" : "Main";
+  const work = es ? "Trabajo" : "Work";
+  const plan = es ? "Plan" : "Plan";
+  const account = es ? "Cuenta" : "Account";
+  const manage = es ? "Gestión" : "Manage";
+  const muni = es ? "Municipalidad" : "Municipality";
+  const adminS = "Admin";
   switch (role) {
     case "pro":
       return {
         tabs: [
-          { href: "/pro", label: es ? "Hoy" : "Today", icon: SunHorizon, mobile: true },
-          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true },
-          { href: "/pro", label: es ? "Ganancias" : "Earnings", icon: CurrencyDollar, mobile: false },
-          { href: "/pro", label: es ? "Trabajos" : "Jobs", icon: Briefcase, mobile: true },
-          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false },
-          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+          { href: "/pro", label: es ? "Hoy" : "Today", icon: SunHorizon, mobile: true, section: main },
+          { href: "/pro", label: es ? "Trabajos" : "Jobs", icon: Briefcase, mobile: true, section: work },
+          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true, section: plan },
+          { href: "/pro", label: es ? "Ganancias" : "Earnings", icon: CurrencyDollar, mobile: false, section: plan },
+          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false, section: account },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false, section: account },
         ],
         center: { href: "/pro", label: es ? "Iniciar trabajo" : "Start job", icon: Play },
       };
     case "company":
       return {
         tabs: [
-          { href: "/empresa", label: es ? "Panel" : "Board", icon: GridFour, mobile: true },
-          { href: "/empresa/equipo", label: es ? "Equipo" : "Team", icon: Users, mobile: true },
-          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true },
-          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false },
-          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+          { href: "/empresa", label: es ? "Panel" : "Board", icon: GridFour, mobile: true, section: manage },
+          { href: "/empresa/equipo", label: es ? "Equipo" : "Team", icon: Users, mobile: true, section: manage },
+          { href: "/pro/calendar", label: es ? "Calendario" : "Calendar", icon: CalendarCheck, mobile: true, section: plan },
+          { href: "/scan", label: t(lang).featScan, icon: Scan, mobile: false, section: account },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false, section: account },
         ],
         center: { href: "/empresa", label: es ? "Asignar" : "Assign", icon: Plus },
       };
     case "city_operator":
       return {
         tabs: [
-          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true },
-          { href: "/city", label: es ? "Reportes" : "Reports", icon: ClipboardText, mobile: true },
-          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true, section: muni },
+          { href: "/city", label: es ? "Reportes" : "Reports", icon: ClipboardText, mobile: true, section: muni },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false, section: account },
         ],
         center: { href: "/city", label: es ? "Despachar" : "Dispatch", icon: PaperPlaneTilt },
       };
     case "admin":
       return {
         tabs: [
-          { href: "/admin/pros", label: es ? "Verificaciones" : "Reviews", icon: ShieldCheck, mobile: true },
-          { href: "/admin", label: "Demo reset", icon: ArrowCounterClockwise, mobile: true },
-          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true },
-          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+          { href: "/admin/pros", label: es ? "Verificaciones" : "Reviews", icon: ShieldCheck, mobile: true, section: adminS },
+          { href: "/admin", label: "Demo reset", icon: ArrowCounterClockwise, mobile: true, section: adminS },
+          { href: "/city", label: es ? "Tablero" : "Board", icon: Buildings, mobile: true, section: muni },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false, section: account },
         ],
         center: null,
       };
     default:
       return {
         tabs: [
-          { href: "/inicio", label: es ? "Inicio" : "Home", icon: House, mobile: true },
-          { href: "/jobs", label: es ? "Mis trabajos" : "My jobs", icon: ClipboardText, mobile: true },
-          { href: "/passport", label: t(lang).featPassport, icon: BookBookmark, mobile: true },
-          { href: "/projects/new", label: es ? "Proyectos" : "Projects", icon: MapTrifold, mobile: false },
-          { href: "/city", label: es ? "Ciudad" : "City", icon: Buildings, mobile: false },
-          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false },
+          { href: "/inicio", label: es ? "Inicio" : "Home", icon: House, mobile: true, section: main },
+          { href: "/jobs", label: es ? "Mis trabajos" : "My jobs", icon: ClipboardText, mobile: true, section: work },
+          { href: "/passport", label: t(lang).featPassport, icon: BookBookmark, mobile: true, section: work },
+          { href: "/projects/new", label: es ? "Proyectos" : "Projects", icon: MapTrifold, mobile: false, section: work },
+          { href: "/city", label: es ? "Ciudad" : "City", icon: Buildings, mobile: false, section: main },
+          { href: "/ajustes", label: es ? "Ajustes" : "Settings", icon: Gear, mobile: false, section: account },
         ],
         center: { href: "/scan", label: es ? "Escanear" : "Scan", icon: Scan },
       };

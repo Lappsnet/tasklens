@@ -4,8 +4,10 @@
 
 import { useEffect, useState } from "react";
 import { Avatar, Button, Card, EmptyState, ErrorState, Field, Input, Select } from "@/components/ui";
+import { DataTable, type TableRow } from "@/components/data/DataTable";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
+import { demoTeam } from "@/lib/demo-dash";
 
 interface Company {
   id: string;
@@ -85,7 +87,11 @@ export default function EquipoPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-extrabold">{strings.teamTitle}</h1>
+      <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.teamTitle}</h1>
+      <p className="mt-1 max-w-[60ch] text-[15px] text-muted">
+        {lang === "es" ? "Miembros reales arriba; debajo, un equipo de ejemplo para ver la tabla." : "Real members on top; an example team below to preview the table."}
+        {" "}<span className="font-mono text-xs font-bold uppercase tracking-widest">Demo</span>
+      </p>
       {companies.length > 1 && (
         <div className="mb-3 flex gap-2 overflow-x-auto">
           {companies.map((c) => (
@@ -116,6 +122,21 @@ export default function EquipoPage() {
           </Card>
         ))}
       </div>
+      <h2 className="mb-2 mt-6 font-display text-xl font-bold">
+        {lang === "es" ? "Tabla del equipo" : "Team table"}
+      </h2>
+      <DataTable
+        columns={[
+          { key: "name", header: lang === "es" ? "Nombre" : "Name" },
+          { key: "trade", header: lang === "es" ? "Oficio" : "Trade" },
+          { key: "rating", header: "★", numeric: true },
+          { key: "jobs", header: lang === "es" ? "Trabajos" : "Jobs", numeric: true },
+          { key: "status", header: lang === "es" ? "Estado" : "Status", chip: true },
+          { key: "availability", header: lang === "es" ? "Disponible" : "Available" },
+        ]}
+        data={demoTeam as unknown as TableRow[]}
+        empty={strings.teamEmpty}
+      />
       {active && (
         <Card>
           <h2 className="mb-2 font-bold">{strings.addMember}</h2>
