@@ -9,6 +9,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "e2e:screens": "next build && node ./scripts/e2e-screens.cjs",
+    "e2e:home": "node ./scripts/e2e-home.cjs",
+    "images": "node ./scripts/optimize-images.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
