@@ -6,32 +6,48 @@
 import { useState } from "react";
 import { Buildings } from "@phosphor-icons/react";
 import { Button, ErrorState, Field, Input } from "@/components/ui";
+import { CATEGORIES, SHOWCASE_JOBS } from "@/content/showcase";
 
-function DotMap() {
-  const dots: [number, number][] = [
-    [52, 30], [58, 34], [64, 32], [70, 36], [55, 42], [62, 44], [68, 48],
-    [48, 52], [56, 56], [64, 58], [72, 54], [60, 64], [66, 68], [52, 70],
-  ];
+/** Mini SLA chart from seeded demo data: open municipal reports by category. */
+function SlaBar({ lang }: { lang: "es" | "en" }) {
+  const rows = Object.entries(
+    SHOWCASE_JOBS.filter((j) => j.scope === "municipal" && j.status === "reported").reduce<Record<string, number>>((acc, j) => {
+      acc[j.category] = (acc[j.category] ?? 0) + 1;
+      return acc;
+    }, {}),
+  )
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const max = rows[0]?.[1] ?? 1;
   return (
-    <svg viewBox="0 0 120 100" className="h-44 w-full" role="img" aria-label="El Salvador departments, illustrative">
-      {dots.map(([x, y], i) => (
-        <g key={i}>
-          <circle cx={x} cy={y} r={3.4} fill="rgba(91,155,230,0.25)" />
-          <circle cx={x} cy={y} r={1.7} fill="#5B9BE6">
-            <animate attributeName="opacity" values="1;0.35;1" dur={`${2 + (i % 4) * 0.7}s`} repeatCount="indefinite" />
-          </circle>
-        </g>
-      ))}
-    </svg>
+    <div role="img" aria-label={lang === "es" ? "Reportes abiertos por categoría, datos de demostración" : "Open reports by category, demo data"}>
+      <ol className="mt-4 space-y-2.5">
+        {rows.map(([cat, n]) => (
+          <li key={cat}>
+            <div className="flex items-baseline justify-between gap-3 text-xs">
+              <span className="font-semibold text-white/85">{CATEGORIES[cat as keyof typeof CATEGORIES][lang]}</span>
+              <span className="font-mono tabular-nums text-white/60">{n}</span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-[var(--signal)]" style={{ width: `${(n / max) * 100}%` }} />
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-white/40">
+        {lang === "es" ? "Datos de demostración" : "Demo data"}
+      </p>
+    </div>
   );
 }
 
-export default function CitySection({ t }: {
+export default function CitySection({ t, lang = "es" }: {
   t: {
     citiesT: string; citiesSub: string; citiesFlow: string[];
     accessCta: string; accessTitle: string; accessSent: string;
     muniPh: string; namePh: string; rolePh: string; emailLabel: string; sendLink: string;
   };
+  lang?: "es" | "en";
 }) {
   const [muni, setMuni] = useState("");
   const [name, setName] = useState("");
@@ -87,7 +103,23 @@ export default function CitySection({ t }: {
               </li>
             ))}
           </ol>
-          <DotMap />
+          <SlaBar lang={lang} />
+          <ul className="mt-4 grid grid-cols-3 gap-2" aria-label={t.citiesT}>
+            {SHOWCASE_JOBS.filter((j) => j.scope === "municipal" && j.status === "reported").slice(0, 3).map((j) => (
+              <li key={j.id} className="overflow-hidden rounded-card border border-white/10 bg-white/[0.04]">
+                <img
+                  src={j.image.src}
+                  width={j.image.width}
+                  height={j.image.height}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="aspect-square w-full object-cover"
+                />
+                <p className="px-2 py-1.5 text-[11px] font-semibold leading-tight text-white/80">{j.title[lang]}</p>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="rounded-card bg-white/[0.04] p-5 backdrop-blur">
           {sent ? (

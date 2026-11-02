@@ -8,8 +8,8 @@ import { CaretDown } from "@phosphor-icons/react";
 export default function FaqList({ title, faqs }: { title: string; faqs: { q: string; a: string }[] }) {
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold lg:text-3xl">{title}</h2>
-      <DisclosureGroup className="mt-3 space-y-2" allowsMultipleExpanded>
+      {title ? <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2> : null}
+      <DisclosureGroup className="mt-8 space-y-3" allowsMultipleExpanded>
         {faqs.map((f) => (
           <Disclosure key={f.q} className="group overflow-hidden rounded-card border border-line bg-surface">
             <Heading>

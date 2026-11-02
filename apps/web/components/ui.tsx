@@ -287,7 +287,7 @@ export function Tabs({ children, ...rest }: RACTabsProps) {
 }
 
 export function TabList({ className, ...rest }: RACTabListProps<object> & { className?: string }) {
-  return <RACTabList {...rest} className={cn("flex gap-1 border-b border-line", className)} />;
+  return <RACTabList {...rest} className={cn("flex flex-wrap gap-1 border-b border-line", className)} />;
 }
 
 export function Tab(props: RACTabProps) {

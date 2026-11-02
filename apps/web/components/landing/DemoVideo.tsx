@@ -8,18 +8,19 @@ import { Play } from "@phosphor-icons/react";
 import type { DemoVideoConfig } from "@/content/landing.es";
 import { Viewfinder } from "@/components/blueprint";
 
-export default function DemoVideo({ title, soon, soonBody, config }: {
+export default function DemoVideo({ title, soon, soonBody, config, dark }: {
   title: string;
   soon: string;
   soonBody: string;
   config: DemoVideoConfig;
+  dark?: boolean;
 }) {
   const [playing, setPlaying] = useState(false);
   const hasVideo = config.provider === "youtube" || config.provider === "file";
 
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold lg:text-3xl">{title}</h2>
+      <h2 className={`font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05] ${dark ? "text-white" : ""}`}>{title}</h2>
       <Viewfinder className="mt-4 border border-line bg-ink" animate={false}>
         <div className="relative aspect-video">
           {!hasVideo && (

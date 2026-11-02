@@ -36,6 +36,86 @@ const STATUS_STYLE: Record<ShowcaseStatus, string> = {
 const STATUSES: ShowcaseStatus[] = ["reported", "in_progress", "done"];
 const PAGE = 12;
 
+/** Featured "done" job with a keyboard-accessible before/after slider.
+    The "before" is the reported photo sharing the done job's pairId. */
+function FeaturedDone({ lang }: { lang: Lang }) {
+  const [pos, setPos] = useState(50);
+  const done = useMemo(() => SHOWCASE_JOBS.find((j) => j.status === "done"), []);
+  const before = useMemo(
+    () => (done?.pairId ? SHOWCASE_JOBS.find((j) => j.pairId === done.pairId && j.status === "reported") : undefined),
+    [done],
+  );
+  const c = SHOWCASE_COPY[lang];
+  if (!done) return null;
+  return (
+    <figure className="mt-8 overflow-hidden rounded-[20px] border border-line bg-surface">
+      <div className="grid gap-0 lg:grid-cols-2">
+        <div className="relative aspect-[4/3] select-none overflow-hidden bg-bg">
+          {before ? (
+            <>
+              <img
+                src={done.image.src}
+                width={done.image.width}
+                height={done.image.height}
+                alt={done.title[lang]}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+                <img
+                  src={before.image.src}
+                  width={before.image.width}
+                  height={before.image.height}
+                  alt={before.title[lang]}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </div>
+              <div className="absolute inset-y-0 border-l-2 border-white shadow-[0_0_12px_rgba(0,0,0,0.6)]" style={{ left: `${pos}%` }} aria-hidden="true">
+                <span className="absolute top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white font-bold text-ink shadow-lifted">↔</span>
+              </div>
+              <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white">{STATUS_LABEL.reported[lang]}</span>
+              <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--verified)] px-3 py-1 text-xs font-bold text-white">
+                <CheckCircle weight="fill" aria-hidden="true" />
+                {STATUS_LABEL.done[lang]}
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={pos}
+                onChange={(e) => setPos(Number(e.target.value))}
+                className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+                aria-label={`${before.title[lang]} / ${done.title[lang]}`}
+              />
+            </>
+          ) : (
+            <img
+              src={done.image.src}
+              width={done.image.width}
+              height={done.image.height}
+              alt={done.title[lang]}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+        </div>
+        <figcaption className="flex flex-col justify-center p-6 lg:p-8">
+          <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[var(--verified)]/10 px-3 py-1 text-xs font-bold text-[var(--verified)]">
+            <CheckCircle weight="fill" aria-hidden="true" />
+            {c.demoLabel} · {STATUS_LABEL.done[lang]}
+          </p>
+          <p className="mt-3 font-display text-2xl font-extrabold leading-tight lg:text-3xl">{done.title[lang]}</p>
+          <p className="mt-2 text-[15px] leading-relaxed text-muted">{c.lead}</p>
+        </figcaption>
+      </div>
+    </figure>
+  );
+}
+
 export default function LiveJobs({ lang }: { lang: Lang }) {
   const c = SHOWCASE_COPY[lang];
   const [scope, setScope] = useState<ShowcaseScope | "all">("all");
@@ -111,11 +191,14 @@ export default function LiveJobs({ lang }: { lang: Lang }) {
       {list.length === 0 ? (
         <p className="mt-10 rounded-card border border-dashed border-line p-10 text-center text-muted">{c.empty}</p>
       ) : (
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <>
+          {status === "all" && scope === "all" && <FeaturedDone lang={lang} />}
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {list.slice(0, shown).map((j) => (
             <JobCard key={j.id} job={j} lang={lang} />
           ))}
         </ul>
+        </>
       )}
 
       {shown < list.length && (

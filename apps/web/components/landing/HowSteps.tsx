@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { Eyeglasses, Microphone, PenNib, ShieldCheck } from "@phosphor-icons/react";
+import { SHOWCASE_JOBS } from "@/content/showcase";
 import { reducedMotion, registerGsap } from "./motion";
 
 const ICONS: Record<string, typeof Eyeglasses> = {
@@ -14,6 +15,18 @@ const ICONS: Record<string, typeof Eyeglasses> = {
   sign: PenNib,
   check: ShieldCheck,
 };
+
+/** One real photo per step: look (reported), speak (work in progress),
+    sign (a finished job on paper), verify (a verified done job). */
+function stepPhoto(i: number) {
+  const clean = SHOWCASE_JOBS.filter((j) => !j.flags.includes("faces"));
+  const reported = clean.find((j) => j.status === "reported") ?? SHOWCASE_JOBS[0];
+  const progress = clean.find((j) => j.status === "in_progress") ?? SHOWCASE_JOBS[0];
+  const dones = SHOWCASE_JOBS.filter((j) => j.status === "done");
+  const done = dones[0] ?? SHOWCASE_JOBS[0];
+  const done2 = dones[1] ?? done;
+  return [reported, progress, done, done2][Math.min(i, 3)];
+}
 
 export default function HowSteps({ steps, scanHref, tryNow }: { steps: { icon: string; label: string; text: string }[]; scanHref: string; tryNow: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -44,13 +57,30 @@ export default function HowSteps({ steps, scanHref, tryNow }: { steps: { icon: s
 
   return (
     <div ref={pinRef} className="lg:overflow-hidden">
-      <div ref={trackRef} className="grid gap-3 sm:grid-cols-2 lg:flex lg:w-max lg:gap-6">
+      <div ref={trackRef} className="relative grid gap-3 sm:grid-cols-2 lg:flex lg:w-max lg:gap-6">
+        <div aria-hidden="true" className="absolute left-0 right-8 top-5 hidden h-px bg-line lg:block" />
         {steps.map((s, i) => {
           const Ico = ICONS[s.icon] ?? ShieldCheck;
+          const photo = stepPhoto(i);
           return (
-            <article key={s.label} className="rounded-card border border-line bg-surface p-5 shadow-soft lg:w-[380px] lg:shrink-0">
+            <article key={s.label} className="relative rounded-card border border-line bg-surface p-5 shadow-soft lg:w-[380px] lg:shrink-0">
+              <div className="relative -m-5 mb-4 aspect-[16/10] overflow-hidden rounded-t-card bg-bg">
+                <picture>
+                  <source srcSet={photo.image.avif} type="image/avif" />
+                  <img
+                    src={photo.image.src}
+                    width={photo.image.width}
+                    height={photo.image.height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                    style={{ backgroundImage: `url(${photo.image.blur})`, backgroundSize: "cover" }}
+                  />
+                </picture>
+              </div>
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink font-mono text-sm font-bold text-bg">
+                <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-ink font-mono text-sm font-bold text-bg">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <Ico size={28} weight="duotone" className="text-signal" aria-hidden="true" />

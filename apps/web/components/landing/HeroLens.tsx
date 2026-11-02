@@ -125,6 +125,14 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
               {t.demo}
             </Link>
           </div>
+          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2" aria-label={t.trustRow.join(" · ")}>
+            {t.trustRow.map((s) => (
+              <li key={s} className="flex items-center gap-1.5 text-sm font-semibold text-white/80">
+                <span className="text-[var(--verified)]" aria-hidden="true">✓</span>
+                {s}
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="relative">
           <div
@@ -149,9 +157,9 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
               />
               <div aria-hidden="true" className="absolute left-[56%] top-[58%] h-[30%] w-[26%] rounded-[45%] border-2 border-[var(--signal)] bg-[rgba(255,122,46,0.25)] shadow-[0_0_24px_rgba(255,122,46,0.6)]" />
             </div>
-            <Callout text={t.lensFinding} side="left" className="right-[34%] top-[70%]" />
+            <Callout text={t.lensFinding} side="left" className="right-[26%] top-[58%]" />
             <Callout text={t.lensMapLabel} className="left-[44%] top-[24%]" />
-            <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-2 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10" aria-hidden="true">
+            <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-2 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 sm:pl-60 lg:pl-64" aria-hidden="true">
               <span className="rounded-md bg-[#C2410C] px-2 py-1 font-mono text-xs font-semibold text-white">{t.lensRisk}</span>
               <span className="rounded-md bg-white/15 px-2 py-1 font-mono text-xs font-semibold text-white">{t.lensTime}</span>
             </div>

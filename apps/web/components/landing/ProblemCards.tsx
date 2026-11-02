@@ -2,9 +2,7 @@
 
 /* U5 problem cards: tilt toward the cursor + SVG blueprint line illustrations. */
 
-import { useRef } from "react";
 import { Hourglass, Question, Warning } from "@phosphor-icons/react";
-import { reducedMotion } from "./motion";
 
 function WaitingArt() {
   return (
@@ -53,35 +51,23 @@ export default function ProblemCards({ items }: { items: { icon: string; title: 
   const arts = [<WaitingArt key="w" />, <GuessArt key="g" />, <RiskArt key="r" />];
   const icons = [<Hourglass key="i" size={22} weight="duotone" />, <Question key="i" size={22} weight="duotone" />, <Warning key="i" size={22} weight="duotone" />];
 
-  function tilt(e: React.MouseEvent<HTMLElement>) {
-    if (reducedMotion() || window.matchMedia("(pointer: coarse)").matches) return;
-    const el = e.currentTarget;
-    const r = el.getBoundingClientRect();
-    const rx = ((e.clientY - r.top) / r.height - 0.5) * -6;
-    const ry = ((e.clientX - r.left) / r.width - 0.5) * 6;
-    el.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
-  }
-  function untilt(e: React.MouseEvent<HTMLElement>) {
-    e.currentTarget.style.transform = "";
-  }
-
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <ol className="divide-y divide-line border-y border-line">
       {items.map((it, i) => (
-        <article
-          key={it.title}
-          onMouseMove={tilt}
-          onMouseLeave={untilt}
-          className="rounded-card border border-line bg-surface p-4 shadow-soft transition-shadow duration-200 hover:shadow-lifted"
-        >
-          {arts[i]}
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-signal" aria-hidden="true">{icons[i]}</span>
-            <h3 className="font-display text-lg font-bold">{it.title}</h3>
+        <li key={it.title} className="grid gap-4 py-7 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-8">
+          <span className="font-mono text-sm font-semibold text-muted" aria-hidden="true">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <div className="max-w-[44rem]">
+            <h3 className="flex items-center gap-2 font-display text-2xl font-bold">
+              <span className="text-signal" aria-hidden="true">{icons[i]}</span>
+              {it.title}
+            </h3>
+            <p className="mt-2 text-lg leading-relaxed text-muted">{it.text}</p>
           </div>
-          <p className="mt-1 text-sm text-muted">{it.text}</p>
-        </article>
+          <div className="hidden w-48 shrink-0 sm:block" aria-hidden="true">{arts[i]}</div>
+        </li>
       ))}
-    </div>
+    </ol>
   );
 }

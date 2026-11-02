@@ -9,9 +9,9 @@ describe("U5 landing content", () => {
     expect(Object.keys(es).sort()).toEqual(Object.keys(en).sort());
     expect(es.chapters.map((c) => c.slug)).toEqual(en.chapters.map((c) => c.slug));
     expect(es.chapters.length).toBeGreaterThanOrEqual(11);
-    expect(es.faqs.length).toBe(8);
-    expect(en.faqs.length).toBe(8);
-    expect(es.tabs.length).toBe(3);
+    expect(es.faqs.length).toBe(10);
+    expect(en.faqs.length).toBe(10);
+    expect(es.tabs.length).toBe(4);
   });
 
   it("feature chapters are concrete (3 steps, tech + who chips)", () => {

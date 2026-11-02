@@ -102,6 +102,25 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   block deleted, btn-* effects renamed fx-*). Restored+fixed the stashed U7 WIP
   (fixed Button title/role/href + Input onChange type errors; byte-identical
   restore, LF endings). Typecheck 3/3, web 92/92, build green.
+- V0 DONE (Nov 1): Container 1240 rhythm + Section bands; server-safe cn.ts
+  (fixed client-cn-in-server 500); FAQ group expand; Field tone=dark; all
+  hardcoded ES moved to content + v0-english test; marquee mask; placeholders
+  removed. Typecheck + 93/93 green. ui-v3 home 375/1440 light+dark ok.
+- V2 DONE BY OWNER (Nov 1, committed as-is 2b7879b): 84 originals in
+  public/images/jobs/, WebP+AVIF in public/images/showcase/, content/showcase.ts
+  (68 jobs + 3 glasses images + 13 excluded with reasons), docs/showcase-photos.md,
+  LiveJobs section (demo label), real-photo hero + glasses card, lensRisk/
+  glassesCaption keys. Typecheck + 93/93 + e2e-home green; no fixes needed.
+  Never use the 13 excluded (esp. #40).
+- V3 DONE (Nov 1): landing section by section — hero trust row; LiveJobs featured
+  done card w/ keyboard before/after slider (pairId); problema split rows;
+  carrera dark-band timeline w/ Day/Minute axes; cómo-funciona real step photos;
+  theater real app screenshots (public/images/screens/, inactive ≥55%);
+  role tabs w/ dashboard screenshots (+4th alcaldías tab); CitySection SlaBar +
+  municipal mini-grid (DotMap removed); confianza escrow diagram; Meta cards real
+  micro-demos (ai_spec JSON, SAM photo mask, glasses POV; Muse Image omitted);
+  FAQ 10/10 ES+EN; bands paper/white/ink-night + 28/40 type; final CTA dark.
+  ui-v3 home 375/1440 light+dark ES+EN all ok, no h-scroll (fixed TabList wrap).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

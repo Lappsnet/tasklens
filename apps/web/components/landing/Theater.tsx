@@ -18,7 +18,15 @@ function MockScreen({ chapter, active }: { chapter: FeatureChapter; active: bool
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{chapter.name}</div>
       <div className="mt-1 font-display text-base font-extrabold leading-tight">{chapter.name}</div>
       <div className="mt-0.5 text-[11px] text-muted">{chapter.promise}</div>
-      {/* V0: no placeholder phone frame until V3 real screenshots land. */}
+      <div className="relative mt-2 aspect-[4/3] overflow-hidden rounded border border-line bg-bg">
+        <img
+          src={`/images/screens/theater-${chapter.slug}.png`}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover object-top"
+        />
+      </div>
       <ul className="mt-2 space-y-1">
         {chapter.how.map((h) => (
           <li key={h} className="flex gap-1.5 text-[11px]">
@@ -49,7 +57,7 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
     const ctx = gsap.context(() => {
       const items = gsap.utils.toArray<HTMLElement>("[data-chapter]");
       items.forEach((el, i) => {
-        gsap.fromTo(el, { opacity: 0.35 }, {
+        gsap.fromTo(el, { opacity: 0.55 }, {
           opacity: 1,
           ease: "none",
           scrollTrigger: {
@@ -70,8 +78,8 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
   return (
     <div>
       <Reveal>
-        <h2 className="font-display text-2xl font-bold lg:text-3xl">{title}</h2>
-        <p className="mt-1 text-sm text-muted">{sub}</p>
+        <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2>
+        <p className="mt-3 max-w-[60ch] text-lg leading-relaxed text-muted">{sub}</p>
       </Reveal>
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div ref={listRef} className="space-y-8">

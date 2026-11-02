@@ -40,23 +40,42 @@ async function main() {
     const browser = await chromium.launch();
     for (const w of [375, 1440]) {
       for (const theme of ["light", "dark"]) {
-        const page = await browser.newPage({ viewport: { width: w, height: 900 } });
-        const errors = [];
-        page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
-        page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
-        await page.goto(BASE + "/", { waitUntil: "commit", timeout: 180000 });
-        await page.waitForLoadState("domcontentloaded", { timeout: 180000 }).catch(() => {});
-        await page.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
-        await page.waitForTimeout(4000);
-        const h1 = await page.$eval("h1", (el) => {
-          const c = getComputedStyle(el).color;
-          const b = getComputedStyle(document.body).backgroundColor;
-          return { c, b };
-        }).catch(() => null);
-        if (h1 && h1.c === h1.b) errors.push("h1 same colour as background");
-        await page.screenshot({ path: path.join(OUT, `home-${w}-${theme}.png`) });
-        console.log(errors.length ? `FAIL home-${w}-${theme} - ${errors.join(" | ")}` : `ok home-${w}-${theme}`);
-        await page.close();
+        for (const lang of ["es", "en"]) {
+          const tag = `home-${w}-${theme}${lang === "en" ? "-en" : ""}`;
+          const page = await browser.newPage({ viewport: { width: w, height: 900 } });
+          const errors = [];
+          page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
+          page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
+          await page.context().addCookies([{ name: "tasklens:lang", value: lang, url: BASE }]);
+          await page.goto(BASE + "/", { waitUntil: "commit", timeout: 180000 });
+          await page.waitForLoadState("domcontentloaded", { timeout: 180000 }).catch(() => {});
+          await page.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
+          await page.waitForTimeout(4000);
+          const h1 = await page.$eval("h1", (el) => {
+            const c = getComputedStyle(el).color;
+            const b = getComputedStyle(document.body).backgroundColor;
+            return { c, b };
+          }).catch(() => null);
+          if (h1 && h1.c === h1.b) errors.push("h1 same colour as background");
+          const probe = await page.evaluate(() => {
+            const main = document.querySelector("main");
+            const kids = main ? Array.from(main.children) : [];
+            const base = document.documentElement.scrollWidth;
+            const out = [];
+            for (let i = 0; i < kids.length; i++) {
+              const el = kids[i];
+              el.style.display = "none";
+              const w = document.documentElement.scrollWidth;
+              if (w < base) out.push("section[" + i + "]: " + base + "->" + w);
+              el.style.display = "";
+            }
+            return { base, inner: window.innerWidth, out };
+          });
+          if (probe.base > probe.inner + 1) errors.push("h-scroll w=" + probe.base + ": " + (probe.out.join(" | ") || "no single section"));
+          await page.screenshot({ path: path.join(OUT, `${tag}.png`) });
+          console.log(errors.length ? `FAIL ${tag} - ${errors.join(" | ")}` : `ok ${tag}`);
+          await page.close();
+        }
       }
     }
     await browser.close();

@@ -37,11 +37,14 @@ export interface LandingContent {
   lensMapLabel: string;
   lensRisk: string;
   glassesCaption: string;
+  trustRow: [string, string, string];
   tryNow: string;
   raceToday: string;
   raceDay: string;
   raceLens: string;
   raceSeal: string;
+  todayAxis: [string, string];
+  lensAxis: [string, string];
   p1t: string;
   p1aT: string; p1a: string;
   p1bT: string; p1b: string;
@@ -71,8 +74,11 @@ export interface LandingContent {
   rolePh: string;
   trustT: string;
   trust: { icon: string; title: string; text: string }[];
+  escrowTitle: string;
+  escrowSteps: [string, string, string, string];
   metaT: string;
   meta: { title: string; text: string; micro: string }[];
+  voiceSample: string;
   faqT: string;
   faqs: { q: string; a: string }[];
   ctaT: string;
@@ -120,11 +126,14 @@ export const landingEs: LandingContent = {
   lensMapLabel: "Cableado quemado",
   lensRisk: "Riesgo eléctrico: cortar la energía",
   glassesCaption: "Míralo con tus lentes Meta o con tu celular",
+  trustRow: ["Pago protegido", "Profesionales verificados", "Contrato firmado"],
   tryNow: "Probar ahora",
   raceToday: "Hoy",
   raceDay: "día",
   raceLens: "minutos, no semanas",
   raceSeal: "Verificado",
+  todayAxis: ["Día 1", "Día 14"],
+  lensAxis: ["Minuto 1", "Hora 1"],
   p1t: "El problema hoy",
   p1aT: "Esperar", p1a: "Las solicitudes pasan por una oficina central o una sola empresa, y la visita tarda días o semanas.",
   p1bT: "Adivinar", p1b: "No sabes cuánto costará hasta que alguien venga a ver.",
@@ -144,13 +153,14 @@ export const landingEs: LandingContent = {
   featuresSub: "Desliza por cada capítulo; el teléfono muestra la pantalla real.",
   chapters: chaptersEs,
   demoT: "Míralo en 2 minutos",
-  demoSoon: "Demo disponible pronto",
+  demoSoon: "Demo disponible el 3 de noviembre",
   demoSoonBody: "Estamos grabando el video con trabajos reales. Mientras tanto, prueba un escaneo en vivo.",
   tabsT: "Para cada lado del trabajo",
   tabs: [
     { id: "clientes", label: "Clientes", points: ["Cotización en segundos, sin visitas para saber el precio", "Pago retenido hasta verificación aprobada", "Pasaporte del hogar con garantías y recordatorios", "Pide ayuda a un familiar en el extranjero"] },
     { id: "profesionales", label: "Profesionales", points: ["Trabajos sin intermediarios, alcance claro con fotos", "Ruta del día y calendario inteligente", "Copiloto en lentes que responde en el sitio", "Pago garantizado y reputación que crece"] },
     { id: "empresas", label: "Empresas", points: ["Panel con tu equipo y su disponibilidad", "Despacha trabajos a un miembro en un toque", "Calendario del equipo y trabajos por estado", "Ingresos por trabajo capturado"] },
+    { id: "alcaldias", label: "Alcaldías", points: ["Reportes vecinales con foto y ubicación", "Triage y priorización con IA", "Despacho a contratistas verificados", "Cierre con foto verificada y pública"] },
   ],
   citiesT: "TaskLens para Alcaldías",
   citiesSub: "Los reportes se amontonan en una oficina central. TaskLens le da triage, despacho y prueba pública.",
@@ -169,6 +179,8 @@ export const landingEs: LandingContent = {
     { icon: "badge", title: "Profesionales verificados", text: "ID revisada a mano; calificaciones de trabajos reales." },
     { icon: "warn", title: "Alertas de seguridad", text: "Gas, electricidad y estructura derivan a profesional licenciado." },
   ],
+  escrowTitle: "Cómo funciona el pago protegido",
+  escrowSteps: ["Pago retenido al reservar", "Trabajo realizado", "Verificación IA del antes/después", "Pago liberado al profesional"],
   metaT: "Hecho con IA de Meta",
   meta: [
     { title: "Muse Spark", text: "Lee fotos y voz, redacta cotizaciones y contratos.", micro: "scan" },
@@ -177,6 +189,7 @@ export const landingEs: LandingContent = {
     { title: "SAM 3.1", text: "Resalta el daño en la foto.", micro: "mask" },
     { title: "Lentes Ray-Ban Meta", text: "Mira el problema y habla manos libres.", micro: "glasses" },
   ],
+  voiceSample: "se quemó el enchufe de la cocina…",
   faqT: "Preguntas frecuentes",
   faqs: [
     { q: "¿El precio es exacto?", a: "Es un rango conservador calculado por IA; el profesional confirma el alcance antes de firmar el contrato." },
@@ -187,6 +200,8 @@ export const landingEs: LandingContent = {
     { q: "¿Necesito lentes Meta?", a: "No. Todo funciona con la cámara de tu celular; los lentes lo hacen manos libres." },
     { q: "¿Y si el daño vuelve?", a: "Dentro del período de garantía, escanea el mismo punto y se abre un reclamo con el profesional original." },
     { q: "¿Mi dirección es pública?", a: "No. Los reportes públicos se recortan a la calle y los enlaces de pago nunca muestran dirección ni teléfono." },
+    { q: "¿Cómo participa mi alcaldía?", a: "Su equipo reporta con foto, la IA clasifica y prioriza por severidad, un operador despacha al contratista y el cierre queda con foto verificada visible para todos." },
+    { q: "¿Puedo cancelar o reprogramar?", a: "Sí, desde tu lista de trabajos. Si ya hay un pago retenido, se libera o se reautoriza según el estado; ambas partes confirman los cambios de fecha." },
   ],
   ctaT: "Mira el problema. Resuélvelo hoy.",
   prosT: "Para profesionales",
