@@ -143,8 +143,10 @@ export default function ConnectGlassesPage() {
       {authed && pairing && (
         <Card className="border-signal text-center shadow-lifted" aria-label={strings.gPair}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {pairing.qrDataUrl && <img src={pairing.qrDataUrl} alt={pairing.code} className="mx-auto rounded-btn" width={220} height={220} />}
-          <div className="mt-2 font-mono text-4xl font-bold tracking-[0.3em]">{pairing.code}</div>
+          {pairing.qrDataUrl && <img src={pairing.qrDataUrl} alt={pairing.code} className="mx-auto h-[200px] w-[200px] rounded-btn border border-line bg-white p-2" />}
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <div className="font-mono text-5xl font-bold tracking-[0.2em]" role="img" aria-label={`${strings.gPair}: ${pairing.code}`}>{pairing.code}</div>
+          </div>
           <p className="mt-1 text-xs text-muted">{strings.gCodeValid}</p>
           <div className="mt-2 flex justify-center gap-2">
             <Button variant="secondary" onPress={copy}>{copied ? `✓ ${strings.shareCopied}` : strings.copyCode}</Button>
@@ -152,14 +154,29 @@ export default function ConnectGlassesPage() {
               {lang === "es" ? "Abrir app compañera" : "Open companion app"}
             </a>
           </div>
-          <ol className="mt-4 space-y-2 text-left">
-            {steps.map((s) => (
-              <li key={s.key} className={s.active ? "font-bold" : s.done ? "text-muted" : "text-muted"}>
-                {s.done ? <Check className="mr-1 inline text-verified" aria-hidden="true" /> : s.active ? "… " : "○ "}
-                {s.label}
+          <ol className="mt-5 space-y-0 text-left">
+            {steps.map((s, i) => (
+              <li key={s.key} className="relative flex gap-3 pb-5 last:pb-0">
+                {i < steps.length - 1 && (
+                  <span className={`absolute left-[13px] top-7 h-[calc(100%-1.25rem)] w-0.5 transition-colors duration-500 ${s.done ? "bg-[var(--verified)]" : "bg-line"}`} aria-hidden="true" />
+                )}
+                <span
+                  className={`z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold transition-all duration-500 ${s.done ? "bg-[var(--verified)] text-white" : s.active ? "bg-signal text-[var(--signal-ink)] shadow-[0_0_0_4px_var(--signal-soft,rgba(242,106,27,0.2))]" : "bg-ink/10 text-muted"}`}
+                  aria-hidden="true"
+                >
+                  {s.done ? <Check size={14} weight="bold" /> : s.active ? <span className="pulse-dot h-2 w-2 rounded-full bg-current" /> : i + 1}
+                </span>
+                <span className={`pt-1 text-sm transition-colors duration-300 ${s.active ? "font-bold text-ink" : s.done ? "text-muted" : "text-muted"}`}>
+                  {s.label}
+                </span>
               </li>
             ))}
           </ol>
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            {lang === "es"
+              ? "Abre TaskLens en tu Android, apunta con la cámara al código o tócalo para conectar. El código vence en 10 minutos y es de un solo uso."
+              : "Open TaskLens on your Android, point the camera at the code or tap it to connect. The code expires in 10 minutes and is single-use."}
+          </p>
         </Card>
       )}
 

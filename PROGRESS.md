@@ -157,6 +157,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   on clean server (earlier 500s were Turbopack dev manifest rot after .next was
   deleted mid-run + stale servers; kill stray :3101 PIDs, never delete .next
   under a running server).
+- V5 DONE (Nov 2): auth split screen (form ≤480px + real-photo Lens panel with
+  mask/callouts/one-line quote); step indicator 1-3 with states; role cards
+  min-120px, tinted icon squares, radio semantics, orange border + check,
+  select-then-Continue; method cards with illustrations (CSS phone mock, real
+  glasses POV + "Fix this"); /connect-glasses 48px mono code + copy, 200px QR,
+  animated live stepper with connector line + plain-language help. V9:
+  typecheck + build + 96/96; e2e-home 12/12 (login/signup/connect-glasses
+  375+1440 light+dark).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).

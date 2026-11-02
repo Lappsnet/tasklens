@@ -6,9 +6,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bank, Buildings, DeviceMobile, Eyeglasses, House, Wrench, EnvelopeSimple } from "@phosphor-icons/react";
+import { Bank, Buildings, Check, House, Wrench, EnvelopeSimple } from "@phosphor-icons/react";
 import { Button, ErrorState, Field, Input, Select, Sheet } from "@/components/ui";
 import { useCountUp } from "@/components/ui";
+import { BRAND_IMAGES } from "@/content/showcase";
 import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
 import { CITIES } from "@/lib/cities";
 import { t, type Lang } from "@/lib/i18n";
@@ -59,6 +60,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
   const params = useSearchParams();
   const [lang, setLang] = useState<Lang>("es");
   const [role, setRole] = useState<RoleKey | null>(null);
+  const [roleOk, setRoleOk] = useState(false);
   const [method, setMethod] = useState<"phone" | "glasses" | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -74,6 +76,10 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
   const [opCity, setOpCity] = useState("san-salvador");
   const strings = t(lang);
   const cd = useCountUp(cooldown, 1000);
+  const glassesThumb = BRAND_IMAGES.find((b) => b.id === "lentes-meta-display-detalle") ?? BRAND_IMAGES[0];
+  const doneStep = saved || hasSession;
+  const step = doneStep ? 3 : !roleOk ? 1 : 2;
+  const stepLabels = [strings.whoTitle, strings.howTitle, strings.profileTitle];
 
   useEffect(() => {
     const savedLang = initialLang() ?? window.localStorage.getItem("tasklens:lang");
@@ -201,6 +207,26 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <div>
+      {/* V5 step indicator */}
+      <ol className="mb-6 flex items-center gap-1.5" aria-label={`${strings.whoTitle} / ${strings.howTitle} / ${strings.profileTitle}`}>
+        {stepLabels.map((label, i) => {
+          const n = i + 1;
+          const done = n < step;
+          const active = n === step;
+          return (
+            <li key={label} className="flex flex-1 items-center gap-1.5 last:flex-none">
+              <span
+                aria-current={active ? "step" : undefined}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold transition-colors duration-200 ${done ? "bg-[var(--verified)] text-white" : active ? "bg-ink text-bg" : "bg-ink/10 text-muted"}`}
+              >
+                {done ? "✓" : n}
+              </span>
+              <span className={`hidden text-xs font-semibold sm:block ${active ? "text-ink" : "text-muted"}`}>{label}</span>
+              {n < 3 && <span className={`h-px flex-1 ${done ? "bg-[var(--verified)]" : "bg-line"}`} aria-hidden="true" />}
+            </li>
+          );
+        })}
+      </ol>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl font-extrabold">{mode === "login" ? strings.loginTitle : strings.signUp}</h1>
         <div className="flex gap-1" role="group" aria-label={strings.langLabel}>
@@ -214,55 +240,94 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       <p className="mb-4 text-sm text-muted">{mode === "login" ? strings.loginSub : strings.whoSub}</p>
       {error && <ErrorState message={error} />}
 
-      {/* Step 1 — role */}
-      {!role && (
+      {/* Step 1 — role: large cards, tinted icon squares, orange selected state */}
+      {!roleOk && (
         <section aria-label={strings.whoTitle}>
           <h2 className="mb-2 font-bold">{strings.whoTitle}</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {ROLES.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                onClick={() => setRole(r.key)}
-                className="rounded-card border border-line bg-surface p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-blueprint hover:shadow-lifted"
-              >
-                <r.icon size={26} weight="duotone" className="text-blueprint" aria-hidden="true" />
-                <div className="mt-2 text-sm font-bold">{r.key === "customer" ? strings.roleCustomer : r.key === "pro" ? strings.rolePro : r.key === "company" ? strings.roleCompany : strings.roleCity}</div>
-                <div className="mt-0.5 text-xs text-muted">{strings[ROLE_DESC[r.key]]}</div>
-                {r.verify && <div className="mt-1.5 inline-block rounded-full bg-muted/15 px-2 py-0.5 text-[11px] font-bold text-muted">{strings.needVerify}</div>}
-              </button>
-            ))}
+          <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label={strings.whoTitle}>
+            {ROLES.map((r) => {
+              const selected = role === r.key;
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setRole(r.key)}
+                  className={`relative min-h-[120px] rounded-card border-2 bg-surface p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-lifted ${selected ? "border-signal shadow-lifted" : "border-line hover:border-blueprint"}`}
+                >
+                  {selected && (
+                    <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-signal text-[var(--signal-ink)]" aria-hidden="true">
+                      <Check size={14} weight="bold" />
+                    </span>
+                  )}
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-card bg-[var(--blueprint)]/10" aria-hidden="true">
+                    <r.icon size={24} weight="duotone" className="text-blueprint" />
+                  </span>
+                  <div className="mt-2 text-sm font-bold">{r.key === "customer" ? strings.roleCustomer : r.key === "pro" ? strings.rolePro : r.key === "company" ? strings.roleCompany : strings.roleCity}</div>
+                  <div className="mt-0.5 text-xs leading-snug text-muted">{strings[ROLE_DESC[r.key]]}</div>
+                  {r.verify && <div className="mt-1.5 inline-block rounded-full bg-muted/15 px-2 py-0.5 text-[11px] font-bold text-muted">{strings.needVerify}</div>}
+                </button>
+              );
+            })}
           </div>
+          <Button size="lg" variant="accent" className="mt-4 w-full" isDisabled={!role} onPress={() => setRoleOk(true)}>
+            {lang === "es" ? "Continuar" : "Continue"}
+          </Button>
         </section>
       )}
 
       {/* Step 2 — method */}
-      {role && !method && !hasSession && (
+      {roleOk && role && !method && !hasSession && (
         <section aria-label={strings.howTitle}>
-          <Button variant="ghost" className="mb-2 text-sm" onPress={() => setRole(null)}>← {strings.whoTitle}</Button>
+          <Button variant="ghost" className="mb-2 text-sm" onPress={() => setRoleOk(false)}>← {strings.whoTitle}</Button>
           <h2 className="mb-1 font-bold">{strings.howTitle}</h2>
           <p className="mb-2 text-sm text-muted">{strings.howSub}</p>
-          <div className="grid gap-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => setMethod("phone")}
-              className="flex items-start gap-3 rounded-card border border-line bg-surface p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-blueprint hover:shadow-lifted"
+              className="overflow-hidden rounded-card border border-line bg-surface text-left shadow-soft transition hover:-translate-y-0.5 hover:border-blueprint hover:shadow-lifted"
             >
-              <DeviceMobile size={26} weight="duotone" className="mt-0.5 shrink-0 text-blueprint" aria-hidden="true" />
-              <span>
+              <div className="flex h-28 items-center justify-center bg-[#0A1220]" aria-hidden="true">
+                <span className="relative block h-20 w-11 rounded-lg border-2 border-white/70 bg-[#16263f]">
+                  <span className="absolute inset-x-1.5 top-1.5 h-8 rounded-sm bg-[var(--signal)]/80" />
+                  <span className="absolute inset-x-1.5 top-11 space-y-1">
+                    <span className="block h-1 rounded bg-white/50" />
+                    <span className="block h-1 rounded bg-white/30" />
+                    <span className="block h-1 w-2/3 rounded bg-white/30" />
+                  </span>
+                  <span className="absolute bottom-1 left-1/2 h-1 w-4 -translate-x-1/2 rounded-full bg-white/50" />
+                </span>
+              </div>
+              <span className="block p-4">
                 <span className="block text-sm font-bold">{strings.withPhone}</span>
-                <span className="block text-xs text-muted">{strings.withPhoneD}</span>
+                <span className="mt-0.5 block text-xs leading-snug text-muted">{strings.withPhoneD}</span>
               </span>
             </button>
             <button
               type="button"
               onClick={() => router.push("/connect-glasses")}
-              className="flex items-start gap-3 rounded-card border border-line bg-surface p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-blueprint hover:shadow-lifted"
+              className="overflow-hidden rounded-card border border-line bg-surface text-left shadow-soft transition hover:-translate-y-0.5 hover:border-blueprint hover:shadow-lifted"
             >
-              <Eyeglasses size={26} weight="duotone" className="mt-0.5 shrink-0 text-blueprint" aria-hidden="true" />
-              <span>
+              <div className="relative h-28 overflow-hidden bg-[#0A1220]" aria-hidden="true">
+                {glassesThumb && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={glassesThumb.image.src}
+                    width={glassesThumb.image.width}
+                    height={glassesThumb.image.height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover opacity-90"
+                  />
+                )}
+                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-signal px-2.5 py-1 text-[11px] font-bold text-[var(--signal-ink)]">Fix this</span>
+              </div>
+              <span className="block p-4">
                 <span className="block text-sm font-bold">{strings.withGlasses}</span>
-                <span className="block text-xs text-muted">{strings.withGlassesD}</span>
+                <span className="mt-0.5 block text-xs leading-snug text-muted">{strings.withGlassesD}</span>
               </span>
             </button>
           </div>
@@ -270,7 +335,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       )}
 
       {/* Phone method */}
-      {role && method === "phone" && !sent && (
+      {roleOk && role && method === "phone" && !sent && (
         <section aria-label={strings.withPhone}>
           <Button variant="ghost" className="mb-2 text-sm" onPress={() => setMethod(null)}>← {strings.howTitle}</Button>
           <Field label={strings.emailLabel}>
