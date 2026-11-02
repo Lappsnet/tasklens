@@ -1,64 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/landing/motion";
 import FaqList from "@/components/landing/FaqList";
-import { landingEn } from "@/content/landing.en";
+import AnnotatedPhoto from "@/components/landing/AnnotatedPhoto";
+import Container from "@/components/site/Container";
 import { landingContent } from "@/content/landing.es";
-import FeatureVisual from "../FeatureVisual";
+import { SHOWCASE_JOBS } from "@/content/showcase";
+import { FUNCIONES, FUNCIONES_T } from "@/content/funciones";
 
-/* U6 feature deep pages: hero, problem -> solution, steps, Meta tech, FAQs, CTA.
-   Statically generated for every chapter; linked from the mega-menu + theater. */
-
-const PROBLEMS: Record<string, { problem: string; solution: string }> = {
-  escaneo: { problem: "No sabes cuánto costará hasta que alguien venga a ver.", solution: "Foto + voz → alcance, precio y materiales en segundos." },
-  contratos: { problem: "Lo acordado de palabra se olvida o se discute.", solution: "Contrato bilingüe de cláusulas fijas, firmado por ambas partes." },
-  calendario: { problem: "Coordinar horarios por teléfono toma días.", solution: "La IA propone 3 horarios con urgencia, ruta y disponibilidad." },
-  pago: { problem: "Pagas por adelantado sin garantía.", solution: "Autorización retenida; solo se captura con verificación aprobada." },
-  verificacion: { problem: "Nadie comprueba que el trabajo quedó bien.", solution: "Muse Spark compara antes/después paso a paso." },
-  pasaporte: { problem: "Cada reparación se olvida; las garantías se pierden.", solution: "Entrada permanente con fotos, contrato y cuenta regresiva." },
-  planificador: { problem: "Remodelar exige coordinar oficios por meses.", solution: "Video → fases en orden de oficio → un pro por fase." },
-  extranjero: { problem: "Ayudar desde el extranjero es complicado y opaco.", solution: "Enlace de fondeo de un solo uso; ves el avance en vivo." },
-  mediacion: { problem: "Los desacuerdos terminan en gritos o tribunales.", solution: "La IA compara todo y propone; las personas deciden." },
-  copiloto: { problem: "En el sitio surgen dudas y nadie responde.", solution: "Pregunta en voz alta; el copiloto responde con el alcance." },
-  alcaldias: { problem: "Los reportes se amontonan en una oficina central.", solution: "Triage IA, despacho y prueba pública con SLA." },
-};
-
-const CTA: Record<string, { href: string; label: string }> = {
-  escaneo: { href: "/scan", label: "Escanear un problema" },
-  contratos: { href: "/pro", label: "Soy profesional" },
-  calendario: { href: "/pro/calendar", label: "Ver calendario" },
-  pago: { href: "/scan", label: "Escanear un problema" },
-  verificacion: { href: "/pro", label: "Soy profesional" },
-  pasaporte: { href: "/passport", label: "Ver mi pasaporte" },
-  planificador: { href: "/projects/new", label: "Crear proyecto" },
-  extranjero: { href: "/scan", label: "Escanear un problema" },
-  mediacion: { href: "/scan", label: "Escanear un problema" },
-  copiloto: { href: "/pro", label: "Soy profesional" },
-  alcaldias: { href: "/city", label: "Ver tablero" },
-};
-
-const FAQS: Record<string, { q: string; a: string }[]> = {
-  escaneo: [
-    { q: "¿Funciona sin lentes Meta?", a: "Sí. La cámara del celular usa el mismo pipeline; los lentes lo hacen manos libres." },
-    { q: "¿Qué pasa si la IA no está segura?", a: "Con confianza bajo 0.5 no cotiza: hace preguntas primero." },
-  ],
-  pago: [
-    { q: "¿Cuándo se libera mi dinero?", a: "Solo cuando la verificación marca pass, o cuando tú apruebas la liberación." },
-    { q: "¿Y si el trabajo queda mal?", a: "Pide corrección o acepta una liberación parcial; el resto se devuelve." },
-  ],
-  contratos: [
-    { q: "¿Es asesoría legal?", a: "No. Es una plantilla generada con IA; un abogado debe revisar la biblioteca antes de uso en vivo." },
-    { q: "¿Quién puede firmar?", a: "Cliente y profesional, con nombre, firma dibujada y código por correo." },
-  ],
-  copiloto: [
-    { q: "¿La vigilancia de riesgos certifica seguridad?", a: "No. Es solo un aviso; siempre verifica en el sitio." },
-    { q: "¿Guarda mis preguntas?", a: "El intercambio queda en el registro del trabajo para la verificación." },
-  ],
-};
+/* V4 feature deep pages: hero (real photo or app screenshot, headline, lead,
+   CTA) → El problema → Cómo funciona (3 steps) → Qué ve la IA (annotated
+   showcase photo, labelled demo) → Meta tech → FAQ (3) → related → dark CTA.
+   Same type scale and bands as the landing. ES primary, EN complete. */
 
 export async function generateStaticParams() {
-  return landingEn.chapters.map((c) => ({ slug: c.slug }));
+  return Object.keys(FUNCIONES).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -69,70 +27,171 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function FeaturePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const chapters = landingContent("es").chapters;
+  const cookie = (await cookies()).get("tasklens:lang")?.value;
+  const lang = cookie === "en" ? "en" : "es";
+  const t = FUNCIONES_T[lang];
+  const chapters = landingContent(lang).chapters;
   const chapter = chapters.find((c) => c.slug === slug);
   if (!chapter) notFound();
-  const c = chapter;
-  const ps = PROBLEMS[slug] ?? { problem: "", solution: "" };
-  const faqs = FAQS[slug] ?? landingContent("es").faqs.slice(0, 2);
-  const cta = CTA[slug] ?? { href: "/scan", label: "Escanear un problema" };
+  const f = FUNCIONES[slug];
+  if (!f) notFound();
+  const faqs = f.faqs[lang].map((x) => ({ q: x.q, a: x.a }));
+  const heroJobId = f.hero.type === "photo" ? f.hero.jobId : null;
+  const seen = heroJobId ? (SHOWCASE_JOBS.find((j) => j.id === heroJobId) ?? SHOWCASE_JOBS[0]) : null;
+  const related = chapters.filter((c) => c.slug !== slug).slice(0, 3);
+  const backLabel = lang === "es" ? "Funciones" : "Features";
+  const finalCta = lang === "es" ? "Mira el problema. Resuélvelo hoy." : "Look at the problem. Fix it today.";
 
   return (
     <main className="font-body text-ink">
-      <p className="font-mono text-xs uppercase tracking-widest text-muted">
-        <Link href="/#funciones" className="underline">Funciones</Link> / {c.slug}
-      </p>
-      <h1 className="mt-2 font-display text-4xl font-extrabold leading-tight">{c.name}</h1>
-      <p className="mt-2 font-display text-xl text-muted">{c.promise}</p>
-
-      <div className="mt-5">
-        <Reveal>
-          <FeatureVisual slug={slug} />
-        </Reveal>
-      </div>
-
-      <section className="mt-8 grid gap-3 md:grid-cols-2" aria-label="problema y solución">
-        <div className="rounded-card border border-line bg-surface p-4">
-          <h2 className="font-bold text-[#B42318]">El problema</h2>
-          <p className="mt-1 text-sm text-muted">{ps.problem}</p>
-        </div>
-        <div className="rounded-card border border-verified bg-surface p-4">
-          <h2 className="font-bold text-verified">La solución TaskLens</h2>
-          <p className="mt-1 text-sm text-muted">{ps.solution}</p>
-        </div>
+      {/* Hero: real app screenshot or annotated photo + headline + lead + CTA */}
+      <section className="bg-[#0A1220] text-white">
+        <Container>
+          <div className="grid items-center gap-8 py-12 lg:grid-cols-2 lg:py-16">
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-widest text-white/60">
+                <Link href="/#funciones" className="underline">{backLabel}</Link> / {chapter.slug}
+              </p>
+              <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.02] tracking-tight lg:text-6xl">{chapter.name}</h1>
+              <p className="mt-4 max-w-[42ch] text-lg leading-relaxed text-white/75">{chapter.promise}</p>
+              <Link href={f.href} className="mt-6 inline-block rounded-btn bg-[var(--signal)] px-6 py-3 font-bold text-[var(--signal-ink)]">
+                {f.cta[lang]}
+              </Link>
+            </div>
+            <div className="overflow-hidden rounded-card border border-white/15 bg-surface">
+              {seen ? (
+                <AnnotatedPhoto
+                  job={seen}
+                  annotations={f.hero.type === "photo" ? f.hero.annotations[lang] : []}
+                  safety={f.hero.type === "photo" ? f.hero.safety?.[lang] : undefined}
+                  demoLabel={t.demoLabel}
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`/images/screens/theater-${chapter.slug}.png`}
+                  alt=""
+                  loading="eager"
+                  decoding="async"
+                  className="aspect-[4/3] w-full object-cover object-top"
+                />
+              )}
+            </div>
+          </div>
+        </Container>
       </section>
 
-      <section className="mt-8" aria-label="paso a paso">
-        <h2 className="font-display text-2xl font-bold">Paso a paso</h2>
-        <ol className="mt-3 space-y-2">
-          {c.how.map((h, i) => (
-            <li key={h} className="flex gap-3 rounded-card border border-line bg-surface p-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-xs font-bold text-bg">{i + 1}</span>
-              <span className="text-sm">{h}</span>
-            </li>
-          ))}
-        </ol>
+      {/* El problema → solución */}
+      <section className="bg-white" aria-label={t.problemTitle}>
+        <Container>
+          <Reveal className="grid gap-4 py-16 sm:py-20 md:grid-cols-2 lg:py-24">
+            <div className="rounded-card border border-line bg-bg p-6">
+              <h2 className="font-display text-xl font-bold text-[#B42318]">{t.problemTitle}</h2>
+              <p className="mt-2 text-lg leading-relaxed text-muted">{f.problem[lang]}</p>
+            </div>
+            <div className="rounded-card border border-[var(--verified)] bg-bg p-6">
+              <h2 className="font-display text-xl font-bold text-[var(--verified)]">{t.solutionTitle}</h2>
+              <p className="mt-2 text-lg leading-relaxed text-muted">{f.solution[lang]}</p>
+            </div>
+          </Reveal>
+        </Container>
       </section>
 
-      <section className="mt-8" aria-label="tecnología meta">
-        <h2 className="font-display text-2xl font-bold">Tecnología Meta</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {c.tech.map((t) => (
-            <span key={t} className="rounded-full bg-blueprint/10 px-3 py-1 font-mono text-xs font-semibold text-blueprint">{t}</span>
-          ))}
-        </div>
+      {/* Cómo funciona: 3 steps */}
+      <section className="bg-bg" aria-label={t.stepsTitle}>
+        <Container>
+          <div className="py-16 sm:py-20 lg:py-24">
+            <h2 className="font-display text-3xl font-bold lg:text-[40px]">{t.stepsTitle}</h2>
+            <ol className="mt-8 grid gap-4 md:grid-cols-3">
+              {chapter.how.map((h, i) => (
+                <li key={h} className="rounded-card border border-line bg-surface p-5 shadow-soft">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink font-mono text-sm font-bold text-bg">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="mt-3 text-[15px] leading-relaxed">{h}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Container>
       </section>
 
-      <div className="mt-8">
-        <FaqList title="Preguntas" faqs={faqs} />
-      </div>
+      {/* Qué ve la IA */}
+      {seen && f.hero.type === "photo" && (
+        <section className="bg-white" aria-label={t.aiVisionTitle}>
+          <Container>
+            <Reveal className="grid items-center gap-8 py-16 sm:py-20 lg:grid-cols-2 lg:py-24">
+              <AnnotatedPhoto
+                job={seen}
+                annotations={f.hero.annotations[lang]}
+                safety={f.hero.safety?.[lang]}
+                demoLabel={t.demoLabel}
+              />
+              <div>
+                <h2 className="font-display text-3xl font-bold lg:text-[40px]">{t.aiVisionTitle}</h2>
+                <p className="mt-3 max-w-[46ch] text-lg leading-relaxed text-muted">{t.aiVisionSub}</p>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {chapter.tech.map((tech) => (
+                    <span key={tech} className="rounded-full bg-blueprint/10 px-3 py-1 font-mono text-xs font-semibold text-blueprint">{tech}</span>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+          </Container>
+        </section>
+      )}
 
-      <div className="mt-8 rounded-card grad-pan bg-[linear-gradient(135deg,#16263f,#0f1b2d_45%,#3a1c07)] p-6 text-center text-white">
-        <p className="font-display text-2xl font-extrabold">Mira el problema. Resuélvelo hoy.</p>
-        <Link href={cta.href} className="fx-glow fx-sheen mt-4 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
-          {cta.label}
-        </Link>
-      </div>
+      {/* Meta tech */}
+      <section className="bg-bg" aria-label={t.techTitle}>
+        <Container>
+          <div className="py-16 sm:py-20 lg:py-24">
+            <h2 className="font-display text-3xl font-bold lg:text-[40px]">{t.techTitle}</h2>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {chapter.tech.map((tech) => (
+                <span key={tech} className="rounded-full bg-blueprint/10 px-4 py-1.5 font-mono text-sm font-semibold text-blueprint">{tech}</span>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-white" aria-label={t.faqTitle}>
+        <Container>
+          <Reveal className="py-16 sm:py-20 lg:py-24">
+            <FaqList title={t.faqTitle} faqs={faqs} />
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* Related */}
+      <section className="bg-bg" aria-label={t.relatedTitle}>
+        <Container>
+          <div className="py-16 sm:py-20 lg:py-24">
+            <h2 className="font-display text-3xl font-bold lg:text-[40px]">{t.relatedTitle}</h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {related.map((r) => (
+                <Link key={r.slug} href={`/funciones/${r.slug}`} className="rounded-card border border-line bg-surface p-5 shadow-soft transition hover:shadow-lifted">
+                  <p className="font-display text-xl font-bold">{r.name} →</p>
+                  <p className="mt-1 text-sm text-muted">{r.promise}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Final CTA */}
+      <section className="bg-[#0A1220] text-white" aria-label="cta">
+        <Container>
+          <Reveal className="py-16 text-center sm:py-20 lg:py-24">
+            <p className="mx-auto max-w-[20ch] font-display text-4xl font-extrabold leading-tight lg:text-5xl">{finalCta}</p>
+            <Link href={f.href} className="mt-6 inline-block rounded-btn bg-signal px-6 py-3 font-bold text-[var(--signal-ink)]">
+              {f.cta[lang]}
+            </Link>
+          </Reveal>
+        </Container>
+      </section>
     </main>
   );
 }

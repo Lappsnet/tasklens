@@ -5,7 +5,7 @@ const path = require("node:path");
 const net = require("node:net");
 const { chromium } = require("@playwright/test");
 
-const PORT = 3101;
+const PORT = Number(process.env.E2E_PORT ?? 3101);
 const BASE = `http://localhost:${PORT}`;
 const OUT = path.join(__dirname, "..", "..", "..", "docs", "screens", "ui-v3");
 
@@ -48,7 +48,7 @@ async function main() {
     const allRoutes = ["/", "/scan", "/inicio", "/pro", "/empresa", "/city"];
     const routes = process.env.ROUTES ? process.env.ROUTES.split(",") : allRoutes;
     for (const route of routes) {
-      const slug = route === "/" ? "home" : route.slice(1);
+      const slug = route === "/" ? "home" : route.slice(1).replace(/\//g, "-");
     for (const w of [375, 1440]) {
       for (const theme of ["light", "dark"]) {
         for (const lang of ["es", "en"]) {

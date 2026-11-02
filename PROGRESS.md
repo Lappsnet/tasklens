@@ -147,6 +147,16 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   401 — now setJobs([])) washed screenshots; captures now use
   animations:"disabled" for determinism; chart gradient ids sanitized
   (useId colons stripped).
+- V4 DONE (Nov 2): feature pages rewired to owner content/funciones.ts (full
+  ES+EN per slug: problem/solution/CTA/3 FAQs/annotated hero photo or app
+  screenshot) + AnnotatedPhoto (SAM mask + callouts + demo label) with one
+  additive key (solutionTitle); hero/problem/steps/AI-vision/tech/FAQ/related/
+  dark-CTA bands; EN via tasklens:lang cookie; FeatureVisual.tsx deleted.
+  V9: typecheck + build + 96/96 green (incl. closure-narrowing fix for heroJobId
+  caught by build); screenshots ui-v3/funciones-{escaneo,pago,alcaldias} 12/12 ok
+  on clean server (earlier 500s were Turbopack dev manifest rot after .next was
+  deleted mid-run + stale servers; kill stray :3101 PIDs, never delete .next
+  under a running server).
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
