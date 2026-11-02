@@ -35,6 +35,8 @@ export interface LandingContent {
   lensFinding: string;
   lensTime: string;
   lensMapLabel: string;
+  lensRisk: string;
+  glassesCaption: string;
   tryNow: string;
   raceToday: string;
   raceDay: string;
@@ -113,9 +115,11 @@ export const landingEs: LandingContent = {
   demo: "Ver demo (2 min)",
   lensNote: "Vista IA: máscara, medidas y anotaciones",
   trades: ["Fontanería", "Electricidad", "Albañilería", "Limpieza", "Ensamblaje", "Climatización", "Pintura", "Jardinería"],
-  lensFinding: "Sifón corroído",
-  lensTime: "1.5 h · fuga activa",
-  lensMapLabel: "BAÑO · PARED NORTE",
+  lensFinding: "Tomacorriente derretido",
+  lensTime: "Electricista certificado · hoy",
+  lensMapLabel: "Cableado quemado",
+  lensRisk: "Riesgo eléctrico: cortar la energía",
+  glassesCaption: "Míralo con tus lentes Meta o con tu celular",
   tryNow: "Probar ahora",
   raceToday: "Hoy",
   raceDay: "día",

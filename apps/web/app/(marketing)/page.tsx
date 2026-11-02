@@ -18,6 +18,7 @@ import MetaCards from "@/components/landing/MetaCards";
 import ProblemCards from "@/components/landing/ProblemCards";
 import { Reveal } from "@/components/landing/motion";
 import RoleTabs from "@/components/landing/RoleTabs";
+import LiveJobs from "@/components/landing/LiveJobs";
 
 // F2.4: below-fold GSAP sections ship as separate chunks so the heavy
 // animation code never blocks the initial render. HeroLens stays direct (LCP).
@@ -35,6 +36,14 @@ export default async function LandingPage() {
   return (
     <main className="font-body text-ink">
       <HeroLens t={t} scanHref="/scan" demoHref="#demo" />
+
+      <section className="bg-bg" id="trabajos" aria-label={lang === "es" ? "Trabajos en vivo" : "Live jobs"}>
+        <Container>
+          <div className="py-16 sm:py-20 lg:py-24">
+            <LiveJobs lang={lang} />
+          </div>
+        </Container>
+      </section>
 
       <Container>
         <Reveal className="py-10">

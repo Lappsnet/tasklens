@@ -12,27 +12,41 @@ import { MagneticButton } from "@/components/blueprint";
 import { Marquee } from "@/components/blueprint";
 import type { LandingContent } from "@/content/landing.es";
 import { reducedMotion, registerGsap } from "./motion";
+import { BRAND_IMAGES, SHOWCASE_JOBS } from "@/content/showcase";
 
-function SinkDrawing({ ai, mapLabel }: { ai?: boolean; mapLabel: string }) {
-  const stroke = ai ? "#FF7A2E" : "#5B9BE6";
-  const faint = ai ? "rgba(255,122,46,0.35)" : "rgba(91,155,230,0.4)";
+// Hero photo: a real "reported" job from the showcase (demo example). The burnt area sits at
+// about x 68%, y 72% of the 4:3 stage; the lens rests there and the callouts point at it.
+const HERO = SHOWCASE_JOBS.find((j) => j.id === "tomacorriente-derretido") ?? SHOWCASE_JOBS[0];
+const GLASSES = BRAND_IMAGES.find((b) => b.id === "lentes-meta-display-detalle");
+
+function HeroPhoto({ dim }: { dim?: boolean }) {
   return (
-    <svg viewBox="0 0 400 300" className="h-full w-full" role="img" aria-label="damaged sink drawing">
-      <rect x="20" y="20" width="360" height="260" fill="none" stroke={faint} strokeWidth="1" strokeDasharray="6 4" />
-      <rect x="90" y="60" width="220" height="26" fill="none" stroke={stroke} strokeWidth="2" />
-      <rect x="90" y="86" width="220" height="10" fill={faint} />
-      <path d="M185 96 V150 H215 V176" fill="none" stroke={stroke} strokeWidth="5" strokeLinecap="round" />
-      <path d="M185 150 Q185 176 205 176 Q225 176 225 162" fill="none" stroke={stroke} strokeWidth="5" strokeLinecap="round" />
-      {ai && <path d="M178 143 Q178 183 206 183 Q232 183 232 160 L232 150 L178 150 Z" fill="rgba(255,122,46,0.28)" stroke="#FF7A2E" strokeWidth="2" />}
-      {[0, 1, 2].map((i) => (
-        <g key={i}>
-          <circle cx="216" cy={190 + i * 14} r={2.4 - i * 0.5} fill={stroke} opacity={0.9 - i * 0.25} />
-        </g>
-      ))}
-      <path d="M150 230 H250 M150 226 V234 M250 226 V234" stroke={faint} strokeWidth="1" />
-      <text x="200" y="224" textAnchor="middle" fill={stroke} fontSize="11" fontFamily="monospace">1.5 in</text>
-      <text x="34" y="46" fill={faint} fontSize="11" fontFamily="monospace">{mapLabel}</text>
-    </svg>
+    <picture>
+      <source srcSet={HERO.image.avif} type="image/avif" />
+      <img
+        src={HERO.image.src}
+        width={HERO.image.width}
+        height={HERO.image.height}
+        alt=""
+        loading="eager"
+        decoding="async"
+        className={"absolute inset-0 h-full w-full object-cover" + (dim ? " opacity-70 saturate-[0.8]" : "")}
+        style={{ backgroundImage: `url(${HERO.image.blur})`, backgroundSize: "cover" }}
+      />
+    </picture>
+  );
+}
+
+function Callout({ text, className, side = "right" }: { text: string; className: string; side?: "left" | "right" }) {
+  const dot = <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--signal)] shadow-[0_0_12px_var(--signal)]" />;
+  const line = <span className="h-px w-10 shrink-0 bg-[var(--signal)]" />;
+  const label = (
+    <span className="whitespace-nowrap rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-semibold text-white backdrop-blur-sm">{text}</span>
+  );
+  return (
+    <div className={"absolute flex items-center " + className} aria-hidden="true">
+      {side === "right" ? (<>{dot}{line}{label}</>) : (<>{label}{line}{dot}</>)}
+    </div>
   );
 }
 
@@ -57,7 +71,7 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
     if (!stage || !ai || reducedMotion()) return;
     registerGsap();
     const fine = window.matchMedia("(pointer: fine)").matches;
-    const pos = { x: 65, y: 45 };
+    const pos = { x: 68, y: 72 };
     const render = () => ai.style.setProperty("--lens", `circle(92px at ${pos.x}% ${pos.y}%)`);
     render();
     if (fine) {
@@ -72,7 +86,7 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
       return () => stage.removeEventListener("pointermove", move);
     }
     const glide = gsap.to(pos, {
-      keyframes: [{ x: 30, y: 60 }, { x: 65, y: 40 }, { x: 45, y: 68 }],
+      keyframes: [{ x: 68, y: 72 }, { x: 45, y: 32 }, { x: 60, y: 55 }],
       duration: 9,
       repeat: -1,
       yoyo: true,
@@ -112,44 +126,49 @@ export default function HeroLens({ t, scanHref, demoHref }: { t: LandingContent;
             </Link>
           </div>
         </div>
-        <div
-          ref={stageRef}
-          className="relative aspect-[4/3] cursor-crosshair overflow-hidden rounded-card border border-white/15"
-          aria-label={t.lensNote}
-        >
-          <div className="absolute inset-0 bg-[#0A1220] p-4">
-            <SinkDrawing mapLabel={t.lensMapLabel} />
-          </div>
+        <div className="relative">
           <div
-            ref={aiRef}
-            className="absolute inset-0 bg-[#0d1526]/95 p-4"
-            style={{ ["--lens" as string]: "circle(92px at 65% 45%)", clipPath: "var(--lens)" }}
+            ref={stageRef}
+            className="relative aspect-[4/3] cursor-crosshair overflow-hidden rounded-card border border-white/15 bg-[#0A1220]"
+            aria-label={t.lensNote}
           >
+            <HeroPhoto dim />
             <div
-              aria-hidden="true"
-              className="absolute inset-0 opacity-60"
-              style={{
-                backgroundImage: "linear-gradient(rgba(255,122,46,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,122,46,0.12) 1px, transparent 1px)",
-                backgroundSize: "20px 20px",
-              }}
-            />
-            <SinkDrawing ai mapLabel={t.lensMapLabel} />
-            <div className="absolute left-[52%] top-[30%] flex items-center gap-0" aria-hidden="true">
-              <span className="h-2 w-2 rounded-full bg-[var(--signal)] shadow-[0_0_10px_var(--signal)]" />
-              <span className="h-px w-8 bg-[var(--signal)]" />
-              <span className="whitespace-nowrap rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white">{t.lensFinding}</span>
+              ref={aiRef}
+              className="absolute inset-0"
+              style={{ ["--lens" as string]: "circle(110px at 68% 72%)", clipPath: "var(--lens)" }}
+            >
+              <HeroPhoto />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-[rgba(255,122,46,0.08)]"
+                style={{
+                  backgroundImage: "linear-gradient(rgba(255,122,46,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(255,122,46,0.18) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              />
+              <div aria-hidden="true" className="absolute left-[56%] top-[58%] h-[30%] w-[26%] rounded-[45%] border-2 border-[var(--signal)] bg-[rgba(255,122,46,0.25)] shadow-[0_0_24px_rgba(255,122,46,0.6)]" />
             </div>
-            <div className="absolute left-[46%] top-[62%] flex items-center gap-0" aria-hidden="true">
-              <span className="whitespace-nowrap rounded bg-black/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white">$120–220</span>
-              <span className="h-px w-8 bg-[var(--signal)]" />
-              <span className="h-2 w-2 rounded-full bg-[var(--signal)] shadow-[0_0_10px_var(--signal)]" />
+            <Callout text={t.lensFinding} side="left" className="right-[34%] top-[70%]" />
+            <Callout text={t.lensMapLabel} className="left-[44%] top-[24%]" />
+            <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-2 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10" aria-hidden="true">
+              <span className="rounded-md bg-[#C2410C] px-2 py-1 font-mono text-xs font-semibold text-white">{t.lensRisk}</span>
+              <span className="rounded-md bg-white/15 px-2 py-1 font-mono text-xs font-semibold text-white">{t.lensTime}</span>
             </div>
-            <div className="absolute bottom-[10%] left-[30%] font-mono text-[11px] font-semibold text-[var(--signal)]" aria-hidden="true">{t.lensTime}</div>
+            <div className="absolute left-3 top-3 flex items-center gap-2 rounded-md bg-black/60 px-2 py-1" aria-hidden="true">
+              <span className="live-dot" />
+              <span className="font-mono text-[11px] uppercase tracking-widest text-white/85">{t.lensNote}</span>
+            </div>
           </div>
-          <div className="absolute left-3 top-3 flex items-center gap-2" aria-hidden="true">
-            <span className="live-dot" />
-            <span className="font-mono text-[11px] uppercase tracking-widest text-white/70">{t.lensNote}</span>
-          </div>
+          {GLASSES && (
+            <figure className="absolute -bottom-6 -left-4 hidden w-56 overflow-hidden rounded-card border border-white/20 bg-[#0A1220] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)] sm:block lg:-left-10">
+              <picture>
+                <source srcSet={GLASSES.image.avif} type="image/avif" />
+                <img src={GLASSES.image.src} width={GLASSES.image.width} height={GLASSES.image.height} alt={t.glassesCaption} loading="lazy" decoding="async" className="aspect-[5/3] w-full object-cover" />
+              </picture>
+              <figcaption className="px-3 py-2 text-xs font-semibold leading-snug text-white/85">{t.glassesCaption}</figcaption>
+            </figure>
+          )}
         </div>
       </div>
       <div className="relative border-t border-white/10 bg-white/[0.02] py-3">
