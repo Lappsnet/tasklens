@@ -84,7 +84,7 @@ export default function AdminProsPage() {
           </Button>
         ))}
       </div>
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => load(filter)} />}
       {items.length === 0 && <p className="text-sm text-muted">{strings.noApplications}</p>}
       {items.map((a) => (
         <Card key={a.id}>

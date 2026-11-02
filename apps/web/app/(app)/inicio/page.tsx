@@ -89,7 +89,7 @@ export default function InicioPage() {
       </section>
 
       <h2 className="mb-2 mt-6 font-display text-2xl font-bold">{strings.myJobs}</h2>
-      {jobs === null && <Skeleton className="h-24" />}
+      {jobs === null && <><Skeleton className="h-24" /><Skeleton className="h-24" /></>}
       {jobs !== null && active.length === 0 && (
         <EmptyState title={strings.myJobs} hint={strings.noJobsYet} action={<Link href="/scan" className="rounded-btn bg-ink px-4 py-2 text-sm font-bold text-bg">{strings.startScan}</Link>} />
       )}

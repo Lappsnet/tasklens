@@ -238,7 +238,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
         </div>
       </div>
       <p className="mb-4 text-sm text-muted">{mode === "login" ? strings.loginSub : strings.whoSub}</p>
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => { setError(""); checkSession(); }} />}
 
       {/* Step 1 — role: large cards, tinted icon squares, orange selected state */}
       {!roleOk && (

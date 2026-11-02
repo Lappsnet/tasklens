@@ -135,7 +135,7 @@ export default function EmpresaPage() {
     <div>
       <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.empresaTitle}</h1>
       <p className="mb-3 mt-1 max-w-[60ch] text-[15px] text-muted">{strings.empresaSub}</p>
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={load} />}
 
       {companies === null && <Skeleton className="h-24" />}
       {companies !== null && companies.length === 0 && (

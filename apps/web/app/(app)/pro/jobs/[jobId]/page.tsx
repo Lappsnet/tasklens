@@ -310,7 +310,7 @@ export default function ProJobPage({ params }: { params: Promise<{ jobId: string
         <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.jobMode}</h1>
         <Badge status={live ? "live" : "polling"} />
       </div>
-      {(error || feedError) && <ErrorState message={error || feedError || ""} />}
+      {(error || feedError) && <ErrorState message={error || feedError || ""} onRetry={() => window.location.reload()} />}
       {!job && !feedError && <Skeleton className="h-48" />}
 
       {job && (

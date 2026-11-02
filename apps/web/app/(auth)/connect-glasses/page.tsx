@@ -112,7 +112,7 @@ export default function ConnectGlassesPage() {
     <div>
       <h1 className="font-display text-3xl font-extrabold">{strings.gTitle}</h1>
       <p className="mt-2 text-sm text-muted">{strings.gBody}</p>
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
 
       {authed === false && !sent && (
         <Card aria-label={strings.withPhone}>

@@ -54,7 +54,7 @@ export default function FundPage({ params }: { params: Promise<{ token: string }
     }
   }
 
-  if (error) return <main><ErrorState message={error} /></main>;
+  if (error) return <main><ErrorState message={error} onRetry={() => window.location.reload()} /></main>;
   if (!info) return <main><Skeleton className="h-48" /></main>;
   if (done) return <main><Card><p className="font-bold">✓ {strings.fundThanks}</p></Card></main>;
 

@@ -473,9 +473,26 @@ export function Skeleton({ className }: { className?: string }) {
   return <div className={cn("skel rounded-card", className)} aria-hidden="true" />;
 }
 
-export function EmptyState({ title, hint, action }: { title: string; hint?: string; action?: React.ReactNode }) {
+export function EmptyState({ title, hint, action, image }: {
+  title: string;
+  hint?: string;
+  action?: React.ReactNode;
+  /** Real photo (preferred) or omit for the default blueprint mark. */
+  image?: { src: string; alt: string };
+}) {
   return (
     <div className="rounded-card border border-dashed border-line bg-surface p-6 text-center">
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" className="mx-auto mb-3 aspect-[16/9] w-full max-w-[280px] rounded-card border border-line object-cover" />
+      ) : (
+        <span className="relative mx-auto mb-3 inline-block h-12 w-12" aria-hidden="true">
+          <span className="absolute left-0 top-0 h-4 w-4 border-l-[3px] border-t-[3px] border-signal rounded-tl" />
+          <span className="absolute right-0 top-0 h-4 w-4 border-r-[3px] border-t-[3px] border-signal rounded-tr" />
+          <span className="absolute bottom-0 left-0 h-4 w-4 border-b-[3px] border-l-[3px] border-signal rounded-bl" />
+          <span className="absolute bottom-0 right-0 h-4 w-4 border-b-[3px] border-r-[3px] border-signal rounded-br" />
+        </span>
+      )}
       <div className="font-display text-lg font-bold text-ink">{title}</div>
       {hint && <p className="text-sm text-muted mt-1">{hint}</p>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}

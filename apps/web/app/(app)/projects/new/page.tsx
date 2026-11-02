@@ -86,7 +86,7 @@ export default function NewProjectPage() {
     <main>
       <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.projectTitle}</h1>
       <p className="text-slate2">{strings.projectSub}</p>
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
       <Card>
         <Field label={strings.walkthrough}>
           <input

@@ -78,7 +78,7 @@ export default function AdminPage() {
         <p><Link href="/admin/pros">{strings.queueTitle} →</Link></p>
       )}
       {result && <p className="text-sm text-muted" role="status">{result}</p>}
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={reset} />}
       <FlowNav backHref="/" backLabel={strings.back} />
     </main>
   );

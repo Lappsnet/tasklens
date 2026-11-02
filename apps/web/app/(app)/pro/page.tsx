@@ -191,7 +191,14 @@ export default function ProPage() {
           </Card>
         </Link>
       ))}
-      {jobs && jobs.length === 0 && <EmptyState title={strings.proTitle} hint={strings.proSub} />}
+      {jobs && jobs.length === 0 && (
+        <EmptyState
+          title={strings.proTitle}
+          hint={strings.proSub}
+          image={{ src: "/images/showcase/ducha-electrica-cambio-resistencia.webp", alt: "" }}
+          action={<Link className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg" href="/pro/calendar">{strings.calTitle}</Link>}
+        />
+      )}
     </main>
   );
 }

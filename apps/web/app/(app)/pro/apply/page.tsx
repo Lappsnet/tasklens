@@ -91,7 +91,7 @@ export default function ApplyPage() {
             <p className="text-sm text-muted">{strings.idPhotoHint}</p>
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
           </Field>
-          {error && <ErrorState message={error} />}
+          {error && <ErrorState message={error} onRetry={() => { setError(""); void submit(); }} />}
           <Button size="lg" disabled={busy} onPress={submit} className="mt-2">
             {busy ? "…" : strings.applySubmit}
           </Button>

@@ -143,7 +143,12 @@ export default function ProCalendarPage() {
         </Card>
       )}
       {jobs.length === 0 && briefing !== "" && (
-        <EmptyState title={strings.dayJobs} hint={strings.queueEmpty} />
+        <EmptyState
+          title={strings.dayJobs}
+          hint={strings.queueEmpty}
+          image={{ src: "/images/showcase/cambio-de-chapa.webp", alt: "" }}
+          action={<a className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg" href="/scan">{strings.startScan}</a>}
+        />
       )}
 
       {blocks.length > 0 && (

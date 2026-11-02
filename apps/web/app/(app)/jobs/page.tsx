@@ -36,8 +36,14 @@ export default function JobsPage() {
   return (
     <div>
       <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.myJobs}</h1>
-      {!jobs && <Skeleton className="h-24" />}
-      {jobs && jobs.length === 0 && <EmptyState title={strings.myJobs} hint={strings.noJobsYet} />}
+      {!jobs && <><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /></>}
+      {jobs && jobs.length === 0 && (
+        <EmptyState
+          title={strings.myJobs}
+          hint={strings.noJobsYet}
+          action={<a className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg" href="/scan">{strings.startScan}</a>}
+        />
+      )}
       <div className="stagger">
         {(jobs ?? []).map((j) => (
           <Link key={j.id} href={`/jobs/${j.id}`} className="block no-underline">

@@ -107,7 +107,7 @@ export default function EquipoPage() {
           ))}
         </div>
       )}
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => { if (active) loadMembers(active); else setError(""); }} />}
       {members.length === 0 && <EmptyState title={strings.teamTitle} hint={strings.teamEmpty} />}
       <div className="flex flex-col gap-2">
         {members.map((m) => (

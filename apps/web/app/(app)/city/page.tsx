@@ -173,7 +173,7 @@ export default function CityPage() {
       </div>
 
       <Card>
-        <h2 className="font-bold">{strings.reportIssue}</h2>
+        <h2 className="font-bold" id="report">{strings.reportIssue}</h2>
         <p className="text-xs text-slate2">{strings.reportPrivacy}</p>
         <textarea
           value={desc}
@@ -193,9 +193,15 @@ export default function CityPage() {
         </Button>
       </Card>
 
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={() => { setError(""); load(slug); }} />}
       {!items && !error && <Skeleton className="h-48" />}
-      {items?.length === 0 && <EmptyState title={strings.noReports} hint={strings.noReportsHint} />}
+      {items?.length === 0 && (
+        <EmptyState
+          title={strings.noReports}
+          hint={strings.noReportsHint}
+          action={<a className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg" href="#report">{strings.sendReport}</a>}
+        />
+      )}
       {items?.map((r) => (
         <Card key={r.id}>
           <div className="flex items-center gap-2 flex-wrap">

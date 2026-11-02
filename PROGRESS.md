@@ -147,6 +147,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   401 — now setJobs([])) washed screenshots; captures now use
   animations:"disabled" for determinism; chart gradient ids sanitized
   (useId colons stripped).
+- V8 DONE (Nov 2): every list/dashboard has loading (layout-shaped skeletons),
+  empty (blueprint mark default or real photo + one sentence + action) and error
+  (message + retry) states; removed a hidden placeholder skeleton; fixed the
+  passport skeleton that never resolved on empty (loaded flag + EmptyState);
+  all 18 ErrorState usages now carry onRetry; empty actions added (jobs/city/
+  calendar/pro). V9: typecheck + build + 100/96+4 green (new v8-states.test.ts);
+  e2e-home 8/8 (jobs/passport 375+1440 light+dark) — empty state, error+Retry
+  verified in pixels.
 - V4 DONE (Nov 2): feature pages rewired to owner content/funciones.ts (full
   ES+EN per slug: problem/solution/CTA/3 FAQs/annotated hero photo or app
   screenshot) + AnnotatedPhoto (SAM mask + callouts + demo label) with one

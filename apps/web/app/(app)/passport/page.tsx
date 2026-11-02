@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { t, type Lang } from "@/lib/i18n";
 import { initialLang } from "@/lib/lang";
-import { Badge, Button, Card, ErrorState, FlowNav, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, ErrorState, FlowNav, Skeleton } from "@/components/ui";
 
 interface Entry {
   id: string;
@@ -29,6 +29,7 @@ function daysLeft(iso?: string): string {
 export default function PassportPage() {
   const [lang, setLang] = useState<Lang>("en");
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [share, setShare] = useState("");
   const [pdf, setPdf] = useState("");
@@ -50,6 +51,8 @@ export default function PassportPage() {
       setReminders(json.reminders ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "load_failed");
+    } finally {
+      setLoaded(true);
     }
   }
 
@@ -68,8 +71,15 @@ export default function PassportPage() {
     <main>
       <h1 className="font-display text-4xl font-extrabold tracking-tight">{strings.passportTitle}</h1>
       <p className="mt-1 max-w-[60ch] text-[15px] text-muted">{strings.passportSub}</p>
-      {error && <ErrorState message={error} />}
-      {!entries.length && !error && <Skeleton className="h-48" />}
+      {error && <ErrorState message={error} onRetry={() => { setError(""); load(); }} />}
+      {!loaded && !error && <Skeleton className="h-48" />}
+      {loaded && !error && entries.length === 0 && (
+        <EmptyState
+          title={strings.passportTitle}
+          hint={strings.noJobsYet}
+          action={<a className="inline-flex items-center justify-center gap-2 rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg" href="/scan">{strings.startScan}</a>}
+        />
+      )}
 
       {entries.map((e) => (
         <Card key={e.id}>
