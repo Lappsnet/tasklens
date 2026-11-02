@@ -38,16 +38,20 @@ async function main() {
   try {
     await waitForPort(PORT);
     const browser = await chromium.launch();
+    const routes = ["/", "/scan"];
+    for (const route of routes) {
+      const slug = route === "/" ? "home" : "scan";
     for (const w of [375, 1440]) {
       for (const theme of ["light", "dark"]) {
         for (const lang of ["es", "en"]) {
-          const tag = `home-${w}-${theme}${lang === "en" ? "-en" : ""}`;
+          if (route !== "/" && lang === "en") continue;
+          const tag = `${slug}-${w}-${theme}${lang === "en" ? "-en" : ""}`;
           const page = await browser.newPage({ viewport: { width: w, height: 900 } });
           const errors = [];
           page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
           page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
           await page.context().addCookies([{ name: "tasklens:lang", value: lang, url: BASE }]);
-          await page.goto(BASE + "/", { waitUntil: "commit", timeout: 180000 });
+          await page.goto(BASE + route, { waitUntil: "commit", timeout: 180000 });
           await page.waitForLoadState("domcontentloaded", { timeout: 180000 }).catch(() => {});
           await page.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
           await page.waitForTimeout(4000);
@@ -77,6 +81,7 @@ async function main() {
           await page.close();
         }
       }
+    }
     }
     await browser.close();
   } finally {

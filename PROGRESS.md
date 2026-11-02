@@ -112,8 +112,7 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   LiveJobs section (demo label), real-photo hero + glasses card, lensRisk/
   glassesCaption keys. Typecheck + 93/93 + e2e-home green; no fixes needed.
   Never use the 13 excluded (esp. #40).
-- V3 DONE (Nov 1): landing section by section — hero trust row; LiveJobs featured
-  done card w/ keyboard before/after slider (pairId); problema split rows;
+- V3 DONE (Nov 1): landing section by section — hero trust row; LiveJobs featured  done card w/ keyboard before/after slider (pairId); problema split rows;
   carrera dark-band timeline w/ Day/Minute axes; cómo-funciona real step photos;
   theater real app screenshots (public/images/screens/, inactive ≥55%);
   role tabs w/ dashboard screenshots (+4th alcaldías tab); CitySection SlaBar +
@@ -121,6 +120,20 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   micro-demos (ai_spec JSON, SAM photo mask, glasses POV; Muse Image omitted);
   FAQ 10/10 ES+EN; bands paper/white/ink-night + 28/40 type; final CTA dark.
   ui-v3 home 375/1440 light+dark ES+EN all ok, no h-scroll (fixed TabList wrap).
+- INCIDENTS (Nov 1): V3 commit zeroed 7 woff2 (fixed 4604d43, root cause TBD —
+  .gitattributes now marks binaries) and a screenshot-folder cleanup wiped
+  apps/web/public (fixed a2b3254 via `git checkout 2b7879b -- apps/web/public/`;
+  84 jobs + 142 showcase + icons + manifest + sw back, tests 93/93).
+  Lesson: never `Remove-Item` near public/; verify `git status` before `add -A`.
+- V7 DONE (Nov 1, demo path): /scan real example-photo chips (3 showcase jobs,
+  canvas demo removed); /quote two-column + sticky panel, numbered steps
+  timeline, confidence ring, sticky reserve; /book map+cards grid, trust-ring
+  avatars, stamp + held explainer; /jobs/[id] payment card (held→released) +
+  before/after slider from step evidence; /pro/jobs 32px step + 64px advance;
+  4xl headers + leads on scan/quote/book/jobs/contracts/passport/calendar/
+  projects/apply/ajustes. V9: typecheck + 93/93 + build green; e2e-home 12/12
+  (home 8 + scan 4) ok. NOTE: V7 code partially rode in a2b3254 (restore commit
+  staged it via add -A); remainder + PROGRESS here.
 
 ## Done
 - Day 1: monorepo, schema+RLS+seed (25 pros), `scanToSpec` CLI (+ `--mock`).
