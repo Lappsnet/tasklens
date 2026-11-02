@@ -1,0 +1,12 @@
+# Never touch line endings or diff binary assets (fonts, images, audio).
+# (A missing rule once zeroed the woff2 files in commit 5a643d3 on Windows.)
+*.woff2 binary
+*.woff binary
+*.ttf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.mp4 binary
+*.webm binary
