@@ -54,10 +54,7 @@ export default function ProblemCards({ items }: { items: { icon: string; title: 
   return (
     <ol className="divide-y divide-line border-y border-line">
       {items.map((it, i) => (
-        <li key={it.title} className="grid gap-4 py-7 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-8">
-          <span className="font-mono text-sm font-semibold text-muted" aria-hidden="true">
-            {String(i + 1).padStart(2, "0")}
-          </span>
+        <li key={it.title} className="grid gap-4 py-7 sm:grid-cols-[1fr_auto] sm:items-center sm:gap-8">
           <div className="max-w-[44rem]">
             <h3 className="flex items-center gap-2 font-display text-2xl font-bold">
               <span className="text-signal" aria-hidden="true">{icons[i]}</span>

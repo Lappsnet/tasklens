@@ -99,7 +99,7 @@ export default async function LandingPage() {
         <Container>
           <Reveal className="py-16 sm:py-20 lg:py-24" >
             <div>
-              <DemoVideo title={t.demoT} soon={t.demoSoon} soonBody={t.demoSoonBody} config={t.demoVideo} dark />
+              <DemoVideo title="" soon={t.demoSoon} soonBody={t.demoSoonBody} config={t.demoVideo} dark />
             </div>
           </Reveal>
         </Container>
@@ -108,7 +108,7 @@ export default async function LandingPage() {
       <section className="bg-bg" aria-label={t.tabsT}>
         <Container>
           <Reveal className="py-16 sm:py-20 lg:py-24">
-            <RoleTabs title={t.tabsT} tabs={t.tabs} />
+            <RoleTabs title="" tabs={t.tabs} />
           </Reveal>
         </Container>
       </section>
@@ -140,7 +140,7 @@ export default async function LandingPage() {
         <Container>
           <Reveal className="py-16 sm:py-20 lg:py-24" >
             <div>
-              <TrustGrid title={t.trustT} items={t.trust} escrowTitle={t.escrowTitle} escrowSteps={t.escrowSteps} />
+              <TrustGrid title="" items={t.trust} escrowTitle={t.escrowTitle} escrowSteps={t.escrowSteps} />
             </div>
           </Reveal>
         </Container>

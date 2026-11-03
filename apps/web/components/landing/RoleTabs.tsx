@@ -11,7 +11,7 @@ export default function RoleTabs({ title, tabs }: {
 }) {
   return (
     <div>
-      <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2>
+      {title ? <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2> : null}
       <Tabs defaultSelectedKey={tabs[0]?.id} className="mt-8">
         <TabList aria-label={title}>
           {tabs.map((t) => (

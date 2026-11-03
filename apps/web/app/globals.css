@@ -159,6 +159,16 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: var(--radi
 .marquee-auto:hover .marquee-track { animation-play-state: paused; }
 @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
+/* Race comet: ambient glide along the TaskLens track (decorative pulse of speed). */
+.race-comet {
+  position: absolute; top: 50%; width: 26px; height: 26px; margin-top: -13px;
+  border-radius: 999px; pointer-events: none;
+  background: radial-gradient(circle, #ffe3c7 0%, var(--signal) 45%, transparent 70%);
+  filter: drop-shadow(0 0 8px rgba(242, 106, 27, 0.8));
+  animation: raceComet 3.4s ease-in-out infinite;
+}
+@keyframes raceComet { from { left: -3%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { left: 97%; opacity: 0; } }
+
 /* Nav hover tint (color-mix so it works with CSS-var themes). */
 .hover-tint { transition: background-color 0.2s ease; }
 .hover-tint:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
@@ -203,7 +213,7 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: var(--radi
   html { scroll-behavior: auto; }
   .fade-up, .mask-in, .stagger > *, .pop-in, .ticker > span, .toast,
   .anim-pop, .anim-fade-up, .anim-fade-in, .anim-sheet-up, .fx-sweep { animation: none !important; }
-  .pulse-dot, .scan-beam, .shutter::after, .live-dot::after, .fx-sheen::after,
+  .pulse-dot, .scan-beam, .shutter::after, .live-dot::after, .fx-sheen::after, .race-comet,
   .float-slow, .float-slower, .grad-pan, .skel, .marquee-track { animation: none !important; }
   .damagebox, .draw-check { animation-duration: 0.01s !important; }
 }

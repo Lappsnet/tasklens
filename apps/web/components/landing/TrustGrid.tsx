@@ -48,7 +48,7 @@ export default function TrustGrid({ title, items, escrowTitle, escrowSteps }: {
 
   return (
     <div>
-      <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2>
+      {title ? <h2 className="font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05]">{title}</h2> : null}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {items.map((it) => {
           const Ico = ICONS[it.icon] ?? ShieldCheck;

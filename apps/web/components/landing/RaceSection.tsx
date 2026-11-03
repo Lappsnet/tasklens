@@ -83,31 +83,46 @@ function Timeline({ label, meta, steps, axis, barRef, tone, seal }: {
   tone: "muted" | "signal";
   seal?: React.ReactNode;
 }) {
-  const bar = tone === "signal" ? "bg-signal" : "bg-muted";
+  const bar = tone === "signal" ? "bg-gradient-to-r from-[#c24e08] via-[var(--signal)] to-[#ff8a3d]" : "bg-muted";
+  const isLens = tone === "signal";
   return (
-    <div className={`rounded-card border p-5 lg:p-6 ${tone === "signal" ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface"}`}>
+    <div className={`relative overflow-hidden rounded-card border p-5 lg:p-6 ${isLens ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface"}`}>
+      {isLens && <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[var(--signal)] to-transparent opacity-70" />}
       <div className="flex items-baseline justify-between gap-3">
-        <strong className="font-display text-lg font-bold">{label}</strong>
+        <strong className="flex items-center gap-2 font-display text-lg font-bold">
+          <span aria-hidden="true" className={`inline-block h-3 w-3 rounded-full ${isLens ? "bg-signal shadow-[0_0_12px_var(--signal)]" : "bg-muted"}`} />
+          {label}
+        </strong>
         <span className={`font-mono text-xs ${tone === "signal" ? "font-semibold text-signal" : "text-muted"}`}>{meta}</span>
       </div>
-      <div className="relative mt-5">
-        <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
-          <div ref={barRef} className={`h-full w-full origin-left ${bar}`} />
+      <div className="relative mt-6">
+        <div className="relative h-3 rounded-full bg-ink/10">
+          <div ref={barRef} className={`h-full w-full origin-left rounded-full ${bar}`} />
+          {isLens && <span aria-hidden="true" className="race-comet" />}
+          <span
+            aria-hidden="true"
+            className="absolute -top-1 bottom-[-4px] right-0 w-7 rounded-r-full"
+            style={{ backgroundImage: "repeating-conic-gradient(#0F1B2D 0% 25%, #fff 0% 50%)", backgroundSize: "10px 10px" }}
+          />
         </div>
         <ol className="relative mt-1 grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:justify-between">
-          {steps.map((s) => (
+          {steps.map((s, i) => (
             <li key={s} className="flex max-w-[9rem] flex-col items-start gap-1.5 pt-3 text-left">
-              <span className={`h-2.5 w-2.5 rounded-full ring-4 ${tone === "signal" ? "bg-signal ring-signal/20" : "bg-muted ring-muted/15"}`} aria-hidden="true" />
+              <span
+                aria-hidden="true"
+                className={`absolute h-2.5 w-2.5 rounded-full ring-4 ${isLens ? "bg-white ring-[var(--signal)]" : "bg-muted ring-muted/15"}`}
+                style={{ left: `calc(${(i / Math.max(steps.length - 1, 1)) * 100}% - 5px)`, top: "0px" }}
+              />
               <span className="text-xs leading-snug text-muted">{s}</span>
             </li>
           ))}
         </ol>
         <div className="mt-3 flex justify-between font-mono text-[11px] uppercase tracking-widest text-muted" aria-hidden="true">
-          <span>{axis[0]}</span>
-          <span>{axis[1]}</span>
+          <span>▸ {axis[0]}</span>
+          <span>{axis[1]} ✓</span>
         </div>
       </div>
-      {seal && <div className="mt-4">{seal}</div>}
+      {seal && <div className="mt-4 flex justify-start">{seal}</div>}
     </div>
   );
 }

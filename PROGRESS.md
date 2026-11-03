@@ -155,6 +155,14 @@ Update it at the end of every work item (done-check, commit hash, next scope).
   calendar/pro). V9: typecheck + build + 100/96+4 green (new v8-states.test.ts);
   e2e-home 8/8 (jobs/passport 375+1440 light+dark) — empty state, error+Retry
   verified in pixels.
+- Landing declutter (Nov 2, owner ask): removed section eyebrows/titles flagged
+  as noise (LiveJobs eyebrow + demo chips, featured "demo · done" chip,
+  Theater 01–11 eyebrows, ProblemCards indices, demo/roles/trust headings —
+  those components now render headings only when non-empty); kept functional
+  step numbers (HowSteps, escrow flow, CitySection). Race rebuilt as a real
+  racetrack diagram: gradient fill, travelling comet, nodes on the track,
+  checkered finish, day/minute counters, verified stamp (reduced-motion safe).
+  V9: typecheck + 100 green; e2e-home 8/8 (home ES+EN 375+1440 light+dark).
 - V4 DONE (Nov 2): feature pages rewired to owner content/funciones.ts (full
   ES+EN per slug: problem/solution/CTA/3 FAQs/annotated hero photo or app
   screenshot) + AnnotatedPhoto (SAM mask + callouts + demo label) with one

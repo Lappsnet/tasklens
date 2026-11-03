@@ -106,7 +106,7 @@ function FeaturedDone({ lang }: { lang: Lang }) {
         <figcaption className="flex flex-col justify-center p-6 lg:p-8">
           <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[var(--verified)]/10 px-3 py-1 text-xs font-bold text-[var(--verified)]">
             <CheckCircle weight="fill" aria-hidden="true" />
-            {c.demoLabel} · {STATUS_LABEL.done[lang]}
+            {STATUS_LABEL.done[lang]}
           </p>
           <p className="mt-3 font-display text-2xl font-extrabold leading-tight lg:text-3xl">{done.title[lang]}</p>
           <p className="mt-2 text-[15px] leading-relaxed text-muted">{c.lead}</p>
@@ -142,18 +142,13 @@ export default function LiveJobs({ lang }: { lang: Lang }) {
     <div>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-[46rem]">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[var(--signal)]">{c.eyebrow}</p>
-          <h2 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight lg:text-5xl">{c.title}</h2>
+          <h2 className="mt-0 font-display text-4xl font-extrabold leading-[1.05] tracking-tight lg:text-5xl">{c.title}</h2>
           <p className="mt-4 text-lg leading-relaxed text-muted">{c.lead}</p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-muted">
-          <span className="h-2 w-2 rounded-full bg-[var(--warning)]" aria-hidden="true" />
-          {c.demoLabel}
-        </span>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-full border border-line bg-surface p-1" role="group" aria-label={c.eyebrow}>
+        <div className="inline-flex rounded-full border border-line bg-surface p-1" role="group" aria-label={c.title}>
           {(["all", "home", "municipal"] as const).map((s) => (
             <button
               key={s}

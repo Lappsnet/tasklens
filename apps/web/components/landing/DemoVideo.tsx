@@ -20,7 +20,7 @@ export default function DemoVideo({ title, soon, soonBody, config, dark }: {
 
   return (
     <div>
-      <h2 className={`font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05] ${dark ? "text-white" : ""}`}>{title}</h2>
+      {title ? <h2 className={`font-display text-3xl font-bold lg:text-[40px] lg:leading-[1.05] ${dark ? "text-white" : ""}`}>{title}</h2> : null}
       <Viewfinder className="mt-4 border border-line bg-ink" animate={false}>
         <div className="relative aspect-video">
           {!hasVideo && (

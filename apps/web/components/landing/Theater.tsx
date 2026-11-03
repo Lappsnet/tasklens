@@ -84,9 +84,8 @@ export default function Theater({ title, sub, chapters }: { title: string; sub: 
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div ref={listRef} className="space-y-8">
           {chapters.map((c, i) => (
-            <article key={c.slug} data-chapter data-index={i} className={`rounded-card border p-4 transition-colors ${active === i ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface/60"}`}>
-              <div className="font-mono text-[11px] uppercase tracking-widest text-muted">{String(i + 1).padStart(2, "0")}</div>
-              <Link href={`/funciones/${c.slug}`} className="mt-1 block font-display text-xl font-extrabold underline-offset-4 hover:underline">
+            <article key={c.slug} data-chapter data-index={i} className={`rounded-card border p-4 transition-colors sm:p-5 ${active === i ? "border-signal bg-surface shadow-lifted" : "border-line bg-surface/60"}`}>
+              <Link href={`/funciones/${c.slug}`} className="block font-display text-xl font-extrabold underline-offset-4 hover:underline">
                 {c.name} →
               </Link>
               <p className="text-sm text-muted">{c.promise}</p>
