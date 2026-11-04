@@ -2,6 +2,14 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — "Create account" went to /login
+
+- Both header "Create account" buttons (desktop + mobile) linked to `/login`,
+  so new users hit the login form for a nonexistent account → Supabase
+  "Invalid login credentials". Both now link to `/signup` (which renders the
+  signup flow with password tab + profile step). The error itself was a
+  downstream symptom, not a second bug.
+
 ## 2026-11-04 — Demo video blocked by own CSP
 
 - Root cause was ours, not YouTube's: `frame-src` was `'none'` (PayPal-only),

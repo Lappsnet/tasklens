@@ -157,7 +157,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
             <>
               <Link href="/login" className="rounded-btn px-3 py-2 text-sm font-semibold hover-tint">{strings.signIn}</Link>
               <MagneticButton className="rounded-btn bg-ink px-4 py-2.5 text-sm font-semibold text-bg hover:brightness-125">
-                <Link href="/login">{strings.signUp}</Link>
+                <Link href="/signup">{strings.signUp}</Link>
               </MagneticButton>
             </>
           ) : (
@@ -256,7 +256,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
                   <Link href="/login" onClick={() => setMobileOpen(false)} className="flex-1 rounded-btn border border-ink px-4 py-3 text-center text-sm font-bold">
                     {strings.signIn}
                   </Link>
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="flex-1 rounded-btn bg-ink px-4 py-3 text-center text-sm font-bold text-bg">
+                  <Link href="/signup" onClick={() => setMobileOpen(false)} className="flex-1 rounded-btn bg-ink px-4 py-3 text-center text-sm font-bold text-bg">
                     {strings.signUp}
                   </Link>
                 </div>
