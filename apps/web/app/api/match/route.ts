@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { AiSpec, matchAndBook, rankPros } from "@tasklens/ai";
 import { clientKey, hitRateLimit } from "@/lib/ratelimit";
-import { requireRole } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getMemoryScan, getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { getAvailability, searchPros } from "@/lib/pros";
@@ -40,8 +40,10 @@ export async function POST(req: Request) {
   if (!(await hitRateLimit(`match:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
-  const gate = await requireRole(req, ["customer", "admin"]);
-  if ("response" in gate) return gate.response;
+  const gate = await getSession(req);
+  if (gate && !["customer", "admin"].includes(gate.role)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   let body: unknown;
   try {
     body = await req.json();
@@ -54,12 +56,14 @@ export async function POST(req: Request) {
 
   const spec = await loadSpec(scanId);
   if (!spec) return NextResponse.json({ error: "scan_not_found" }, { status: 404 });
-  // Ownership: real mode restricts customers to their own scans.
-  if (!gate.session.demo && gate.session.role === "customer") {
-    const meta = await getScanMeta(scanId);
-    if (meta?.customerId && meta.customerId !== gate.session.userId) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
-    }
+  // Ownership: logged-in customers see only their own scans; logged-out
+  // visitors only ownerless (anonymous) scans.
+  const meta = await getScanMeta(scanId);
+  if (gate?.role === "customer" && meta?.customerId && meta.customerId !== gate.userId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+  if (!gate && meta?.customerId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   // Agent pass first (real ranking when the model is reachable), with a hard

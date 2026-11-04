@@ -2,6 +2,15 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Try-before-signup: scan/quote/match open without login
+
+- `POST/GET /api/scan`, `POST /api/transcribe`, `POST /api/match` no longer
+  401 logged-out visitors; ownership enforced by scan owner instead (customers
+  see only own scans, anonymous callers only ownerless scans). Booking, jobs
+  and payments stay gated. Tradeoff: anonymous calls consume model quota —
+  contained by the existing per-IP rate limits; re-gate post-hackathon if
+  abuse appears.
+
 ## 2026-11-04 — Voice notes: WAV conversion (docs-verified contract)
 
 - Verified against dev.meta.ai/docs/speech-to-text (docs win): `POST

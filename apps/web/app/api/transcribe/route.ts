@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { transcribeBuffer } from "@tasklens/ai";
 import { clientKey, hitRateLimit } from "@/lib/ratelimit";
-import { requireRole } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { demoMode } from "@/lib/env";
 
 export const runtime = "nodejs";
@@ -24,8 +24,10 @@ export async function POST(req: Request) {
   if (!(await hitRateLimit(`transcribe:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
-  const gate = await requireRole(req, ["customer", "pro", "admin"]);
-  if ("response" in gate) return gate.response;
+  const session = await getSession(req);
+  if (session && !["customer", "pro", "admin"].includes(session.role)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   let form: FormData;
   try {
     form = await req.formData();

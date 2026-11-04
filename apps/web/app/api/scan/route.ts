@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientKey, hitRateLimit } from "@/lib/ratelimit";
-import { requireRole } from "@/lib/auth";
-import { getMemoryScan } from "@/lib/scans";
+import { getSession } from "@/lib/auth";
+import { getMemoryScan, getScanMeta } from "@/lib/scans";
 import { hasSupabase, serviceClient } from "@/lib/supabase-server";
 import { TextFields, processScan, validateUpload } from "@/lib/scan-pipeline";
 
@@ -12,8 +12,12 @@ export async function POST(req: Request) {
   if (!(await hitRateLimit(`scan:${clientKey(req)}`, 20))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
-  const gate = await requireRole(req, ["customer", "pro", "admin"]);
-  if ("response" in gate) return gate.response;
+  // Try-before-signup: scan creation is open to logged-out visitors (rate
+  // limited). The session only determines ownership; booking stays gated.
+  const session = await getSession(req);
+  if (session && !["customer", "pro", "admin"].includes(session.role)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   let form: FormData;
   try {
     form = await req.formData();
@@ -40,7 +44,7 @@ export async function POST(req: Request) {
         lang: parsed.data.lang,
         audio: files.audio,
         source: "web",
-        userId: gate.session.userId,
+        userId: session?.userId,
       }),
     );
   } catch (e) {
@@ -54,18 +58,21 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  const gate = await requireRole(req, ["customer", "pro", "admin"]);
-  if ("response" in gate) return gate.response;
+  const session = await getSession(req);
+  if (session && !["customer", "pro", "admin"].includes(session.role)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "bad_request" }, { status: 400 });
-  // Ownership: real mode restricts customers to their own scans.
-  if (!gate.session.demo && gate.session.role === "customer") {
-    const { getScanMeta } = await import("@/lib/scans");
-    const meta = await getScanMeta(id);
-    if (!meta) return NextResponse.json({ error: "not_found" }, { status: 404 });
-    if (meta.customerId && meta.customerId !== gate.session.userId) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
-    }
+  const meta = await getScanMeta(id);
+  if (!meta) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  // Ownership: logged-in customers see only their own scans; logged-out
+  // visitors only ownerless (anonymous) scans. Pros/admins keep broad access.
+  if (session?.role === "customer" && meta.customerId && meta.customerId !== session.userId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+  if (!session && meta.customerId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   const mem = getMemoryScan(id);
   if (mem) {
