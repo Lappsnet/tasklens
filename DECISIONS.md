@@ -2,6 +2,17 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Magic-link localhost redirect + resend-timer fix
+
+- `AuthCodeCatcher` (mounted in root layout): any page that receives `?code=`
+  (stale Supabase Site URL sending users to `/` or localhost instead of
+  `/auth/callback`) now exchanges the PKCE code and routes to `/signup`;
+  `?error=` routes to `/login?error=link`. Dashboard Site URL fix is still
+  required (go-live doc §2) — this is only the safety net.
+- Resend countdown showed a never-ending animation: `useCountUp` counts 0→N
+  (built for prices), so it restarted every second. The cooldown now renders
+  the raw `cooldown` seconds.
+
 ## 2026-11-04 — Real data + password auth + published demo video (go-live fix)
 
 - Demo video embedded by default: YouTube `7U4Fy3_roUI` in

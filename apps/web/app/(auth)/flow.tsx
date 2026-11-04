@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Bank, Buildings, Check, House, Wrench, EnvelopeSimple } from "@phosphor-icons/react";
 import { Button, ErrorState, Field, Input, Select, Sheet } from "@/components/ui";
-import { useCountUp } from "@/components/ui";
 import { BRAND_IMAGES } from "@/content/showcase";
 import { browserAuth, demoLogin, demoLoginServer, hasSupabaseBrowser } from "@/lib/auth-client";
 import { CITIES } from "@/lib/cities";
@@ -77,7 +76,6 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
   const [saved, setSaved] = useState(false);
   const [opCity, setOpCity] = useState("san-salvador");
   const strings = t(lang);
-  const cd = useCountUp(cooldown, 1000);
   const glassesThumb = BRAND_IMAGES.find((b) => b.id === "lentes-meta-display-detalle") ?? BRAND_IMAGES[0];
   const doneStep = saved || hasSession;
   const step = doneStep ? 3 : !roleOk ? 1 : 2;
@@ -434,7 +432,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
           <p className="mt-1 font-mono text-sm font-semibold">{email}</p>
           <p className="mt-2 text-xs text-muted">{strings.checkSpamNote}</p>
           <Button variant="secondary" className="mt-3" isDisabled={cooldown > 0 || busy} onPress={sendLink}>
-            {cooldown > 0 ? `${strings.resendIn} ${cd}s` : strings.resendLink}
+            {cooldown > 0 ? `${strings.resendIn} ${cooldown}s` : strings.resendLink}
           </Button>
           <div className="mt-2">
             <Button variant="ghost" className="text-sm" onPress={() => checkSession()}>{lang === "es" ? "Ya hice clic — continuar" : "I clicked the link — continue"}</Button>

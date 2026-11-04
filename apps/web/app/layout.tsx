@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui";
+import AuthCodeCatcher from "@/components/auth/AuthCodeCatcher";
 import QueryProvider from "@/components/app/QueryProvider";
 import "./styles/tokens.css";
 import "./globals.css";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${display.variable} ${body.variable} ${mono.variable} min-h-screen bg-bg font-body text-ink antialiased`}
       >
         <QueryProvider>{children}</QueryProvider>
+        <AuthCodeCatcher />
         <Toaster />
         {/* F2.6: service worker in production only — never cache /_next in dev. */}
         {process.env.NODE_ENV === "production" && (
