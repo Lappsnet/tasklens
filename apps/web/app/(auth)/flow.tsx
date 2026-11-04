@@ -115,14 +115,22 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
 
   useEffect(() => {
     if (!sent && mode === "login") return;
+    // Quiet poll: /api/auth/me 401s while logged out, which spams DevTools.
+    // 5s cadence, stops after ~5 min or on success.
+    let tries = 0;
     const t0 = setInterval(() => {
+      tries += 1;
+      if (tries > 60) {
+        clearInterval(t0);
+        return;
+      }
       checkSession().then((ok) => {
         if (ok && mode === "login" && role) {
           clearInterval(t0);
           router.push(roleHome(role));
         }
       });
-    }, 3000);
+    }, 5000);
     return () => clearInterval(t0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sent, mode]);
@@ -153,7 +161,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
         email: email.trim(),
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(friendlyAuthError(error.message));
       setSent(true);
       setCooldown(30);
     } catch (e) {
@@ -161,6 +169,28 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  /** GoTrue errors are cryptic codes (422 with "User already registered" etc):
+      map the common ones to friendly EN/ES strings. */
+  function friendlyAuthError(raw: string): string {
+    const msg = raw.toLowerCase();
+    if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("user already")) {
+      return strings.emailInUse;
+    }
+    if (msg.includes("signups are disabled") || msg.includes("signup") && msg.includes("disabled")) {
+      return strings.signupDisabled;
+    }
+    if (msg.includes("password") && (msg.includes("short") || msg.includes("weak") || msg.includes("6 character"))) {
+      return strings.passwordTooShort;
+    }
+    if (msg.includes("confirm") || msg.includes("not confirmed") || msg.includes("email not confirmed")) {
+      return strings.emailNotConfirmed;
+    }
+    if (msg.includes("invalid login credentials")) {
+      return mode === "signup" ? strings.emailInUse : raw;
+    }
+    return raw;
   }
 
   async function signWithPassword() {
@@ -186,7 +216,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
-        if (error) throw new Error(error.message);
+        if (error) throw new Error(friendlyAuthError(error.message));
         // If Confirm-email is ON, Supabase sends a confirmation email and
         // returns a user without session: tell the user to check inbox/spam.
         if (!data.session) {
@@ -201,7 +231,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
         if (error) {
           const msg = error.message.toLowerCase();
           if (msg.includes("confirm") || msg.includes("verif")) throw new Error(strings.emailNotConfirmed);
-          throw new Error(error.message);
+          throw new Error(friendlyAuthError(error.message));
         }
         const ok = await checkSession();
         if (ok && role) router.push(roleHome(role));

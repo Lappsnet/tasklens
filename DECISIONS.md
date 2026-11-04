@@ -2,6 +2,21 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — /api/scan 502 on Netlify + signup 422 noise
+
+- 502 root causes (serverless kills slow/large handlers): full-res multi-MB
+  uploads + unbounded AI waits. Fixes: client downscales photos to 1280px
+  JPEG before upload (`scan/page.tsx`); OpenAI client `timeout: 20s,
+  maxRetries: 0`; pipeline 25s ceiling → retryable `503 ai_unavailable`
+  (new `errorAi` string); missing `MODEL_API_KEY` returns a marked mock spec
+  instead of hanging. `loadPrompt` gained a package-root candidate so prompts
+  resolve in serverless bundles too.
+- Signup 422s now map to friendly strings (`emailInUse`, `signupDisabled`,
+  weak-password); "Invalid login credentials" on signup correctly suggests
+  logging in. Auth polling quieted (5s, 60 tries max) to stop the 401 console
+  spam. Note: with no pros registered, match returns empty/mock — quote still
+  works; that is expected until pros onboard.
+
 ## 2026-11-04 — "Create account" went to /login
 
 - Both header "Create account" buttons (desktop + mobile) linked to `/login`,

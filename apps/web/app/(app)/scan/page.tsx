@@ -79,16 +79,51 @@ export default function ScanPage() {
   function onFiles(list: FileList | null) {
     setError("");
     if (!list) return;
-    const next = [...photos];
-    for (const f of Array.from(list).slice(0, 3 - next.length)) {
-      if (!ACCEPT.split(",").includes(f.type) || f.size > MAX_FILE || f.size === 0) {
-        setError(strings.errorPhotos);
-        continue;
+    const incoming = Array.from(list).slice(0, 3 - photos.length);
+    if (incoming.length === 0) return;
+    // Downscale before upload: full-res phone photos (3-8 MB each) blow past
+    // serverless payload limits (502) and stall inference. 1280px JPEG is
+    // plenty for the damage overlay + quote.
+    void Promise.all(incoming.map((f) => downscaleImage(f))).then((downsized) => {
+      const next = [...photos];
+      for (const f of downsized) {
+        if (!ACCEPT.split(",").includes(f.type) || f.size > MAX_FILE || f.size === 0) {
+          setError(strings.errorPhotos);
+          continue;
+        }
+        next.push(f);
       }
-      next.push(f);
-    }
-    setPhotos(next.slice(0, 3));
+      setPhotos(next.slice(0, 3));
+    });
   }
+
+/** Shrink huge phone photos to a 1280px JPEG (returns the original on failure). */
+async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promise<File> {
+  try {
+    if (!("createImageBitmap" in window)) return file;
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+    if (scale >= 1 && file.size <= 1_500_000) {
+      bitmap.close();
+      return file;
+    }
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(bitmap.width * scale));
+    c.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = c.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, c.width, c.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/jpeg", quality));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
 
   function shutter() {
     const video = videoRef.current;
@@ -113,7 +148,10 @@ export default function ScanPage() {
         setError(strings.errorGeneric);
         return;
       }
-      setPhotos((p) => [...p, new File([b], `live-${Date.now()}.jpg`, { type: "image/jpeg" })].slice(0, 3));
+      const raw = new File([b], `live-${Date.now()}.jpg`, { type: "image/jpeg" });
+      void downscaleImage(raw).then((f) => {
+        setPhotos((p) => [...p, f].slice(0, 3));
+      });
     }, "image/jpeg", 0.9);
   }
 
@@ -239,6 +277,7 @@ export default function ScanPage() {
       const res = await fetch("/api/scan", { method: "POST", body: fd });
       const json = (await res.json()) as { scanId?: string; error?: string };
       if (!res.ok || !json.scanId) {
+        if (json.error === "ai_unavailable") throw new Error(strings.errorAi);
         throw new Error(json.error === "need_photo" || json.error === "bad_photo" ? strings.errorPhotos : strings.errorGeneric);
       }
       try {

@@ -82,6 +82,10 @@ pro applicants are promoted to `pro` automatically.
 - [ ] `/api/health` → `{"ok":true}` (or equivalent per route).
 - [ ] `/login` shows Password tab by default; create account → lands in `/signup` profile step (trigger created `profiles` row).
 - [ ] `/scan` photo+voice → `/quote` with `"mock": false`, photo-specific price (mock fixture always returns the same numbers).
+  If `"mock": true` with a real photo, `MODEL_API_KEY` is missing in Netlify
+  (the app degrades instead of 502). If `503 ai_unavailable`, the upstream AI
+  call exceeded the serverless time budget — retry; client photos are now
+  downscaled to 1280px and every model call is capped at 20s.
 - [ ] `/book` → real `jobs` + `job_events` rows; PayPal sandbox hold (no real money).
 - [ ] `/admin` reset only with admin role.
 - [ ] No `mock` badges in quote/book/verify responses; no `Datos de demostración` labels left.

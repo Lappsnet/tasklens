@@ -53,6 +53,24 @@ export interface ScanPipelineOutput {
 
 /** Shared scan pipeline: used by /api/scan (phone) and /api/glasses/upload. */
 export async function processScan(input: ScanPipelineInput): Promise<ScanPipelineOutput> {
+  // Fail fast, never hang: without a model key every AI call would throw or
+  // stall until the serverless host kills the handler (502). Return a clearly
+  // marked mock spec so the quote screen still works.
+  if (!process.env.MODEL_API_KEY) {
+    console.warn("[scan-pipeline] MODEL_API_KEY missing: returning mock spec (mock:true)");
+    const spec = mockScanSpec();
+    const first = input.photos[0];
+    const photoDataUrl = first ? await fileToDataUrl(first) : undefined;
+    return persist({
+      spec,
+      transcript: input.transcript.trim(),
+      lang: input.lang,
+      photoCount: input.photos.length,
+      photoDataUrl,
+      userId: input.userId,
+      mock: true,
+    });
+  }
   const mock = demoMode();
   let transcriptUsed = input.transcript.trim();
 
@@ -77,7 +95,14 @@ export async function processScan(input: ScanPipelineInput): Promise<ScanPipelin
   }
 
   const images = await Promise.all(input.photos.map((p) => fileToDataUrl(p)));
-  const spec = await withTimeout(scanToSpec({ images, transcript: transcriptUsed, lang: input.lang }));
+  let spec: AiSpec;
+  try {
+    // Hard ceiling so the host never kills the handler first (502 with no
+    // usable error). The client maps ai_timeout to a retry message (503).
+    spec = await withTimeout(scanToSpec({ images, transcript: transcriptUsed, lang: input.lang }), 25_000);
+  } catch (e) {
+    throw new Error(`ai_timeout: ${e instanceof Error ? e.message : e}`);
+  }
   return persist({ spec, transcript: transcriptUsed, lang: input.lang, photoCount: input.photos.length, photoDataUrl: images[0], userId: input.userId, mock: false });
 }
 

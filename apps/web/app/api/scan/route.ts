@@ -44,7 +44,11 @@ export async function POST(req: Request) {
       }),
     );
   } catch (e) {
-    console.error("[api/scan] failed:", e instanceof Error ? e.message : e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[api/scan] failed:", msg);
+    if (msg.startsWith("ai_timeout")) {
+      return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
+    }
     return NextResponse.json({ error: "scan_failed" }, { status: 500 });
   }
 }

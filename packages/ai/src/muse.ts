@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { museClient, modelId, fallbackModelId } from "./client.js";
 import { AiSpec, aiSpecJsonSchema, VerifyResult, verifyResultJsonSchema } from "./schemas.js";
 
@@ -18,6 +19,14 @@ function loadPrompt(name: "scan.md" | "verify.md" | "match.md"): string {
     candidates.push(new URL(`../prompts/${name}`, import.meta.url).toString());
   } catch {
     /* bundler sandbox without import.meta.url */
+  }
+  try {
+    // Package root (sibling of dist/): covers serverless deploys where the
+    // whole @tasklens/ai dir ships but dist/prompts/ was never built.
+    const here = dirname(fileURLToPath(import.meta.url));
+    candidates.push(join(here, "..", "prompts", name));
+  } catch {
+    /* ignore */
   }
   candidates.push(
     join(process.cwd(), "packages", "ai", "prompts", name),

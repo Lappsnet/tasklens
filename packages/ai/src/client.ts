@@ -9,6 +9,11 @@ export function museClient(): OpenAI {
   cached = new OpenAI({
     baseURL: process.env.MODEL_BASE_URL ?? "https://api.meta.ai/v1",
     apiKey,
+    // Bound every attempt: serverless functions (Netlify) kill slow handlers
+    // with a 502, so never wait longer than this per request. No SDK retries;
+    // scanToSpec already tries the fallback model once.
+    timeout: 20_000,
+    maxRetries: 0,
   });
   return cached;
 }
