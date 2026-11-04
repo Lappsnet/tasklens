@@ -16,6 +16,8 @@ const chaptersEn: FeatureChapter[] = [
 
 const demoVideoBase = {
   poster: "/demo-poster.svg",
+  provider: "youtube" as const,
+  id: "7U4Fy3_roUI",
   chapters: [
     { label: "Scan", t: "0:00" },
     { label: "Contract", t: "0:25" },
@@ -119,6 +121,6 @@ export const landingEn: LandingContent = {
   prosT: "For pros",
   pros: "Jobs without middlemen, a clear scope with photos before you arrive, guaranteed escrow pay and ratings that build your reputation.",
   join: "Join as a pro",
-  demoVideo: { provider: null, ...demoVideoBase },
+  demoVideo: { ...demoVideoBase },
 };
 

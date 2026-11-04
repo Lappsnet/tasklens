@@ -64,6 +64,8 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
   const [method, setMethod] = useState<"phone" | "glasses" | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [authTab, setAuthTab] = useState<"magic" | "password">("password");
   const [sent, setSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -156,8 +158,59 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       if (error) throw new Error(error.message);
       setSent(true);
       setCooldown(30);
-    } catch {
+    } catch (e) {
+      setError(e instanceof Error ? e.message : strings.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function signWithPassword() {
+    setError("");
+    if (!email.includes("@")) {
       setError(strings.errorGeneric);
+      return;
+    }
+    if ((password ?? "").length < 8) {
+      setError(strings.passwordTooShort);
+      return;
+    }
+    if (!hasSupabaseBrowser()) {
+      setError(strings.demoNote);
+      return;
+    }
+    setBusy(true);
+    try {
+      const client = browserAuth();
+      if (mode === "signup") {
+        const { data, error } = await client.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        });
+        if (error) throw new Error(error.message);
+        // If Confirm-email is ON, Supabase sends a confirmation email and
+        // returns a user without session: tell the user to check inbox/spam.
+        if (!data.session) {
+          setSent(true);
+          setCooldown(30);
+          return;
+        }
+        await checkSession();
+        router.push(roleHome(role ?? "customer"));
+      } else {
+        const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+        if (error) {
+          const msg = error.message.toLowerCase();
+          if (msg.includes("confirm") || msg.includes("verif")) throw new Error(strings.emailNotConfirmed);
+          throw new Error(error.message);
+        }
+        const ok = await checkSession();
+        if (ok && role) router.push(roleHome(role));
+        else if (ok) router.push("/scan");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : strings.errorGeneric);
     } finally {
       setBusy(false);
     }
@@ -338,15 +391,37 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
       {roleOk && role && method === "phone" && !sent && (
         <section aria-label={strings.withPhone}>
           <Button variant="ghost" className="mb-2 text-sm" onPress={() => setMethod(null)}>← {strings.howTitle}</Button>
+          <div className="mb-3 inline-flex rounded-full border border-line bg-surface p-1" role="tablist" aria-label={strings.withPhone}>
+            {(["password", "magic"] as const).map((tab) => (
+              <button key={tab} type="button" role="tab" aria-selected={authTab === tab} onClick={() => setAuthTab(tab)}
+                className={"rounded-full px-4 py-2 text-sm font-semibold transition-colors " + (authTab === tab ? "bg-ink text-bg" : "text-muted hover:text-ink")}>
+                {tab === "magic" ? strings.authTabMagic : strings.authTabPassword}
+              </button>
+            ))}
+          </div>
           <Field label={strings.emailLabel}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@correo.com" inputMode="email" />
           </Field>
+          {authTab === "password" && (
+            <Field label={strings.passwordLabel}>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={strings.passwordPh} maxLength={128} />
+            </Field>
+          )}
           <Field label={`${strings.phoneLabel} (${lang === "es" ? "opcional" : "optional"})`}>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={strings.phonePh} inputMode="tel" />
           </Field>
-          <Button size="lg" variant="accent" loading={busy} onPress={sendLink} className="mt-2">
-            {strings.sendLink}
-          </Button>
+          {authTab === "magic" ? (
+            <>
+              <Button size="lg" variant="accent" loading={busy} onPress={sendLink} className="mt-2">
+                {strings.sendLink}
+              </Button>
+              <p className="mt-2 text-xs text-muted">{strings.checkSpamNote}</p>
+            </>
+          ) : (
+            <Button size="lg" variant="accent" loading={busy} onPress={signWithPassword} className="mt-2">
+              {mode === "signup" ? strings.passwordSignup : strings.passwordLogin}
+            </Button>
+          )}
         </section>
       )}
 
@@ -357,6 +432,7 @@ export default function AuthFlow({ mode }: { mode: "login" | "signup" }) {
           <h2 className="mt-2 font-display text-xl font-bold">{strings.linkSentTitle}</h2>
           <p className="mt-1 text-sm text-muted">{strings.linkSentBody}</p>
           <p className="mt-1 font-mono text-sm font-semibold">{email}</p>
+          <p className="mt-2 text-xs text-muted">{strings.checkSpamNote}</p>
           <Button variant="secondary" className="mt-3" isDisabled={cooldown > 0 || busy} onPress={sendLink}>
             {cooldown > 0 ? `${strings.resendIn} ${cd}s` : strings.resendLink}
           </Button>

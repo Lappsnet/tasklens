@@ -23,8 +23,9 @@ describe("U5 landing content", () => {
     }
   });
 
-  it("demo video config is overrideable and defaults to empty", () => {
-    expect(landingContent("es").demoVideo.provider).toBeNull();
+  it("demo video config is overrideable and defaults to the published video", () => {
+    expect(landingContent("es").demoVideo.provider).toBe("youtube");
+    expect(landingContent("es").demoVideo.id).toBe("7U4Fy3_roUI");
     expect(landingEn.demoVideo.poster).toBeTruthy();
     expect(landingEn.demoVideo.chapters.length).toBe(4);
   });

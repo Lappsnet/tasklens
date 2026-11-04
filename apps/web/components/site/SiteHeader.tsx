@@ -138,7 +138,7 @@ export default function SiteHeader({ me: initialMe }: { me?: Me | null }) {
                   </span>
                   <span>
                     <span className="block text-sm font-bold">Mira el demo (2 min)</span>
-                    <span className="block text-xs text-muted">Video · {strings.demoSoon}</span>
+                    <span className="block text-xs text-muted">Video · YouTube</span>
                   </span>
                 </button>
               </div>

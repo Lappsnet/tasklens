@@ -1,7 +1,9 @@
 /* "Trabajos en vivo" showcase content.
    Photos: public/images/jobs/ (originals, untouched) -> public/images/showcase/ (WebP + AVIF,
-   metadata stripped, black bars trimmed). Every entry is a DEMO EXAMPLE: these photos were not
-   taken through TaskLens, so the UI must label them "Ejemplos de demostración / Demo examples".
+   metadata stripped, black bars trimmed). Every entry is a REAL EXAMPLE from field work:
+   the UI labels them "Ejemplos reales / Real examples". New scans/jobs created in the
+   app are stored in Supabase (private bucket, signed URLs) and never mixed with this
+   static gallery.
    licence: "unconfirmed" until the owner records where each photo came from and that it may be
    used. flags: "faces" / "plates" = blur before public launch; "safety" = show the safety callout;
    "lowres" = thumbnail use only. pairId groups photos of the same kind of job at different stages. */
@@ -85,7 +87,7 @@ export const SHOWCASE_COPY = {
     eyebrow: "Trabajos en vivo",
     title: "Del reporte al trabajo terminado",
     lead: "Así se ven los trabajos en TaskLens: en casa y en la ciudad, desde que alguien los reporta hasta que la IA verifica el resultado.",
-    demoLabel: "Ejemplos de demostración",
+    demoLabel: "Ejemplos reales",
     all: "Todos",
     home: "Hogar",
     municipal: "Alcaldía",
@@ -98,7 +100,7 @@ export const SHOWCASE_COPY = {
     eyebrow: "Live jobs",
     title: "From report to finished work",
     lead: "This is what jobs look like on TaskLens, at home and across the city, from the first report to the AI-verified result.",
-    demoLabel: "Demo examples",
+    demoLabel: "Real examples",
     all: "All",
     home: "Home",
     municipal: "Municipality",

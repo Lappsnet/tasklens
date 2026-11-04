@@ -2,6 +2,24 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Real data + password auth + published demo video (go-live fix)
+
+- Demo video embedded by default: YouTube `7U4Fy3_roUI` in
+  `demoVideoBase` (es/en). `NEXT_PUBLIC_DEMO_VIDEO_URL` still overrides.
+  SiteHeader mega-menu no longer references `demoSoon` copy.
+- Showcase gallery relabeled "Ejemplos reales / Real examples" (was "datos de
+  demostración"). Static gallery is field-work example photos; app-created
+  scans/jobs are real Supabase rows when keys are set (production never runs
+  `DEMO_MODE`).
+- Auth: password login/signup is now the DEFAULT tab in `/login`+`/signup`
+  (`signInWithPassword`/`signUp`); magic link kept as secondary. Real Supabase
+  error text is surfaced + spam/resend hint. Fixes "confirmation never arrives":
+  login needs no email at all; signup works instantly when Supabase
+  Confirm-email is OFF, or via Custom SMTP when ON.
+- New checklist: `docs/netlify-supabase-go-live.md` (Netlify env table for
+  `https://tasklen.netlify.app`, Supabase redirect URLs, email-delivery fix,
+  real-data verification with `"mock": false`).
+
 ## 2026-10-29 — U6 feature deep pages
 
 - `/funciones/[slug]` statically generated for all 11 content chapters; mega-menu

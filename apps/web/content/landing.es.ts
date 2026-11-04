@@ -104,6 +104,8 @@ const chaptersEs: FeatureChapter[] = [
 
 export const demoVideoBase = {
   poster: "/demo-poster.svg",
+  provider: "youtube" as const,
+  id: "7U4Fy3_roUI",
   chapters: [
     { label: "Escaneo", t: "0:00" },
     { label: "Contrato", t: "0:25" },
@@ -207,7 +209,7 @@ export const landingEs: LandingContent = {
   prosT: "Para profesionales",
   pros: "Trabajos sin intermediarios, un alcance claro con fotos antes de llegar, pago garantizado por garantía bloqueada y calificaciones que construyen tu reputación.",
   join: "Únete como profesional",
-  demoVideo: { provider: null, ...demoVideoBase },
+  demoVideo: { ...demoVideoBase },
 };
 
 import { landingEn } from "./landing.en";

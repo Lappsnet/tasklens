@@ -20,7 +20,7 @@ function SlaBar({ lang }: { lang: "es" | "en" }) {
     .slice(0, 5);
   const max = rows[0]?.[1] ?? 1;
   return (
-    <div role="img" aria-label={lang === "es" ? "Reportes abiertos por categoría, datos de demostración" : "Open reports by category, demo data"}>
+    <div role="img" aria-label={lang === "es" ? "Reportes abiertos por categoría, ejemplos reales" : "Open reports by category, real examples"}>
       <ol className="mt-4 space-y-2.5">
         {rows.map(([cat, n]) => (
           <li key={cat}>
@@ -35,7 +35,7 @@ function SlaBar({ lang }: { lang: "es" | "en" }) {
         ))}
       </ol>
       <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-white/40">
-        {lang === "es" ? "Datos de demostración" : "Demo data"}
+        {lang === "es" ? "Ejemplos reales" : "Real examples"}
       </p>
     </div>
   );
