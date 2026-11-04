@@ -2,6 +2,16 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Hold-to-talk actually holds + transcribe errors surfaced
+
+- The mic button said "hold to talk" but was tap-toggle, and every transcribe
+  failure was swallowed silently (empty box, no message). Now: press-and-hold
+  records, release stops and transcribes (`onPressStart`/`onPressEnd`, keyboard
+  accessible); failures show `errorTranscribe` instead of silence. The voice
+  blob is still kept, so `/api/scan` transcribes server-side at submit.
+- `/api/transcribe` capped at 25s → retryable 503; client aborts at 30s;
+  empty blob mime defaults to audio/webm (some browsers report "").
+
 ## 2026-11-04 — Match always renders: 18-pro pool + deterministic fallback
 
 - `MOCK_PROS` grew from 10 to 18 (3 per trade × 6 categories) so every scan

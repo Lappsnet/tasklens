@@ -204,11 +204,8 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
     tick();
   }
 
-  async function toggleRecord() {
-    if (recording) {
-      recorderRef.current?.stop();
-      return;
-    }
+  async function startRecord() {
+    if (recording || transcribing) return;
     setError("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -230,21 +227,28 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
         analyserRef.current = null;
         ctx.close().catch(() => undefined);
         setRecording(false);
-        const blob = new Blob(chunksRef.current, { type: rec.mimeType || "audio/webm" });
+        const recType = rec.mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type: recType });
         if (blob.size === 0) return;
         voiceRef.current = blob;
         setTranscribing(true);
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 30_000);
         try {
           const fd = new FormData();
-          fd.append("audio", new File([blob], "note.webm", { type: blob.type }), "note.webm");
+          const file = new File([blob], "note.webm", { type: recType });
+          fd.append("audio", file, "note.webm");
           fd.append("lang", lang);
-          const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+          const res = await fetch("/api/transcribe", { method: "POST", body: fd, signal: ctrl.signal });
           const json = (await res.json()) as { transcript?: string; error?: string };
           if (!res.ok || !json.transcript) throw new Error(json.error ?? "transcribe_failed");
           setTranscript(json.transcript);
         } catch {
-          /* server transcribes as fallback */
+          // Tell the user instead of staying silent: the voice blob is kept,
+          // so /api/scan still transcribes it server-side at submit time.
+          setError(strings.errorTranscribe);
         } finally {
+          clearTimeout(timer);
           setTranscribing(false);
         }
       };
@@ -252,7 +256,15 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
       rec.start();
       setRecording(true);
     } catch {
-      setError(strings.errorGeneric);
+      setError(strings.errorTranscribe);
+    }
+  }
+
+  function stopRecord() {
+    try {
+      recorderRef.current?.stop();
+    } catch {
+      setRecording(false);
     }
   }
 
@@ -378,7 +390,7 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
         </Field>
         <canvas ref={waveRef} width={300} height={40} className="w-full h-10 rounded bg-ink/5 mt-2" hidden={!recording} />
         <div className="flex gap-2 items-center mt-2">
-          <Button variant={recording ? "accent" : "secondary"} onPress={toggleRecord}>
+          <Button variant={recording ? "accent" : "secondary"} onPressStart={startRecord} onPressEnd={stopRecord}>
             {recording ? `● ${strings.stop}` : `🎙 ${strings.holdTalk}`}
           </Button>
           {transcribing && <span className="text-muted text-sm">{strings.transcribing}</span>}

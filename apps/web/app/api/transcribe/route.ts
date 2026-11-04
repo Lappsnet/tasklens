@@ -55,13 +55,26 @@ export async function POST(req: Request) {
       });
     }
     const buf = new Uint8Array(await audio.arrayBuffer());
-    const transcript = await transcribeBuffer({
-      buffer: buf,
-      mimeType: audio.type,
-      filename: audio.name || "note",
-      lang,
-    });
-    return NextResponse.json({ transcript, mock: false });
+    try {
+      const { withTimeout } = await import("@/lib/scan-pipeline");
+      const transcript = await withTimeout(
+        transcribeBuffer({
+          buffer: buf,
+          mimeType: audio.type,
+          filename: audio.name || "note",
+          lang,
+        }),
+        25_000,
+      );
+      return NextResponse.json({ transcript, mock: false });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[api/transcribe] failed:", msg);
+      if (msg.includes("timed out")) {
+        return NextResponse.json({ error: "transcribe_unavailable" }, { status: 503 });
+      }
+      return NextResponse.json({ error: "transcribe_failed" }, { status: 500 });
+    }
   } catch (e) {
     console.error("[api/transcribe] failed:", e instanceof Error ? e.message : e);
     return NextResponse.json({ error: "transcribe_failed" }, { status: 500 });
