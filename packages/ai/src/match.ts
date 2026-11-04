@@ -33,13 +33,17 @@ export type MatchResult = z.infer<typeof MatchResult>;
 export function rankPros(args: {
   category: string;
   pros: { id: string; name: string; category: string; rating: number }[];
+  lang?: "en" | "es";
 }): MatchResult {
   const filtered = args.pros.filter((p) => p.category === args.category);
   const pool = (filtered.length ? filtered : args.pros).slice().sort((a, b) => b.rating - a.rating).slice(0, 3);
+  const es = args.lang === "es";
   return {
     top3: pool.map((p, i) => ({
       pro_id: p.id,
-      reason: `${p.name} — ${p.rating.toFixed(1)}★, matches ${args.category}`,
+      reason: es
+        ? `${p.name} — ${p.rating.toFixed(1)}★, coincide con ${args.category}`
+        : `${p.name} — ${p.rating.toFixed(1)}★, matches ${args.category}`,
       eta_days: i + 1,
       quote_usd: 150 + i * 50,
     })),

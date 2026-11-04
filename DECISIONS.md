@@ -2,6 +2,16 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Match always renders: 18-pro pool + deterministic fallback
+
+- `MOCK_PROS` grew from 10 to 18 (3 per trade × 6 categories) so every scan
+  category matches in-category pros even with an empty DB.
+- `/api/match` now caps the agent loop at 25s and falls back to deterministic
+  rating-ranked pros with rate×hours quotes (`mock: true`) — the "Top pros"
+  screen renders even when the model is unreachable (previously a bare 500).
+  `rankPros` reasons are bilingual via a new optional `lang`.
+- Book page sends `lang` to `/api/match`.
+
 ## 2026-11-04 — /api/scan 502 on Netlify + signup 422 noise
 
 - 502 root causes (serverless kills slow/large handlers): full-res multi-MB

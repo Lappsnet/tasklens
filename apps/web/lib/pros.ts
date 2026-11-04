@@ -1,18 +1,28 @@
 import type { ProCandidate } from "@tasklens/ai";
 import { hasSupabase, serviceClient } from "./supabase-server";
 
-/** Demo pool mirroring the ES seed (used when Supabase is not configured). */
+/** Demo pool mirroring the ES seed (used when Supabase is not configured, or as
+    fallback when the DB has no pros in the job's category). 3 pros per trade so
+    any scan category always matches real-looking candidates. */
 const MOCK_PROS: ProCandidate[] = [
   { id: "mock-carlos", name: "Carlos Méndez", category: "plumbing", rating: 4.9, rate_usd_hr: 45, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
   { id: "mock-rosa", name: "Rosa Jiménez", category: "plumbing", rating: 4.8, rate_usd_hr: 40, city: "San Salvador, SV", lat: 13.7, lng: -89.2 },
   { id: "mock-dave", name: "David Rivas", category: "plumbing", rating: 4.7, rate_usd_hr: 42, city: "Santa Tecla, SV", lat: 13.71, lng: -89.23 },
   { id: "mock-mike", name: "Miguel Rosales", category: "electrical", rating: 4.9, rate_usd_hr: 50, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
   { id: "mock-elena", name: "Elena Vásquez", category: "electrical", rating: 4.8, rate_usd_hr: 48, city: "San Salvador, SV", lat: 13.705, lng: -89.205 },
-  { id: "mock-maria", name: "María González", category: "appliance", rating: 4.9, rate_usd_hr: 40, city: "San Salvador, SV", lat: 13.7, lng: -89.21 },
-  { id: "mock-carmen", name: "Carmen Díaz", category: "drywall_paint", rating: 4.9, rate_usd_hr: 32, city: "San Salvador, SV", lat: 13.706, lng: -89.206 },
-  { id: "mock-alex", name: "Alex Johnson", category: "assembly", rating: 4.9, rate_usd_hr: 25, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
-  { id: "mock-lucia", name: "Lucía Herrera", category: "cleaning", rating: 4.9, rate_usd_hr: 20, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
   { id: "mock-sofia", name: "Sofía Ramírez", category: "electrical", rating: 4.6, rate_usd_hr: 40, city: "Santa Ana, SV", lat: 13.9949, lng: -89.5596 },
+  { id: "mock-maria", name: "María González", category: "appliance", rating: 4.9, rate_usd_hr: 40, city: "San Salvador, SV", lat: 13.7, lng: -89.21 },
+  { id: "mock-jorge", name: "Jorge Castillo", category: "appliance", rating: 4.7, rate_usd_hr: 38, city: "Soyapango, SV", lat: 13.74, lng: -89.15 },
+  { id: "mock-ana", name: "Ana Morales", category: "appliance", rating: 4.8, rate_usd_hr: 42, city: "Santa Tecla, SV", lat: 13.675, lng: -89.289 },
+  { id: "mock-carmen", name: "Carmen Díaz", category: "drywall_paint", rating: 4.9, rate_usd_hr: 32, city: "San Salvador, SV", lat: 13.706, lng: -89.206 },
+  { id: "mock-luis", name: "Luis Hernández", category: "drywall_paint", rating: 4.7, rate_usd_hr: 30, city: "San Salvador, SV", lat: 13.698, lng: -89.225 },
+  { id: "mock-patricia", name: "Patricia Flores", category: "drywall_paint", rating: 4.8, rate_usd_hr: 33, city: "Mejicanos, SV", lat: 13.73, lng: -89.21 },
+  { id: "mock-alex", name: "Alex Johnson", category: "assembly", rating: 4.9, rate_usd_hr: 25, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-diego", name: "Diego Fuentes", category: "assembly", rating: 4.7, rate_usd_hr: 22, city: "San Salvador, SV", lat: 13.71, lng: -89.2 },
+  { id: "mock-gabi", name: "Gabriela Ortiz", category: "assembly", rating: 4.8, rate_usd_hr: 24, city: "Santa Tecla, SV", lat: 13.68, lng: -89.28 },
+  { id: "mock-lucia", name: "Lucía Herrera", category: "cleaning", rating: 4.9, rate_usd_hr: 20, city: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+  { id: "mock-marta", name: "Marta Rivas", category: "cleaning", rating: 4.8, rate_usd_hr: 18, city: "San Salvador, SV", lat: 13.7, lng: -89.215 },
+  { id: "mock-jose", name: "José Cruz", category: "cleaning", rating: 4.7, rate_usd_hr: 19, city: "Soyapango, SV", lat: 13.745, lng: -89.145 },
 ];
 
 /** Pros approved through the onboarding queue (memory mode). Listed alongside MOCK_PROS. */

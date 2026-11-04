@@ -53,7 +53,7 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
         const res = await fetch("/api/match", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scanId }),
+          body: JSON.stringify({ scanId, lang }),
         });
         const json = (await res.json()) as { top3?: Pro[]; coords?: { pro_id: string; lat?: number; lng?: number; name?: string; rating?: number }[]; lang?: Lang; error?: string };
         if (!res.ok || !json.top3) throw new Error(json.error ?? "match_failed");
