@@ -125,6 +125,68 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
   }
 }
 
+/* Meta /v1/asr/transcribe only accepts RIFF/WAVE mono 16-bit PCM (16/24 kHz):
+   a webm/mp4 upload is a guaranteed 400. Decode the recording and re-encode
+   to 24 kHz mono WAV in-browser (no deps). Falls back to the original blob. */
+async function recordingToWav(blob: Blob): Promise<{ blob: Blob; name: string; type: string }> {
+  const fallback = { blob, name: "note.webm", type: blob.type || "audio/webm" };
+  try {
+    const AC =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC || typeof AC !== "function") return fallback;
+    const raw = await blob.arrayBuffer();
+    const ctx = new AC();
+    try {
+      const decoded = await ctx.decodeAudioData(raw.slice(0));
+      if (!decoded || decoded.length === 0) return fallback;
+      const targetRate = 24000;
+      const n = decoded.length;
+      const channels = decoded.numberOfChannels;
+      const ratio = decoded.sampleRate / targetRate;
+      const len = Math.max(1, Math.floor(n / ratio));
+      const mono = new Float32Array(len);
+      for (let i = 0; i < len; i++) {
+        const srcIx = Math.min(n - 1, Math.floor(i * ratio));
+        let sum = 0;
+        for (let c = 0; c < channels; c++) sum += decoded.getChannelData(c)[srcIx];
+        mono[i] = sum / channels;
+      }
+      return { blob: new Blob([encodeWavPcm16(mono, targetRate)], { type: "audio/wav" }), name: "note.wav", type: "audio/wav" };
+    } finally {
+      ctx.close().catch(() => undefined);
+    }
+  } catch {
+    return fallback;
+  }
+}
+
+function encodeWavPcm16(samples: Float32Array, sampleRate: number): ArrayBuffer {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const wstr = (o: number, s: string) => {
+    for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
+  };
+  wstr(0, "RIFF");
+  v.setUint32(4, 36 + samples.length * 2, true);
+  wstr(8, "WAVE");
+  wstr(12, "fmt ");
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true);
+  v.setUint32(24, sampleRate, true);
+  v.setUint32(28, sampleRate * 2, true);
+  v.setUint16(32, 2, true);
+  v.setUint16(34, 16, true);
+  wstr(36, "data");
+  v.setUint32(40, samples.length * 2, true);
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return buf;
+}
+
   function shutter() {
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) {
@@ -230,23 +292,26 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
         const recType = rec.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type: recType });
         if (blob.size === 0) return;
-        voiceRef.current = blob;
+        // Convert to 24 kHz mono WAV: the only container Meta accepts.
+        // voiceRef holds WAV from here, so the /api/scan fallback gets it too.
+        const conv = await recordingToWav(blob);
+        voiceRef.current = conv.blob;
         setTranscribing(true);
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 30_000);
         try {
           const fd = new FormData();
-          const file = new File([blob], "note.webm", { type: recType });
-          fd.append("audio", file, "note.webm");
+          fd.append("audio", new File([conv.blob], conv.name, { type: conv.type }), conv.name);
           fd.append("lang", lang);
           const res = await fetch("/api/transcribe", { method: "POST", body: fd, signal: ctrl.signal });
           const json = (await res.json()) as { transcript?: string; error?: string };
+          if (res.status === 401) throw new Error("auth");
           if (!res.ok || !json.transcript) throw new Error(json.error ?? "transcribe_failed");
           setTranscript(json.transcript);
-        } catch {
+        } catch (e) {
           // Tell the user instead of staying silent: the voice blob is kept,
           // so /api/scan still transcribes it server-side at submit time.
-          setError(strings.errorTranscribe);
+          setError(e instanceof Error && e.message === "auth" ? strings.errorLoginFirst : strings.errorTranscribe);
         } finally {
           clearTimeout(timer);
           setTranscribing(false);
@@ -284,7 +349,9 @@ async function downscaleImage(file: File, maxDim = 1280, quality = 0.82): Promis
       fd.append("transcript", transcript);
       fd.append("lang", lang);
       if (!transcript.trim() && voiceRef.current) {
-        fd.append("audio", new File([voiceRef.current], "note.webm", { type: voiceRef.current.type || "audio/webm" }));
+        const vt = voiceRef.current.type || "audio/wav";
+        const vn = vt.includes("wav") ? "note.wav" : "note.webm";
+        fd.append("audio", new File([voiceRef.current], vn, { type: vt }));
       }
       const res = await fetch("/api/scan", { method: "POST", body: fd });
       const json = (await res.json()) as { scanId?: string; error?: string };

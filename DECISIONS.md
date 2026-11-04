@@ -2,6 +2,17 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Voice notes: WAV conversion (docs-verified contract)
+
+- Verified against dev.meta.ai/docs/speech-to-text (docs win): `POST
+  /v1/asr/transcribe` takes `request` JSON + `audio` WAV only — RIFF/WAVE mono
+  16-bit PCM at 16/24 kHz, `audioEncoding: "WAV"`, response `{ transcript }`.
+  We were uploading webm/mp4 bytes declared as WAV: guaranteed 400. The app
+  now decodes the recording and re-encodes 24 kHz mono WAV in-browser (no
+  deps); `voiceRef` holds WAV so the `/api/scan` fallback benefits too.
+- 401 (logged out) now shows `errorLoginFirst` instead of the generic
+  transcribe error.
+
 ## 2026-11-04 — Hold-to-talk actually holds + transcribe errors surfaced
 
 - The mic button said "hold to talk" but was tap-toggle, and every transcribe
