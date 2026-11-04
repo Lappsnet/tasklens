@@ -67,6 +67,7 @@ export const landingEn: LandingContent = {
   featuresSub: "Scroll each chapter; the phone shows the real screen.",
   chapters: chaptersEn,
   demoT: "See it in 2 minutes",
+  watchOnYouTube: "Watch on YouTube",
   demoSoon: "Demo coming November 3",
   demoSoonBody: "We're recording the video on real jobs. Meanwhile, try a live scan.",
   tabsT: "For every side of the job",

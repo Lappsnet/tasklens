@@ -60,6 +60,7 @@ export interface LandingContent {
   demoT: string;
   demoSoon: string;
   demoSoonBody: string;
+  watchOnYouTube: string;
   tabsT: string;
   tabs: { id: string; label: string; points: string[] }[];
   citiesT: string;
@@ -155,6 +156,7 @@ export const landingEs: LandingContent = {
   featuresSub: "Desliza por cada capítulo; el teléfono muestra la pantalla real.",
   chapters: chaptersEs,
   demoT: "Míralo en 2 minutos",
+  watchOnYouTube: "Ver en YouTube",
   demoSoon: "Demo disponible el 3 de noviembre",
   demoSoonBody: "Estamos grabando el video con trabajos reales. Mientras tanto, prueba un escaneo en vivo.",
   tabsT: "Para cada lado del trabajo",

@@ -35,12 +35,19 @@ function csp(): string {
   ];
   const script = ["'self'", "'unsafe-inline'", ...(isProd ? [] : ["'unsafe-eval'"])];
   // PayPal checkout renders its buttons in an iframe; allow it only when configured.
-  const frameSrc = paypal ? "https://www.paypal.com https://www.sandbox.paypal.com" : "'none'";
+  // YouTube embeds are always allowed: the landing demo video is a youtube-nocookie
+  // iframe (oEmbed-confirmed embeddable). Without this the browser blocks the
+  // player with a "content is blocked" error.
+  const frameSrc = [
+    "https://www.youtube-nocookie.com",
+    "https://www.youtube.com",
+    ...(paypal ? ["https://www.paypal.com", "https://www.sandbox.paypal.com"] : []),
+  ].join(" ");
   return [
     "default-src 'self'",
     `script-src ${script.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: blob: ${supabaseHosts().filter((h) => h.startsWith("https")).join(" ")}`.trim(),
+    `img-src 'self' data: blob: https://i.ytimg.com ${supabaseHosts().filter((h) => h.startsWith("https")).join(" ")}`.trim(),
     "media-src 'self' data: blob:",
     `connect-src ${connect.join(" ")}`,
     `frame-src ${frameSrc}`,

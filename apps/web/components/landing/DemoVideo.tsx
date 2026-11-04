@@ -8,10 +8,11 @@ import { Play } from "@phosphor-icons/react";
 import type { DemoVideoConfig } from "@/content/landing.es";
 import { Viewfinder } from "@/components/blueprint";
 
-export default function DemoVideo({ title, soon, soonBody, config, dark }: {
+export default function DemoVideo({ title, soon, soonBody, watchOnYouTube, config, dark }: {
   title: string;
   soon: string;
   soonBody: string;
+  watchOnYouTube: string;
   config: DemoVideoConfig;
   dark?: boolean;
 }) {
@@ -61,6 +62,18 @@ export default function DemoVideo({ title, soon, soonBody, config, dark }: {
           </span>
         ))}
       </div>
+      {config.provider === "youtube" && config.id && (
+        <p className="mt-3">
+          <a
+            href={`https://www.youtube.com/watch?v=${config.id}`}
+            target="_blank"
+            rel="noopener"
+            className={`text-sm font-semibold underline underline-offset-4 ${dark ? "text-white/80 hover:text-white" : "text-blueprint hover:text-ink"}`}
+          >
+            {watchOnYouTube} ↗
+          </a>
+        </p>
+      )}
     </div>
   );
 }

@@ -2,6 +2,15 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Demo video blocked by own CSP
+
+- Root cause was ours, not YouTube's: `frame-src` was `'none'` (PayPal-only),
+  so the browser blocked the youtube-nocookie player. `frame-src` now always
+  allows `youtube-nocookie.com` + `youtube.com`; `img-src` adds `i.ytimg.com`.
+  Video `7U4Fy3_roUI` verified embeddable via oEmbed.
+- `DemoVideo` gained a "Ver en YouTube / Watch on YouTube" fallback link so
+  the video is one click away even if an embed ever fails.
+
 ## 2026-11-04 — Magic-link localhost redirect + resend-timer fix
 
 - `AuthCodeCatcher` (mounted in root layout): any page that receives `?code=`

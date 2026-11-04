@@ -99,7 +99,7 @@ export default async function LandingPage() {
         <Container>
           <Reveal className="py-16 sm:py-20 lg:py-24" >
             <div>
-              <DemoVideo title="" soon={t.demoSoon} soonBody={t.demoSoonBody} config={t.demoVideo} dark />
+              <DemoVideo title="" soon={t.demoSoon} soonBody={t.demoSoonBody} watchOnYouTube={t.watchOnYouTube} config={t.demoVideo} dark />
             </div>
           </Reveal>
         </Container>
