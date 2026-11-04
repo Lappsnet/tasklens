@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { matchAndBook } from "@tasklens/ai";
+import { rankPros } from "@tasklens/ai";
 import { clientKey, hitRateLimit } from "@/lib/ratelimit";
 import { requireRole } from "@/lib/auth";
 import { getScanMeta } from "@/lib/scans";
@@ -65,19 +65,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Re-run matching server-side so proId must be one of the ranked top 3 —
-    // a client can't book an arbitrary pro.
-    const matched = await matchAndBook(
-      { spec: scan.spec, lat, lng, max_km: 25, scan_id: scanId },
-      {
-        search_pros: (a) => searchPros(a),
-        get_availability: (a) => getAvailability(a.pro_id),
-        create_booking: async () => {
-          throw new Error("booking_not_allowed_here");
-        },
-      },
-    );
-    const pick = matched.top3.find((t) => t.pro_id === proId);
+    // Deterministic server-side validation — no model call, so booking stays
+    // fast on serverless (the agent loop here was timing out into 502/500).
+    // rankPros mirrors the match fallback; any in-category pool pro is also
+    // accepted so a model-ranked pick is never falsely rejected. A client
+    // still can't book an arbitrary pro.
+    const pool = await searchPros({ category: scan.spec.category, lat, lng, max_km: 25 });
+    const ranked = rankPros({
+      category: scan.spec.category,
+      pros: pool.map((p) => ({ id: p.id, name: p.name, category: p.category, rating: p.rating })),
+    });
+    const pick =
+      ranked.top3.find((t) => t.pro_id === proId) ??
+      pool.find((p) => p.id === proId && p.category === scan.spec.category);
     if (!pick) return NextResponse.json({ error: "pro_not_offered" }, { status: 409 });
 
     const slots = await getAvailability(proId);

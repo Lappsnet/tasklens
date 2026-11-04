@@ -104,13 +104,15 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
       };
       if (!res.ok) {
         throw new Error(
-          json.error === "confirmation_required"
-            ? "confirmation_required"
-            : json.error === "pro_not_offered"
-              ? "pro_not_offered"
-              : json.error === "slot_unavailable"
-                ? "slot_unavailable"
-                : strings.errorGeneric,
+          json.error === "unauthorized"
+            ? strings.errorLoginFirst
+            : json.error === "confirmation_required"
+              ? "confirmation_required"
+              : json.error === "pro_not_offered"
+                ? "pro_not_offered"
+                : json.error === "slot_unavailable"
+                  ? "slot_unavailable"
+                  : strings.errorGeneric,
         );
       }
       if (json.provider === "paypal" && json.order) {

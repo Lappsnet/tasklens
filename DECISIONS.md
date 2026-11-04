@@ -2,6 +2,14 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Booking no longer re-runs the AI agent
+
+- `/api/book` validated the pick by re-running the full agent loop, which timed
+  out on serverless (502/500 on Confirm). Now validates deterministically
+  against `rankPros` + the in-category pool: instant, same security property
+  (no arbitrary pro), no false rejections of model-ranked picks.
+- Logged-out Confirm now says "log in first" instead of the generic error.
+
 ## 2026-11-04 — Try-before-signup: scan/quote/match open without login
 
 - `POST/GET /api/scan`, `POST /api/transcribe`, `POST /api/match` no longer
