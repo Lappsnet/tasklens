@@ -2,6 +2,13 @@
 
 Record of stack/behavior decisions. Newest first. (AGENTS.md: docs beat this file on Meta API conflicts.)
 
+## 2026-11-04 — Errors say what actually happened
+
+- Quote/book screens swallowed every backend code into "Something went wrong".
+  `scan_not_found` now says the scan expired/wasn't saved (retake),
+  `no_pros` says no coverage yet. Next report will name the cause instead of
+  guessing from a 404 line in DevTools.
+
 ## 2026-11-04 — Booking no longer re-runs the AI agent
 
 - `/api/book` validated the pick by re-running the full agent loop, which timed

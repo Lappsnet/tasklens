@@ -56,7 +56,11 @@ export default function BookPage({ params }: { params: Promise<{ scanId: string 
           body: JSON.stringify({ scanId, lang }),
         });
         const json = (await res.json()) as { top3?: Pro[]; coords?: { pro_id: string; lat?: number; lng?: number; name?: string; rating?: number }[]; lang?: Lang; error?: string };
-        if (!res.ok || !json.top3) throw new Error(json.error ?? "match_failed");
+        if (!res.ok || !json.top3) {
+          if (json.error === "scan_not_found") throw new Error(strings.errorScanExpired);
+          if (json.error === "no_pros") throw new Error(strings.errorNoPros);
+          throw new Error(strings.errorGeneric);
+        }
         setPros(json.top3);
         setCoords(json.coords ?? []);
         setSelected(json.top3[0]?.pro_id ?? null);

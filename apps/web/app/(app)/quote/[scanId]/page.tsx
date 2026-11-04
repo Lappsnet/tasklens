@@ -31,11 +31,11 @@ export default function QuotePage({ params }: { params: Promise<{ scanId: string
     try {
       const res = await fetch(`/api/scan?id=${encodeURIComponent(scanId)}`);
       const json = (await res.json()) as QuotePayload & { error?: string };
-      if (!res.ok) throw new Error("not_found");
+      if (!res.ok) throw new Error(json.error === "scan_not_found" ? strings.errorScanExpired : strings.errorGeneric);
       setData(json);
       setLang(json.lang === "es" ? "es" : "en");
-    } catch {
-      setError(strings.errorGeneric);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : strings.errorGeneric);
     }
   }
 
